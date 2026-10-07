@@ -1,0 +1,594 @@
+{
+  "_type": "Project",
+  "_id": "MWT_ARCH_PROJECT",
+  "name": "Mister World Tour Architecture",
+  "author": "so0",
+  "ownedElements": [
+    {
+      "_type": "UMLModel",
+      "_id": "MWT_ARCH_MODEL",
+      "_parent": {
+        "$ref": "MWT_ARCH_PROJECT"
+      },
+      "name": "Architecture",
+      "ownedElements": [
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_UI",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "User Interface",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_MEMBER",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "Member Management",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_TRAVEL",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "Travel Management",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_SOUVENIR",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "Souvenir Management",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_DATA",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "Data Access",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_SPEECH",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "Speech Recognition Integration",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLPackage",
+          "_id": "MWT_ARCH_SMS",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "SMS Notification",
+          "ownedElements": []
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_UI_MEMBER",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_UI"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_MEMBER"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_UI_TRAVEL",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_UI"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_TRAVEL"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_UI_SOUVENIR",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_UI"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_SOUVENIR"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_UI_SPEECH",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_UI"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_SPEECH"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_MEMBER_DATA",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_MEMBER"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_DATA"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_TRAVEL_DATA",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_TRAVEL"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_DATA"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_SOUVENIR_DATA",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_SOUVENIR"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_DATA"
+          }
+        },
+        {
+          "_type": "UMLDependency",
+          "_id": "MWT_ARCH_DEP_TRAVEL_SMS",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "source": {
+            "$ref": "MWT_ARCH_TRAVEL"
+          },
+          "target": {
+            "$ref": "MWT_ARCH_SMS"
+          }
+        },
+        {
+          "_type": "UMLPackageDiagram",
+          "_id": "MWT_ARCH_DIAGRAM",
+          "_parent": {
+            "$ref": "MWT_ARCH_MODEL"
+          },
+          "name": "MWT_ArchitectureDiagram",
+          "defaultDiagram": true,
+          "ownedViews": [
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_UI_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_UI"
+              },
+              "left": 360,
+              "top": 40,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_MEMBER_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "left": 60,
+              "top": 245,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_TRAVEL_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_TRAVEL"
+              },
+              "left": 660,
+              "top": 245,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_SOUVENIR_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_SOUVENIR"
+              },
+              "left": 360,
+              "top": 245,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_DATA_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DATA"
+              },
+              "left": 360,
+              "top": 490,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_SPEECH_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_SPEECH"
+              },
+              "left": 750,
+              "top": 40,
+              "width": 270,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLPackageView",
+              "_id": "MWT_ARCH_SMS_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_SMS"
+              },
+              "left": 660,
+              "top": 490,
+              "width": 220,
+              "height": 95,
+              "autoResize": false,
+              "wordWrap": true,
+              "stereotypeDisplay": "none",
+              "showVisibility": false,
+              "showNamespace": false,
+              "showProperty": false
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_UI_MEMBER_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_UI_MEMBER"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_UI_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_MEMBER_VIEW"
+              },
+              "points": "420:135;170:245",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_UI_TRAVEL_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_UI_TRAVEL"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_UI_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_TRAVEL_VIEW"
+              },
+              "points": "520:135;770:245",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_UI_SOUVENIR_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_UI_SOUVENIR"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_UI_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_SOUVENIR_VIEW"
+              },
+              "points": "470:135;470:245",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_UI_SPEECH_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_UI_SPEECH"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_UI_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_SPEECH_VIEW"
+              },
+              "points": "580:95;750:95",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_MEMBER_DATA_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_MEMBER_DATA"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_MEMBER_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_DATA_VIEW"
+              },
+              "points": "170:340;420:490",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_TRAVEL_DATA_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_TRAVEL_DATA"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_TRAVEL_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_DATA_VIEW"
+              },
+              "points": "770:340;520:490",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_SOUVENIR_DATA_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_SOUVENIR_DATA"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_SOUVENIR_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_DATA_VIEW"
+              },
+              "points": "470:340;470:490",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "MWT_ARCH_DEP_TRAVEL_SMS_VIEW",
+              "_parent": {
+                "$ref": "MWT_ARCH_DIAGRAM"
+              },
+              "visible": true,
+              "font": "Arial;16;0",
+              "lineColor": "#000000",
+              "fontColor": "#000000",
+              "fillColor": "#ffffff",
+              "showShadow": false,
+              "model": {
+                "$ref": "MWT_ARCH_DEP_TRAVEL_SMS"
+              },
+              "tail": {
+                "$ref": "MWT_ARCH_TRAVEL_VIEW"
+              },
+              "head": {
+                "$ref": "MWT_ARCH_SMS_VIEW"
+              },
+              "points": "800:340;800:490",
+              "lineStyle": 1,
+              "showProperty": false,
+              "showType": false,
+              "stereotypeDisplay": "none"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
