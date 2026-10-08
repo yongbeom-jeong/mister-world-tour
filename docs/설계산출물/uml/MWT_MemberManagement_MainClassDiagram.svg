@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1229" height="853" viewBox="46 36 1229 853">
+<title>4.1 Member Management Main Class Diagram</title>
+<desc>Three classes, one provided interface, three usage dependencies, one interface realization, and an external DataAccessAPI interface reference. Text and layout were verified by StarUML native rendering and its 59 official validation rules.</desc>
+<rect x="46" y="36" width="1229" height="853" fill="#fff"/>
+<defs>
+<marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker>
+<marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker>
+</defs>
+<path id="MWT_MM_REALIZES_API_VIEW" d="M395 299 L395 191" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#realization)"/>
+<path id="MWT_MM_DEP_MANAGER_MEMBER_VIEW" d="M395 416 L395 564" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path id="MWT_MM_DEP_MANAGER_SESSION_VIEW" d="M508 416 L650 490 L1050 490 L1050 594" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path id="MWT_MM_DEP_MANAGER_DATA_VIEW" d="M721 351 L849 349" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_UI_API_MemberManagementAPI"><title>MemberManagementAPI</title><rect x="70" y="60" width="650" height="130" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M70 104 H720" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_MM_CLASS_MemberManager"><title>MemberManager</title><rect x="70" y="300" width="650" height="115" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M70 328 H720" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M70 338 H720" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_MM_CLASS_Member"><title>Member</title><rect x="70" y="565" width="650" height="300" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M70 593 H720" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M70 727 H720" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_MM_CLASS_LoginSession"><title>LoginSession</title><rect x="850" y="595" width="400" height="170" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M850 623 H1250" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M850 667 H1250" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_DA_API_DataAccessAPI"><title>DataAccessAPI</title><rect x="850" y="295" width="400" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<text x="395.5" y="78.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="395.5" y="96.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberManagementAPI</text>
+<text x="75" y="122.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp(memberType, account, password, name, address, contact)</text>
+<text x="75" y="140.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn(loginInfo)</text>
+<text x="395.5" y="320.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberManager</text>
+<text x="75" y="356.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp(memberType, account, password, name, address, contact)</text>
+<text x="75" y="374.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn(loginInfo)</text>
+<text x="395.5" y="585.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">Member</text>
+<text x="75" y="611.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberId</text>
+<text x="75" y="629.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-account</text>
+<text x="75" y="647.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-passwordHash</text>
+<text x="75" y="665.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-name</text>
+<text x="75" y="683.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-address</text>
+<text x="75" y="701.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
+<text x="75" y="719.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-role</text>
+<text x="75" y="745.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+Member(account, passwordHash, name, address, contact, role)</text>
+<text x="75" y="763.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CheckPassword(password)</text>
+<text x="75" y="781.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+GetMemberId()</text>
+<text x="75" y="799.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+GetRole()</text>
+<text x="1050.5" y="615.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">LoginSession</text>
+<text x="855" y="641.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberId</text>
+<text x="855" y="659.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-role</text>
+<text x="855" y="685.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoginSession(memberId, role)</text>
+<text x="855" y="703.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+GetMemberId()</text>
+<text x="855" y="721.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+GetRole()</text>
+<text x="1050.5" y="313.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1050.5" y="331.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">DataAccessAPI</text>
+<text x="1050.5" y="349.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Data Access)</text>
+</svg>
