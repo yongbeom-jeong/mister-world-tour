@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1849" height="1428" viewBox="68 156 1849 1428">
 <title>3.1 User Interface - Main Class Diagram</title>
-<desc>Seven UI classes with 34 attributes and 22 operations; four subsystem interfaces; sixteen usage dependencies. Generated from the validated StarUML model.</desc>
+<desc>Seven UI classes with 35 attributes and 22 operations; four subsystem interfaces; sixteen usage dependencies. Generated from the validated StarUML model.</desc>
 <rect x="68" y="156" width="1849" height="1428" fill="#fff"/>
 <defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker></defs>
 <path id="MWT_UI_DEP_MemberView_TravelHistoryView_VIEW" d="M305 633 L309 743" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
@@ -25,7 +25,7 @@
 </g>
 <g id="MWT_UI_CLASS_MemberView"><title>MemberView</title><rect x="104" y="392" width="395" height="240" fill="#fff" stroke="#000" stroke-width="1.5"/>
 <path d="M104 420 H499" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M104 536 H499" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M104 554 H499" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
 <g id="MWT_UI_CLASS_TravelHistoryView"><title>TravelHistoryView</title><rect x="96" y="744" width="430" height="108" fill="#fff" stroke="#000" stroke-width="1.5"/>
 <path d="M96 772 H526" fill="none" stroke="#000" stroke-width="1.3"/>
@@ -62,12 +62,13 @@
 <text x="302" y="412.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberView</text>
 <text x="109" y="438.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberType</text>
 <text x="109" y="456.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-account</text>
-<text x="109" y="474.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-name</text>
-<text x="109" y="492.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-address</text>
-<text x="109" y="510.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
-<text x="109" y="528.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-loginInfo</text>
-<text x="109" y="554.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp()</text>
-<text x="109" y="572.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn()</text>
+<text x="109" y="474.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-password</text>
+<text x="109" y="492.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-name</text>
+<text x="109" y="510.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-address</text>
+<text x="109" y="528.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
+<text x="109" y="546.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-loginInfo</text>
+<text x="109" y="572.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp()</text>
+<text x="109" y="590.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn()</text>
 <text x="311.5" y="764.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelHistoryView</text>
 <text x="101" y="790.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-historyList</text>
 <text x="101" y="816.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ViewPreviousTravelHistory()</text>

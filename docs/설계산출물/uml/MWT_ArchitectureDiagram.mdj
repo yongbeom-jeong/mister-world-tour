@@ -209,6 +209,17 @@
                 },
                 {
                   "_type": "UMLAttribute",
+                  "_id": "MWT_UI_CLASS_MemberView_ATTR_password",
+                  "_parent": {
+                    "$ref": "MWT_UI_CLASS_MemberView"
+                  },
+                  "name": "password",
+                  "visibility": "private",
+                  "type": "String",
+                  "documentation": "자체 회원가입에 사용할 비밀번호 입력. Member Management가 저장 전에 해시로 변환한다."
+                },
+                {
+                  "_type": "UMLAttribute",
                   "_id": "MWT_UI_CLASS_MemberView_ATTR_name",
                   "_parent": {
                     "$ref": "MWT_UI_CLASS_MemberView"
@@ -1389,6 +1400,24 @@
                           "width": 386,
                           "height": 16,
                           "text": "-account: String",
+                          "horizontalAlignment": 0
+                        },
+                        {
+                          "_type": "UMLAttributeView",
+                          "_id": "MWT_UI_MEMBER_PASSWORD_ATTRIBUTE_VIEW",
+                          "_parent": {
+                            "$ref": "AAAAAAGhGWQdKjwYNw0="
+                          },
+                          "model": {
+                            "$ref": "MWT_UI_CLASS_MemberView_ATTR_password"
+                          },
+                          "font": "Arial;16;0",
+                          "parentStyle": true,
+                          "left": 109,
+                          "top": 443,
+                          "width": 386,
+                          "height": 16,
+                          "text": "-password",
                           "horizontalAlignment": 0
                         },
                         {
@@ -5706,7 +5735,934 @@
                 "$ref": "MWT_ARCH_MEMBER"
               },
               "name": "MemberManagementAPI",
-              "documentation": "명세용 제공 인터페이스. 구현 클래스 및 제공 연산은 해당 서브시스템 세부 설계에서 확정한다."
+              "documentation": "User Interface가 요청하는 자체 아이디·비밀번호 가입·로그인의 제공 계약. MemberManager가 실현한다.",
+              "operations": [
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp",
+                  "_parent": {
+                    "$ref": "MWT_UI_API_MemberManagementAPI"
+                  },
+                  "name": "SignUp",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_memberType",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "memberType",
+                      "type": "MemberType",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_account",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "account",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_password",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "password",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_name",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "name",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_address",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "address",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_PARAM_contact",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "contact",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_SignUp_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_SignUp"
+                      },
+                      "name": "",
+                      "type": "SignUpResult",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": ""
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_UI_API_MemberManagementAPI_OP_LogIn",
+                  "_parent": {
+                    "$ref": "MWT_UI_API_MemberManagementAPI"
+                  },
+                  "name": "LogIn",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_LogIn_PARAM_loginInfo",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_LogIn"
+                      },
+                      "name": "loginInfo",
+                      "type": "LoginCredentials",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_UI_API_MemberManagementAPI_OP_LogIn_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_UI_API_MemberManagementAPI_OP_LogIn"
+                      },
+                      "name": "",
+                      "type": "LoginResult",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": ""
+                }
+              ]
+            },
+            {
+              "_type": "UMLClass",
+              "_id": "MWT_MM_CLASS_MemberManager",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "name": "MemberManager",
+              "documentation": "가입·로그인 처리 순서를 관리하는 무상태 클래스. 계정 중복 확인·회원 저장·아이디 조회는 Data Access에 요청한다. MemberType을 Role에 대응시키며 가입 시 비밀번호 해시를 생성한다. 로그인에서 Member.CheckPassword() 호출에 성공하면 회원 식별값과 역할로 LoginSession을 생성하고 요청 사용자의 서버 세션에 보관한다. 고객 이력 팝업은 UI와 Travel Management가 처리한다.",
+              "attributes": [],
+              "operations": [
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_MemberManager"
+                  },
+                  "name": "SignUp",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_memberType",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "memberType",
+                      "type": "MemberType",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_account",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "account",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_password",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "password",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_name",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "name",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_address",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "address",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_PARAM_contact",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "contact",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_SignUp_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_SignUp"
+                      },
+                      "name": "",
+                      "type": "SignUpResult",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "필수 입력·회원 유형을 검증하고 아이디 중복을 확인한다. 비밀번호 해시와 역할로 Member를 구성하여 Data Access에 저장한다. 성공 여부, 안내 메시지, 수정할 입력 항목을 반환한다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_MemberManager_OP_LogIn",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_MemberManager"
+                  },
+                  "name": "LogIn",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_LogIn_PARAM_loginInfo",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_LogIn"
+                      },
+                      "name": "loginInfo",
+                      "type": "LoginCredentials",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_MemberManager_OP_LogIn_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_MemberManager_OP_LogIn"
+                      },
+                      "name": "",
+                      "type": "LoginResult",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "아이디로 저장된 Member를 조회하고 CheckPassword(password)를 호출한다. 성공 시 LoginSession을 생성하여 서버 프레임워크의 해당 사용자별 세션에 보관한다. 성공 여부·역할·안내 메시지를 반환하며 실패 시 역할은 없다."
+                }
+              ]
+            },
+            {
+              "_type": "UMLClass",
+              "_id": "MWT_MM_CLASS_Member",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "name": "Member",
+              "documentation": "고객·직원의 공통 회원 정보. 저장 전에는 memberId가 없을 수 있으며 로그인에서는 고유번호가 부여된 저장된 회원만 사용한다.",
+              "attributes": [
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_memberId",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "memberId",
+                  "visibility": "private",
+                  "type": "Integer",
+                  "multiplicity": "0..1",
+                  "documentation": "저장 전 미부여, Data Access 저장 후 부여되는 회원 고유번호."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_account",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "account",
+                  "visibility": "private",
+                  "type": "String",
+                  "multiplicity": "",
+                  "documentation": "로그인 아이디."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_passwordHash",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "passwordHash",
+                  "visibility": "private",
+                  "type": "String",
+                  "multiplicity": "",
+                  "documentation": "가입 시 생성한 비밀번호 해시. 원문 비밀번호를 보관하지 않는다."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_name",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "name",
+                  "visibility": "private",
+                  "type": "String",
+                  "multiplicity": "",
+                  "documentation": "성명."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_address",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "address",
+                  "visibility": "private",
+                  "type": "String",
+                  "multiplicity": "",
+                  "documentation": "주소."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_contact",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "contact",
+                  "visibility": "private",
+                  "type": "String",
+                  "multiplicity": "",
+                  "documentation": "연락처."
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_Member_ATTR_role",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "role",
+                  "visibility": "private",
+                  "type": "Role",
+                  "multiplicity": "",
+                  "documentation": "고객 또는 직원의 저장된 역할."
+                }
+              ],
+              "operations": [
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_Member_OP_Member",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "Member",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_account",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "account",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_passwordHash",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "passwordHash",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_name",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "name",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_address",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "address",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_contact",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "contact",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_Member_PARAM_role",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_Member"
+                      },
+                      "name": "role",
+                      "type": "Role",
+                      "direction": "in"
+                    }
+                  ],
+                  "documentation": "입력받은 정보로 신규 회원을 구성한다. memberId는 Data Access에 저장한 후 부여된다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_Member_OP_CheckPassword",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "CheckPassword",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_CheckPassword_PARAM_password",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_CheckPassword"
+                      },
+                      "name": "password",
+                      "type": "String",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_CheckPassword_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_CheckPassword"
+                      },
+                      "name": "",
+                      "type": "Boolean",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "저장된 해시의 비밀번호 처리 규칙으로 입력 비밀번호를 검증한다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_Member_OP_GetMemberId",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "GetMemberId",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_GetMemberId_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_GetMemberId"
+                      },
+                      "name": "",
+                      "type": "Integer",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "저장된 회원의 고유번호를 반환한다. 호출 전제: memberId가 부여된 회원이다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_Member_OP_GetRole",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "name": "GetRole",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_Member_OP_GetRole_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_Member_OP_GetRole"
+                      },
+                      "name": "",
+                      "type": "Role",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "저장된 고객·직원 역할을 반환한다."
+                }
+              ]
+            },
+            {
+              "_type": "UMLClass",
+              "_id": "MWT_MM_CLASS_LoginSession",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "name": "LoginSession",
+              "documentation": "인증에 성공한 회원의 고유번호와 역할을 유지한다. 로그인 성공 시에만 생성하며 서버 프레임워크의 사용자별 요청 세션에 보관·조회한다. MemberManager 전체의 공유 상태로 보관하지 않는다.",
+              "attributes": [
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_LoginSession_ATTR_memberId",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "name": "memberId",
+                  "visibility": "private",
+                  "type": "Integer"
+                },
+                {
+                  "_type": "UMLAttribute",
+                  "_id": "MWT_MM_CLASS_LoginSession_ATTR_role",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "name": "role",
+                  "visibility": "private",
+                  "type": "Role"
+                }
+              ],
+              "operations": [
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_LoginSession_OP_LoginSession",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "name": "LoginSession",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_LoginSession_OP_LoginSession_PARAM_memberId",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_LoginSession_OP_LoginSession"
+                      },
+                      "name": "memberId",
+                      "type": "Integer",
+                      "direction": "in"
+                    },
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_LoginSession_OP_LoginSession_PARAM_role",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_LoginSession_OP_LoginSession"
+                      },
+                      "name": "role",
+                      "type": "Role",
+                      "direction": "in"
+                    }
+                  ],
+                  "documentation": "인증된 저장 회원의 고유번호와 역할로 로그인 세션을 생성한다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_LoginSession_OP_GetMemberId",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "name": "GetMemberId",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_LoginSession_OP_GetMemberId_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_LoginSession_OP_GetMemberId"
+                      },
+                      "name": "",
+                      "type": "Integer",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "현재 인증된 회원의 고유번호를 반환한다."
+                },
+                {
+                  "_type": "UMLOperation",
+                  "_id": "MWT_MM_CLASS_LoginSession_OP_GetRole",
+                  "_parent": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "name": "GetRole",
+                  "visibility": "public",
+                  "parameters": [
+                    {
+                      "_type": "UMLParameter",
+                      "_id": "MWT_MM_CLASS_LoginSession_OP_GetRole_RETURN",
+                      "_parent": {
+                        "$ref": "MWT_MM_CLASS_LoginSession_OP_GetRole"
+                      },
+                      "name": "",
+                      "type": "Role",
+                      "direction": "return"
+                    }
+                  ],
+                  "documentation": "현재 인증된 회원의 역할을 반환한다."
+                }
+              ]
+            },
+            {
+              "_type": "UMLInterfaceRealization",
+              "_id": "MWT_MM_REALIZES_API",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "source": {
+                "$ref": "MWT_MM_CLASS_MemberManager"
+              },
+              "target": {
+                "$ref": "MWT_UI_API_MemberManagementAPI"
+              }
+            },
+            {
+              "_type": "UMLDependency",
+              "_id": "MWT_MM_DEP_MANAGER_MEMBER",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "source": {
+                "$ref": "MWT_MM_CLASS_MemberManager"
+              },
+              "target": {
+                "$ref": "MWT_MM_CLASS_Member"
+              }
+            },
+            {
+              "_type": "UMLDependency",
+              "_id": "MWT_MM_DEP_MANAGER_SESSION",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "source": {
+                "$ref": "MWT_MM_CLASS_MemberManager"
+              },
+              "target": {
+                "$ref": "MWT_MM_CLASS_LoginSession"
+              }
+            },
+            {
+              "_type": "UMLDependency",
+              "_id": "MWT_MM_DEP_MANAGER_DATA",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "source": {
+                "$ref": "MWT_MM_CLASS_MemberManager"
+              },
+              "target": {
+                "$ref": "MWT_DA_API_DataAccessAPI"
+              }
+            },
+            {
+              "_type": "UMLClassDiagram",
+              "_id": "MWT_MM_MAIN_DIAGRAM",
+              "_parent": {
+                "$ref": "MWT_ARCH_MEMBER"
+              },
+              "name": "MWT_MemberManagement_MainClassDiagram",
+              "documentation": "설계산출물 4.1 메인 클래스도. MemberManager, Member, LoginSession의 3개 클래스와 MemberManagementAPI 제공 인터페이스, Data Access 외부 참조.",
+              "ownedViews": [
+                {
+                  "_type": "UMLInterfaceView",
+                  "_id": "MWT_UI_API_MemberManagementAPI_MM_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_UI_API_MemberManagementAPI"
+                  },
+                  "left": 70,
+                  "top": 60,
+                  "width": 650,
+                  "height": 130,
+                  "autoResize": false,
+                  "wordWrap": false,
+                  "stereotypeDisplay": "label",
+                  "showVisibility": true,
+                  "showNamespace": false,
+                  "showProperty": false,
+                  "showType": false,
+                  "showMultiplicity": false,
+                  "showOperationSignature": true,
+                  "suppressAttributes": true,
+                  "suppressOperations": false,
+                  "suppressReceptions": true
+                },
+                {
+                  "_type": "UMLClassView",
+                  "_id": "MWT_MM_CLASS_MemberManager_MM_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_CLASS_MemberManager"
+                  },
+                  "left": 70,
+                  "top": 300,
+                  "width": 650,
+                  "height": 115,
+                  "autoResize": false,
+                  "wordWrap": false,
+                  "stereotypeDisplay": "none",
+                  "showVisibility": true,
+                  "showNamespace": false,
+                  "showProperty": false,
+                  "showType": false,
+                  "showMultiplicity": false,
+                  "showOperationSignature": true,
+                  "suppressAttributes": false,
+                  "suppressOperations": false,
+                  "suppressReceptions": true
+                },
+                {
+                  "_type": "UMLClassView",
+                  "_id": "MWT_MM_CLASS_Member_MM_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_CLASS_Member"
+                  },
+                  "left": 70,
+                  "top": 565,
+                  "width": 650,
+                  "height": 300,
+                  "autoResize": false,
+                  "wordWrap": false,
+                  "stereotypeDisplay": "none",
+                  "showVisibility": true,
+                  "showNamespace": false,
+                  "showProperty": false,
+                  "showType": false,
+                  "showMultiplicity": false,
+                  "showOperationSignature": true,
+                  "suppressAttributes": false,
+                  "suppressOperations": false,
+                  "suppressReceptions": true
+                },
+                {
+                  "_type": "UMLClassView",
+                  "_id": "MWT_MM_CLASS_LoginSession_MM_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_CLASS_LoginSession"
+                  },
+                  "left": 850,
+                  "top": 595,
+                  "width": 400,
+                  "height": 170,
+                  "autoResize": false,
+                  "wordWrap": false,
+                  "stereotypeDisplay": "none",
+                  "showVisibility": true,
+                  "showNamespace": false,
+                  "showProperty": false,
+                  "showType": false,
+                  "showMultiplicity": false,
+                  "showOperationSignature": true,
+                  "suppressAttributes": false,
+                  "suppressOperations": false,
+                  "suppressReceptions": true
+                },
+                {
+                  "_type": "UMLInterfaceView",
+                  "_id": "MWT_MM_DATA_ACCESS_API_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "model": {
+                    "$ref": "MWT_DA_API_DataAccessAPI"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "left": 850,
+                  "top": 295,
+                  "width": 400,
+                  "height": 100,
+                  "autoResize": false,
+                  "wordWrap": false,
+                  "stereotypeDisplay": "label",
+                  "showVisibility": false,
+                  "showNamespace": true,
+                  "showProperty": false,
+                  "showType": false,
+                  "showMultiplicity": false,
+                  "showOperationSignature": true,
+                  "suppressAttributes": true,
+                  "suppressOperations": true,
+                  "suppressReceptions": true
+                },
+                {
+                  "_type": "UMLInterfaceRealizationView",
+                  "_id": "MWT_MM_REALIZES_API_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_REALIZES_API"
+                  },
+                  "tail": {
+                    "$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
+                  },
+                  "head": {
+                    "$ref": "MWT_UI_API_MemberManagementAPI_MM_VIEW"
+                  },
+                  "points": "395:300;395:190",
+                  "lineStyle": 1,
+                  "showProperty": false,
+                  "showType": false,
+                  "stereotypeDisplay": "none"
+                },
+                {
+                  "_type": "UMLDependencyView",
+                  "_id": "MWT_MM_DEP_MANAGER_MEMBER_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_DEP_MANAGER_MEMBER"
+                  },
+                  "tail": {
+                    "$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
+                  },
+                  "head": {
+                    "$ref": "MWT_MM_CLASS_Member_MM_VIEW"
+                  },
+                  "points": "360:415;360:565",
+                  "lineStyle": 1,
+                  "showProperty": false,
+                  "showType": false,
+                  "stereotypeDisplay": "none"
+                },
+                {
+                  "_type": "UMLDependencyView",
+                  "_id": "MWT_MM_DEP_MANAGER_SESSION_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_DEP_MANAGER_SESSION"
+                  },
+                  "tail": {
+                    "$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
+                  },
+                  "head": {
+                    "$ref": "MWT_MM_CLASS_LoginSession_MM_VIEW"
+                  },
+                  "points": "650:415;650:490;1050:490;1050:595",
+                  "lineStyle": 1,
+                  "showProperty": false,
+                  "showType": false,
+                  "stereotypeDisplay": "none"
+                },
+                {
+                  "_type": "UMLDependencyView",
+                  "_id": "MWT_MM_DEP_MANAGER_DATA_VIEW",
+                  "_parent": {
+                    "$ref": "MWT_MM_MAIN_DIAGRAM"
+                  },
+                  "visible": true,
+                  "font": "Arial;16;0",
+                  "lineColor": "#000000",
+                  "fontColor": "#000000",
+                  "fillColor": "#ffffff",
+                  "showShadow": false,
+                  "model": {
+                    "$ref": "MWT_MM_DEP_MANAGER_DATA"
+                  },
+                  "tail": {
+                    "$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
+                  },
+                  "head": {
+                    "$ref": "MWT_MM_DATA_ACCESS_API_VIEW"
+                  },
+                  "points": "720:360;850:360",
+                  "lineStyle": 1,
+                  "showProperty": false,
+                  "showType": false,
+                  "stereotypeDisplay": "none"
+                }
+              ]
             }
           ]
         },
@@ -5754,7 +6710,19 @@
           "_parent": {
             "$ref": "MWT_ARCH_MODEL"
           },
-          "name": "Data Access"
+          "name": "Data Access",
+          "ownedElements": [
+            {
+              "_type": "UMLInterface",
+              "_id": "MWT_DA_API_DataAccessAPI",
+              "_parent": {
+                "$ref": "MWT_ARCH_DATA"
+              },
+              "name": "DataAccessAPI",
+              "operations": [],
+              "documentation": "Data Access의 제공 경계. Member Management에서 아이디 중복 확인, 회원 저장, 아이디로 회원 조회를 요청한다. 연산 이름·매개변수·반환형과 실현 클래스는 Data Access 세부 설계에서 정한다."
+            }
+          ]
         },
         {
           "_type": "UMLPackage",
