@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1385" height="862" viewBox="24 40 1385 862">
+<title>7.1 Data Access Main Class Diagram</title>
+<desc>Four internal classes, one provided interface, four usage dependencies, one interface realization, and an external Member class reference. Text and layout were verified by StarUML native rendering and its 59 official validation rules.</desc>
+<rect x="24" y="40" width="1385" height="862" fill="#fff"/>
+<defs>
+<marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker>
+<marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker>
+</defs>
+<path id="MWT_DA_REALIZES_API_VIEW" d="M969 519 L1063 519" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#realization)"/>
+<path id="MWT_DA_DEP_MEMBER_REPO_MEMBER_VIEW" d="M256 191 L255 145" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path id="AAAAAAGhG6KmVPsQpL0=" d="M647 518 L519 517" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path id="AAAAAAGhG6LOI/ss/oo=" d="M808 417 L808 256 L417 257" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path id="AAAAAAGhG6Lc4/tF1Cg=" d="M808 619 L808 808 L497 805" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_DA_API_DataAccessAPI"><title>DataAccessAPI</title><rect x="1064" y="480" width="320" height="80" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<g id="MWT_DA_CLASS_DataAccessManager"><title>DataAccessManager</title><rect x="648" y="418" width="320" height="200" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M648 446 H968" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_DA_CLASS_MemberRepository"><title>MemberRepository</title><rect x="96" y="192" width="320" height="130" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M96 220 H416" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_DA_CLASS_TravelRepository"><title>TravelRepository</title><rect x="48" y="352" width="470" height="330" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M48 380 H518" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_DA_CLASS_SouvenirRepository"><title>SouvenirRepository</title><rect x="56" y="728" width="440" height="150" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M56 756 H496" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_MM_CLASS_Member"><title>Member</title><rect x="120" y="64" width="270" height="80" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<text x="1224.5" y="498.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1224.5" y="516.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">DataAccessAPI</text>
+<text x="808.5" y="438.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">DataAccessManager</text>
+<text x="653" y="466.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveMember(member)</text>
+<text x="653" y="484.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindMemberByAccount(account)</text>
+<text x="653" y="502.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindProducts(filters)</text>
+<text x="653" y="520.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveProduct(product)</text>
+<text x="653" y="538.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveApplication(application, travelers)</text>
+<text x="653" y="556.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CountTravelers(productId)</text>
+<text x="653" y="574.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindTravelHistories(memberId)</text>
+<text x="653" y="592.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveStockReceipt(receipt)</text>
+<text x="256.5" y="212.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberRepository</text>
+<text x="101" y="238.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ExistsAccount(account)</text>
+<text x="101" y="256.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveMember(member)</text>
+<text x="101" y="274.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindMemberByAccount(account)</text>
+<text x="283.5" y="372.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelRepository</text>
+<text x="53" y="398.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindProducts(filters)</text>
+<text x="53" y="416.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindProduct(productId)</text>
+<text x="53" y="434.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveProduct(product)</text>
+<text x="53" y="452.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+UpdateProduct(product)</text>
+<text x="53" y="470.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+DeleteProduct(productId)</text>
+<text x="53" y="488.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+HasApplications(productId)</text>
+<text x="53" y="506.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveApplication(application, travelers)</text>
+<text x="53" y="524.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindApplicationByRequestKey(requestKey)</text>
+<text x="53" y="542.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindApplications(productId)</text>
+<text x="53" y="560.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CountTravelers(productId)</text>
+<text x="53" y="578.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveDepartureStatus(productId, departureStatus)</text>
+<text x="53" y="596.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindTravelHistories(memberId)</text>
+<text x="53" y="614.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveTravelHistory(history)</text>
+<text x="53" y="632.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RunTravelTransaction(productId, work)</text>
+<text x="276.5" y="748.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SouvenirRepository</text>
+<text x="61" y="774.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindSouvenirs()</text>
+<text x="61" y="792.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindSouvenir(souvenirId)</text>
+<text x="61" y="810.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SaveStockReceipt(receipt)</text>
+<text x="61" y="828.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+FindStockReceiptByRequestKey(requestKey)</text>
+<text x="255.5" y="84.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">Member</text>
+<text x="255.5" y="102.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Member Management)</text>
+</svg>
