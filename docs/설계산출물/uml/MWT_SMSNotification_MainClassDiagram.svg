@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1171" height="843" viewBox="64 16 1171 843">
+<title>MWT_SMSNotification_MainClassDiagram</title>
+<desc>Class diagram rendered from the native StarUML model. Types and multiplicities remain in the editable model.</desc>
+<rect x="64" y="16" width="1171" height="843" fill="#fff"/>
+<defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker><marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker></defs>
+<path d="M672 280 L672 160" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#realization)"/>
+<path d="M400 385 L400 560" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M848 385 L848 535" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_SMS_API_SMSNotificationAPI"><rect x="360" y="40" width="650" height="120" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M360 84 H1010" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SMS_CLASS_SMSNotificationManager"><rect x="360" y="280" width="650" height="105" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M360 308 H1010" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SMS_CLASS_SMSServiceClient"><rect x="88" y="560" width="420" height="105" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M88 588 H508" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SMS_CLASS_SMSMessage"><rect x="660" y="535" width="550" height="300" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M660 563 H1210" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M660 697 H1210" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<text x="685.5" y="58.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="685.5" y="76.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SMSNotificationAPI</text>
+<text x="365" y="102.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SendDepartureConfirmation(recipients, notice)</text>
+<text x="685.5" y="300.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SMSNotificationManager</text>
+<text x="365" y="326.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SendDepartureConfirmation(recipients, notice)</text>
+<text x="298.5" y="580.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SMSServiceClient</text>
+<text x="93" y="606.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SendSMS(contact, message)</text>
+<text x="935.5" y="555.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SMSMessage</text>
+<text x="665" y="581.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberId</text>
+<text x="665" y="599.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
+<text x="665" y="617.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-message</text>
+<text x="665" y="635.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-status</text>
+<text x="665" y="653.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-attemptCount</text>
+<text x="665" y="671.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-lastError</text>
+<text x="665" y="689.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-serviceRequestId</text>
+<text x="665" y="715.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SMSMessage(recipient, message)</text>
+<text x="665" y="733.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RecordResult(result)</text>
+<text x="665" y="751.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CanRetry()</text>
+</svg>

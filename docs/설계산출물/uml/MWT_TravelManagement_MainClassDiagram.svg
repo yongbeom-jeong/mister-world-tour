@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2097" height="918" viewBox="16 24 2097 918">
+<title>MWT_TravelManagement_MainClassDiagram</title>
+<desc>Class diagram rendered from the native StarUML model. Types and multiplicities remain in the editable model.</desc>
+<rect x="16" y="24" width="2097" height="918" fill="#fff"/>
+<defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker><marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker></defs>
+<path d="M1152 288 L1152 205" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#realization)"/>
+<path d="M970 498 L970 632" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M832 288 L832 136 L637 136" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1384 498 L1384 560 L1488 560" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M631 752 L776 752" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#dependency)"/>
+<path d="M1488 744 L1376 744" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#dependency)"/>
+<path d="M324 239 L318 287" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1465 298 L1568 269" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1465 376 L1559 372" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M783 401 L561 407" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M885 499 L632 611" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_UI_API_TravelManagementAPI"><rect x="960" y="120" width="380" height="85" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<g id="MWT_TM_CLASS_TravelManager"><rect x="784" y="288" width="680" height="210" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M784 316 H1464" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_TM_CLASS_TravelProduct"><rect x="40" y="568" width="591" height="350" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M40 596 H631" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M40 784 H631" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_TM_CLASS_TravelConfiguration"><rect x="776" y="632" width="600" height="280" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M776 660 H1376" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M776 794 H1376" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_TM_CLASS_TravelPriceCalculator"><rect x="40" y="48" width="597" height="190" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M40 76 H637" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M40 102 H637" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_TM_CLASS_TravelApplication"><rect x="1488" y="512" width="600" height="390" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1488 540 H2088" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M1488 710 H2088" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_TM_CLASS_TravelHistory"><rect x="40" y="288" width="520" height="250" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M40 316 H560" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M40 486 H560" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_DA_API_DataAccessAPI"><rect x="1560" y="168" width="380" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<g id="MWT_SMS_API_SMSNotificationAPI"><rect x="1560" y="312" width="400" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+</g>
+<text x="1150.5" y="138.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1150.5" y="156.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelManagementAPI</text>
+<text x="1124.5" y="308.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelManager</text>
+<text x="789" y="334.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ViewPreviousTravelHistory()</text>
+<text x="789" y="352.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadProducts(theme, level)</text>
+<text x="789" y="370.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectProduct(productId)</text>
+<text x="789" y="388.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ConfigureTravelProduct(productId, configuration, optionChanges)</text>
+<text x="789" y="406.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ReviewApplication(productId, configuration, travelers)</text>
+<text x="789" y="424.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SubmitTravelApplication(productId, configuration, travelers, requestKey)</text>
+<text x="789" y="442.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RegisterTourProduct(productName, theme, level, basePrice, travelPeriod, departureDate)</text>
+<text x="336" y="588.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelProduct</text>
+<text x="45" y="614.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productId</text>
+<text x="45" y="632.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productName</text>
+<text x="45" y="650.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-theme</text>
+<text x="45" y="668.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-tourLevel</text>
+<text x="45" y="686.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-basePrice</text>
+<text x="45" y="704.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelPeriod</text>
+<text x="45" y="722.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureDate</text>
+<text x="45" y="740.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-defaultConfiguration</text>
+<text x="45" y="758.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-capacity</text>
+<text x="45" y="776.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureStatus</text>
+<text x="45" y="802.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ValidateProduct()</text>
+<text x="45" y="820.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ValidateApplicationCapacity(currentTravelerCount, requestedTravelerCount)</text>
+<text x="45" y="838.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+UpdateDepartureStatus(totalTravelerCount)</text>
+<text x="1076.5" y="652.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelConfiguration</text>
+<text x="781" y="678.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-themeService</text>
+<text x="781" y="696.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-souvenirId</text>
+<text x="781" y="714.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-souvenir</text>
+<text x="781" y="732.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-hotelLevel</text>
+<text x="781" y="750.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-transport</text>
+<text x="781" y="768.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-meal</text>
+<text x="781" y="786.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-drinks</text>
+<text x="781" y="812.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+TravelConfiguration(theme, level, souvenirId)</text>
+<text x="781" y="830.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ApplyChanges(optionChanges)</text>
+<text x="781" y="848.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ValidateConfiguration(theme, level)</text>
+<text x="339" y="68.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelPriceCalculator</text>
+<text x="45" y="94.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-optionPriceTable</text>
+<text x="45" y="120.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CalculateUnitPrice(product, configuration)</text>
+<text x="45" y="138.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+IsRegularCustomer(histories, applicationDate)</text>
+<text x="45" y="156.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+CalculateApplicationPrice(unitPrice, travelerCount, histories, applicationDate)</text>
+<text x="1788.5" y="532.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelApplication</text>
+<text x="1493" y="558.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-applicationId</text>
+<text x="1493" y="576.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberId</text>
+<text x="1493" y="594.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productId</text>
+<text x="1493" y="612.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-configuration</text>
+<text x="1493" y="630.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelers</text>
+<text x="1493" y="648.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-finalAmount</text>
+<text x="1493" y="666.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-requestKey</text>
+<text x="1493" y="684.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-submittedAt</text>
+<text x="1493" y="702.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureStatus</text>
+<text x="1493" y="728.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ValidateTravelers(theme)</text>
+<text x="1493" y="746.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+GetTravelerCount()</text>
+<text x="1493" y="764.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ConfirmHoneymoonDeparture()</text>
+<text x="300.5" y="308.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelHistory</text>
+<text x="45" y="334.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-historyId</text>
+<text x="45" y="352.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberId</text>
+<text x="45" y="370.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-completedTravelId</text>
+<text x="45" y="388.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productName</text>
+<text x="45" y="406.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelPeriod</text>
+<text x="45" y="424.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-tourLevel</text>
+<text x="45" y="442.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-price</text>
+<text x="45" y="460.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-completed</text>
+<text x="45" y="478.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-completedAt</text>
+<text x="45" y="504.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+IsCompletedWithinThreeYears(applicationDate)</text>
+<text x="1750.5" y="186.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1750.5" y="204.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">DataAccessAPI</text>
+<text x="1750.5" y="222.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Data Access)</text>
+<text x="1760.5" y="330.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1760.5" y="348.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SMSNotificationAPI</text>
+<text x="1760.5" y="366.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from SMS Notification)</text>
+<text x="652.756" y="769.05" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#000000">0..*</text>
+<text x="754.615" y="769.05" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#000000">1</text>
+<text x="1466.756" y="736.05" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#000000">0..*</text>
+<text x="1397.615" y="736.05" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="normal" font-style="normal" fill="#000000">1</text>
+</svg>

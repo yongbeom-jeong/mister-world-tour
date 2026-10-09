@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1095" height="658" viewBox="88 16 1095 658">
+<title>MWT_SpeechRecognition_MainClassDiagram</title>
+<desc>Class diagram rendered from the native StarUML model. Types and multiplicities remain in the editable model.</desc>
+<rect x="88" y="16" width="1095" height="658" fill="#fff"/>
+<defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker><marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker></defs>
+<path d="M608 280 L608 160" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#realization)"/>
+<path d="M448 385 L448 545" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M750 385 L750 545" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_UI_API_SpeechRecognitionAPI"><rect x="360" y="40" width="520" height="120" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M360 84 H880" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SR_CLASS_SpeechRecognitionManager"><rect x="360" y="280" width="520" height="105" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M360 308 H880" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SR_CLASS_SpeechServiceClient"><rect x="112" y="545" width="420" height="105" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M112 573 H532" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<g id="MWT_SR_CLASS_VoiceSelectionInterpreter"><rect x="608" y="545" width="550" height="105" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M608 573 H1158" fill="none" stroke="#000" stroke-width="1.3"/>
+</g>
+<text x="620.5" y="58.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="620.5" y="76.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SpeechRecognitionAPI</text>
+<text x="365" y="102.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RecognizeSelection(voiceInput, context)</text>
+<text x="620.5" y="300.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SpeechRecognitionManager</text>
+<text x="365" y="326.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RecognizeSelection(voiceInput, context)</text>
+<text x="322.5" y="565.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SpeechServiceClient</text>
+<text x="117" y="591.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+Recognize(voiceInput)</text>
+<text x="883.5" y="565.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">VoiceSelectionInterpreter</text>
+<text x="613" y="591.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+InterpretSelection(recognizedText, context)</text>
+</svg>
