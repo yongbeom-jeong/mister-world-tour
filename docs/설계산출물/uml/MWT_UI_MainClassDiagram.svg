@@ -1,134 +1,133 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1849" height="1428" viewBox="68 156 1849 1428">
-<title>3.1 User Interface - Main Class Diagram</title>
-<desc>Seven UI classes with 35 attributes and 22 operations; four subsystem interfaces; sixteen usage dependencies. Generated from the validated StarUML model.</desc>
-<rect x="68" y="156" width="1849" height="1428" fill="#fff"/>
-<defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker></defs>
-<path id="MWT_UI_DEP_MemberView_TravelHistoryView_VIEW" d="M305 633 L309 743" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="MWT_UI_DEP_MemberView_MemberManagementAPI_VIEW" d="M300 391 L299 309" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="MWT_UI_DEP_TravelProductView_TravelManagementAPI_VIEW" d="M1821 736 L1896 736 L1896 1512 L1101 1514" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="MWT_UI_DEP_TravelApplicationView_TravelManagementAPI_VIEW" d="M1299 1231 L931 1463" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="MWT_UI_DEP_SouvenirStockView_SouvenirManagementAPI_VIEW" d="M886 343 L887 277" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="MWT_UI_DEP_TravelProductView_SpeechRecognitionAPI_VIEW" d="M1535 591 L1538 493" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWXWHT5Qc+c=" d="M1063 730 L1239 732" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWYI0z5pSTw=" d="M998 795 L1287 967" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWY6gj6CTQw=" d="M887 663 L886 563" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWdULD6b/cM=" d="M711 750 L527 772" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWeaIz63V0U=" d="M873 795 L845 919" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWewkz7QXnU=" d="M711 664 L500 586" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWicFD8EDys=" d="M500 586 L711 664" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWlaTD8pP9E=" d="M828 1359 L843 1463" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWm8Yz9E9Ew=" d="M1522 877 L1517 967" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<path id="AAAAAAGhGWpYUD9h6dM=" d="M314 853 L344 1496 L599 1505" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
-<g id="MWT_UI_CLASS_MainView"><title>MainView</title><rect x="712" y="664" width="350" height="130" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M712 692 H1062" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M712 718 H1062" fill="none" stroke="#000" stroke-width="1.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1417" height="1340" viewBox="56 32 1417 1340">
+<title>MWT_UI_MainClassDiagram</title>
+<desc>Class diagram rendered from the native StarUML model. Types and multiplicities remain in the editable model.</desc>
+<rect x="56" y="32" width="1417" height="1340" fill="#fff"/>
+<defs><marker id="dependency" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto-start-reverse"><path d="M1 1 L12 7 L1 13" fill="none" stroke="#000" stroke-width="1.5"/></marker><marker id="realization" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto"><path d="M1 1 L18 10 L1 19 Z" fill="#fff" stroke="#000" stroke-width="1.5"/></marker></defs>
+<path d="M228 457 L230 527" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M220 231 L218 157" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1369 403 L1448 424 L1424 1288 L889 1296" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1159 777 L1008 1160 L821 1247" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M724 231 L724 165" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1202 239 L1201 165" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M838 551 L1039 446" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M887 634 L1031 648" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M714 551 L719 433" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M535 604 L361 591" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M711 683 L711 783" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M593 551 L321 398" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-start="url(#dependency)" marker-end="url(#dependency)"/>
+<path d="M712 1161 L712 1247" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M1204 481 L1204 551" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<path d="M233 637 L248 1304 L535 1300" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#dependency)"/>
+<g id="MWT_UI_CLASS_MainView"><rect x="536" y="552" width="350" height="130" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M536 580 H886" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M536 606 H886" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_MemberView"><title>MemberView</title><rect x="104" y="392" width="395" height="240" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M104 420 H499" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M104 554 H499" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_MemberView"><rect x="128" y="232" width="192" height="224" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M128 260 H320" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M128 394 H320" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_TravelHistoryView"><title>TravelHistoryView</title><rect x="96" y="744" width="430" height="108" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M96 772 H526" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M96 798 H526" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_TravelHistoryView"><rect x="104" y="528" width="256" height="108" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M104 556 H360" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M104 582 H360" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_TravelProductView"><title>TravelProductView</title><rect x="1240" y="592" width="580" height="284" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M1240 620 H1820" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M1240 736 H1820" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_TravelProductView"><rect x="1040" y="240" width="328" height="240" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1040 268 H1368" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M1040 384 H1368" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_TravelApplicationView"><title>TravelApplicationView</title><rect x="1184" y="968" width="650" height="262" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M1184 996 H1834" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M1184 1112 H1834" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_TravelApplicationView"><rect x="1032" y="552" width="344" height="224" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1032 580 H1376" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M1032 696 H1376" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_TourProductAdminView"><title>TourProductAdminView</title><rect x="520" y="920" width="555" height="438" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M520 948 H1075" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M520 1136 H1075" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_TourProductAdminView"><rect x="552" y="784" width="320" height="376" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M552 812 H872" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M552 1000 H872" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_CLASS_SouvenirStockView"><title>SouvenirStockView</title><rect x="680" y="344" width="410" height="218" fill="#fff" stroke="#000" stroke-width="1.5"/>
-<path d="M680 372 H1090" fill="none" stroke="#000" stroke-width="1.3"/>
-<path d="M680 452 H1090" fill="none" stroke="#000" stroke-width="1.3"/>
+<g id="MWT_UI_CLASS_SouvenirStockView"><rect x="584" y="232" width="280" height="200" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M584 260 H864" fill="none" stroke="#000" stroke-width="1.3"/>
+<path d="M584 340 H864" fill="none" stroke="#000" stroke-width="1.3"/>
 </g>
-<g id="MWT_UI_API_MemberManagementAPI"><title>MemberManagementAPI</title><rect x="88" y="208" width="420" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<g id="MWT_UI_API_MemberManagementAPI"><rect x="80" y="56" width="272" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
 </g>
-<g id="MWT_UI_API_SpeechRecognitionAPI"><title>SpeechRecognitionAPI</title><rect x="1240" y="392" width="600" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<g id="MWT_UI_API_SpeechRecognitionAPI"><rect x="1024" y="64" width="352" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
 </g>
-<g id="MWT_UI_API_SouvenirManagementAPI"><title>SouvenirManagementAPI</title><rect x="672" y="176" width="430" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<g id="MWT_UI_API_SouvenirManagementAPI"><rect x="544" y="64" width="360" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
 </g>
-<g id="MWT_UI_API_TravelManagementAPI"><title>TravelManagementAPI</title><rect x="600" y="1464" width="500" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<g id="MWT_UI_API_TravelManagementAPI"><rect x="536" y="1248" width="352" height="100" fill="#fff" stroke="#000" stroke-width="1.5"/>
 </g>
-<text x="887.5" y="684.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MainView</text>
-<text x="717" y="710.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentRole</text>
-<text x="717" y="736.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowHome(role)</text>
-<text x="717" y="754.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+OpenView(viewName)</text>
-<text x="302" y="412.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberView</text>
-<text x="109" y="438.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberType</text>
-<text x="109" y="456.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-account</text>
-<text x="109" y="474.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-password</text>
-<text x="109" y="492.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-name</text>
-<text x="109" y="510.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-address</text>
-<text x="109" y="528.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
-<text x="109" y="546.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-loginInfo</text>
-<text x="109" y="572.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp()</text>
-<text x="109" y="590.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn()</text>
-<text x="311.5" y="764.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelHistoryView</text>
-<text x="101" y="790.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-historyList</text>
-<text x="101" y="816.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ViewPreviousTravelHistory()</text>
-<text x="1530.5" y="612.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelProductView</text>
-<text x="1245" y="638.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedTheme</text>
-<text x="1245" y="656.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedLevel</text>
-<text x="1245" y="674.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
-<text x="1245" y="692.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productList</text>
-<text x="1245" y="710.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentConfiguration</text>
-<text x="1245" y="728.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentPrice</text>
-<text x="1245" y="754.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadProducts(theme, level)</text>
-<text x="1245" y="772.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectProduct(product)</text>
-<text x="1245" y="790.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ConfigureTravelProduct(optionChanges)</text>
-<text x="1245" y="808.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectByVoice(voiceInput)</text>
-<text x="1509.5" y="988.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelApplicationView</text>
-<text x="1189" y="1014.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
-<text x="1189" y="1032.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentConfiguration</text>
-<text x="1189" y="1050.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelerList</text>
-<text x="1189" y="1068.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-finalAmount</text>
-<text x="1189" y="1086.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-applicationResult</text>
-<text x="1189" y="1104.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureStatus</text>
-<text x="1189" y="1130.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowApplication(product, configuration)</text>
-<text x="1189" y="1148.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ReviewApplication()</text>
-<text x="1189" y="1166.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SubmitTravelApplication()</text>
-<text x="798" y="940.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TourProductAdminView</text>
-<text x="525" y="966.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productList</text>
-<text x="525" y="984.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
-<text x="525" y="1002.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productName</text>
-<text x="525" y="1020.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-theme</text>
-<text x="525" y="1038.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-tourLevel</text>
-<text x="525" y="1056.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-basePrice</text>
-<text x="525" y="1074.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelPeriod</text>
-<text x="525" y="1092.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureDate</text>
-<text x="525" y="1110.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-defaultConfiguration</text>
-<text x="525" y="1128.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-resultMessage</text>
-<text x="525" y="1154.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowRegistration()</text>
-<text x="525" y="1172.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ManageTourProduct()</text>
-<text x="525" y="1190.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectProduct(product)</text>
-<text x="525" y="1208.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadDefaultConfiguration(theme, level)</text>
-<text x="525" y="1226.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RegisterTourProduct()</text>
-<text x="525" y="1244.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ModifyTourProduct()</text>
-<text x="525" y="1262.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+DeleteTourProduct()</text>
-<text x="885.5" y="364.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SouvenirStockView</text>
-<text x="685" y="390.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-souvenirList</text>
-<text x="685" y="408.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedSouvenir</text>
-<text x="685" y="426.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-receiptQuantity</text>
-<text x="685" y="444.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-resultMessage</text>
-<text x="685" y="470.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadSouvenirs()</text>
-<text x="685" y="488.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectSouvenir(souvenir)</text>
-<text x="685" y="506.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RecordSouvenirStockReceipt()</text>
-<text x="298.5" y="226.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
-<text x="298.5" y="244.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberManagementAPI</text>
-<text x="298.5" y="262.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Member Management)</text>
-<text x="1540.5" y="410.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
-<text x="1540.5" y="428.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SpeechRecognitionAPI</text>
-<text x="1540.5" y="446.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Speech Recognition Integration)</text>
-<text x="887.5" y="194.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
-<text x="887.5" y="212.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SouvenirManagementAPI</text>
-<text x="887.5" y="230.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Souvenir Management)</text>
-<text x="850.5" y="1482.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
-<text x="850.5" y="1500.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelManagementAPI</text>
-<text x="850.5" y="1518.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Travel Management)</text>
+<text x="711.5" y="572.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MainView</text>
+<text x="541" y="598.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentRole</text>
+<text x="541" y="624.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowHome(role)</text>
+<text x="541" y="642.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+OpenView(viewName)</text>
+<text x="224.5" y="252.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberView</text>
+<text x="133" y="278.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-memberType</text>
+<text x="133" y="296.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-account</text>
+<text x="133" y="314.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-password</text>
+<text x="133" y="332.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-name</text>
+<text x="133" y="350.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-address</text>
+<text x="133" y="368.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-contact</text>
+<text x="133" y="386.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-loginInfo</text>
+<text x="133" y="412.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SignUp()</text>
+<text x="133" y="430.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LogIn()</text>
+<text x="232.5" y="548.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelHistoryView</text>
+<text x="109" y="574.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-historyList</text>
+<text x="109" y="600.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ViewPreviousTravelHistory()</text>
+<text x="1204.5" y="260.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelProductView</text>
+<text x="1045" y="286.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedTheme</text>
+<text x="1045" y="304.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedLevel</text>
+<text x="1045" y="322.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
+<text x="1045" y="340.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productList</text>
+<text x="1045" y="358.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentConfiguration</text>
+<text x="1045" y="376.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentPrice</text>
+<text x="1045" y="402.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadProducts(theme, level)</text>
+<text x="1045" y="420.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectProduct(product)</text>
+<text x="1045" y="438.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ConfigureTravelProduct(optionChanges)</text>
+<text x="1045" y="456.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectByVoice(voiceInput)</text>
+<text x="1204.5" y="572.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelApplicationView</text>
+<text x="1037" y="598.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
+<text x="1037" y="616.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-currentConfiguration</text>
+<text x="1037" y="634.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelerList</text>
+<text x="1037" y="652.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-finalAmount</text>
+<text x="1037" y="670.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-applicationResult</text>
+<text x="1037" y="688.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureStatus</text>
+<text x="1037" y="714.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowApplication(product, configuration)</text>
+<text x="1037" y="732.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ReviewApplication()</text>
+<text x="1037" y="750.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SubmitTravelApplication()</text>
+<text x="712.5" y="804.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TourProductAdminView</text>
+<text x="557" y="830.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productList</text>
+<text x="557" y="848.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedProduct</text>
+<text x="557" y="866.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-productName</text>
+<text x="557" y="884.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-theme</text>
+<text x="557" y="902.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-tourLevel</text>
+<text x="557" y="920.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-basePrice</text>
+<text x="557" y="938.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-travelPeriod</text>
+<text x="557" y="956.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-departureDate</text>
+<text x="557" y="974.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-defaultConfiguration</text>
+<text x="557" y="992.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-resultMessage</text>
+<text x="557" y="1018.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ShowRegistration()</text>
+<text x="557" y="1036.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ManageTourProduct()</text>
+<text x="557" y="1054.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectProduct(product)</text>
+<text x="557" y="1072.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadDefaultConfiguration(theme, level)</text>
+<text x="557" y="1090.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RegisterTourProduct()</text>
+<text x="557" y="1108.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+ModifyTourProduct()</text>
+<text x="557" y="1126.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+DeleteTourProduct()</text>
+<text x="724.5" y="252.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SouvenirStockView</text>
+<text x="589" y="278.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-souvenirList</text>
+<text x="589" y="296.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-selectedSouvenir</text>
+<text x="589" y="314.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-receiptQuantity</text>
+<text x="589" y="332.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">-resultMessage</text>
+<text x="589" y="358.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+LoadSouvenirs()</text>
+<text x="589" y="376.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+SelectSouvenir(souvenir)</text>
+<text x="589" y="394.6" text-anchor="start" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">+RecordSouvenirStockReceipt()</text>
+<text x="216.5" y="74.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="216.5" y="92.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">MemberManagementAPI</text>
+<text x="216.5" y="110.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Member Management)</text>
+<text x="1200.5" y="82.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="1200.5" y="100.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SpeechRecognitionAPI</text>
+<text x="1200.5" y="118.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Speech Recognition Integration)</text>
+<text x="724.5" y="82.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="724.5" y="100.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">SouvenirManagementAPI</text>
+<text x="724.5" y="118.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Souvenir Management)</text>
+<text x="712.5" y="1266.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">«interface»</text>
+<text x="712.5" y="1284.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" font-style="normal" fill="#000000">TravelManagementAPI</text>
+<text x="712.5" y="1302.6" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="normal" font-style="normal" fill="#000000">(from Travel Management)</text>
 </svg>
