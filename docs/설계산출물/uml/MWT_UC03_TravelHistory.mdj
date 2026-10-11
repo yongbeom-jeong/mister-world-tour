@@ -1,0 +1,2849 @@
+{
+	"_type": "Project",
+	"_id": "UC03_PROJECT",
+	"name": "Mister World Tour UC03 View Previous Travel History",
+	"ownedElements": [
+		{
+			"_type": "UMLModel",
+			"_id": "UC03_MODEL",
+			"_parent": {
+				"$ref": "UC03_PROJECT"
+			},
+			"name": "MWT-UC03 Design",
+			"ownedElements": [
+				{
+					"_type": "UMLClass",
+					"_id": "UC03_CLASS_DataAccessManager",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "DataAccessManager",
+					"documentation": "Reference 07: class subset used by this sequence; no invented public operation.",
+					"operations": [
+						{
+							"_type": "UMLOperation",
+							"_id": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories",
+							"_parent": {
+								"$ref": "UC03_CLASS_DataAccessManager"
+							},
+							"name": "FindTravelHistories",
+							"documentation": "Reference 07, TravelRepository, line 62. UI operations have no separately declared return value.",
+							"parameters": [
+								{
+									"_type": "UMLParameter",
+									"_id": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories_P_0",
+									"_parent": {
+										"$ref": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories"
+									},
+									"name": "memberId",
+									"type": "Integer"
+								},
+								{
+									"_type": "UMLParameter",
+									"_id": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories_RETURN",
+									"_parent": {
+										"$ref": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories"
+									},
+									"type": "List<TravelHistoryData>",
+									"direction": "return"
+								}
+							]
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "UC03_CLASS_LoginSession",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "LoginSession",
+					"documentation": "Reference 04: class subset used by this sequence; no invented public operation.",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_LoginSession_ATTR_memberId",
+							"_parent": {
+								"$ref": "UC03_CLASS_LoginSession"
+							},
+							"name": "memberId",
+							"visibility": "private",
+							"type": "Integer"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_LoginSession_ATTR_role",
+							"_parent": {
+								"$ref": "UC03_CLASS_LoginSession"
+							},
+							"name": "role",
+							"visibility": "private",
+							"type": "Role"
+						}
+					],
+					"operations": [
+						{
+							"_type": "UMLOperation",
+							"_id": "UC03_CLASS_LoginSession_OP_GetMemberId",
+							"_parent": {
+								"$ref": "UC03_CLASS_LoginSession"
+							},
+							"name": "GetMemberId",
+							"documentation": "Reference 04, LoginSession, line 56. UI operations have no separately declared return value.",
+							"parameters": [
+								{
+									"_type": "UMLParameter",
+									"_id": "UC03_CLASS_LoginSession_OP_GetMemberId_RETURN",
+									"_parent": {
+										"$ref": "UC03_CLASS_LoginSession_OP_GetMemberId"
+									},
+									"type": "Integer",
+									"direction": "return"
+								}
+							]
+						},
+						{
+							"_type": "UMLOperation",
+							"_id": "UC03_CLASS_LoginSession_OP_GetRole",
+							"_parent": {
+								"$ref": "UC03_CLASS_LoginSession"
+							},
+							"name": "GetRole",
+							"documentation": "Reference 04, LoginSession, line 57. UI operations have no separately declared return value.",
+							"parameters": [
+								{
+									"_type": "UMLParameter",
+									"_id": "UC03_CLASS_LoginSession_OP_GetRole_RETURN",
+									"_parent": {
+										"$ref": "UC03_CLASS_LoginSession_OP_GetRole"
+									},
+									"type": "Role",
+									"direction": "return"
+								}
+							]
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "UC03_CLASS_TravelHistory",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "TravelHistory",
+					"documentation": "Reference 05: class subset used by this sequence; no invented public operation.",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_historyId",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "historyId",
+							"visibility": "private",
+							"type": "Integer"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_memberId",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "memberId",
+							"visibility": "private",
+							"type": "Integer"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_completedTravelId",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "completedTravelId",
+							"visibility": "private",
+							"type": "String"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_productName",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "productName",
+							"visibility": "private",
+							"type": "String"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_travelPeriod",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "travelPeriod",
+							"visibility": "private",
+							"type": "TravelPeriod"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_tourLevel",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "tourLevel",
+							"visibility": "private",
+							"type": "TourLevel"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_price",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "price",
+							"visibility": "private",
+							"type": "Money"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_completed",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "completed",
+							"visibility": "private",
+							"type": "Boolean"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistory_ATTR_completedAt",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistory"
+							},
+							"name": "completedAt",
+							"visibility": "private",
+							"type": "Date",
+							"multiplicity": "0..1"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "UC03_CLASS_TravelHistoryView",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "TravelHistoryView",
+					"documentation": "Reference 03: class subset used by this sequence; no invented public operation.",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_CLASS_TravelHistoryView_ATTR_historyList",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistoryView"
+							},
+							"name": "historyList",
+							"visibility": "private",
+							"type": "List<TravelHistory>"
+						}
+					],
+					"operations": [
+						{
+							"_type": "UMLOperation",
+							"_id": "UC03_CLASS_TravelHistoryView_OP_ViewPreviousTravelHistory",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelHistoryView"
+							},
+							"name": "OpenView(TravelHistoryView)",
+							"documentation": "Reference 03, TravelHistoryView, line 136. UI operations have no separately declared return value."
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "UC03_CLASS_TravelManager",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "TravelManager",
+					"documentation": "Reference 05: class subset used by this sequence; no invented public operation.",
+					"operations": [
+						{
+							"_type": "UMLOperation",
+							"_id": "UC03_CLASS_TravelManager_OP_ViewPreviousTravelHistory",
+							"_parent": {
+								"$ref": "UC03_CLASS_TravelManager"
+							},
+							"name": "ViewPreviousTravelHistory",
+							"documentation": "Reference 05, TravelManager, line 23. UI operations have no separately declared return value.",
+							"parameters": [
+								{
+									"_type": "UMLParameter",
+									"_id": "UC03_CLASS_TravelManager_OP_ViewPreviousTravelHistory_RETURN",
+									"_parent": {
+										"$ref": "UC03_CLASS_TravelManager_OP_ViewPreviousTravelHistory"
+									},
+									"type": "List<TravelHistory>",
+									"direction": "return"
+								}
+							]
+						}
+					]
+				},
+				{
+					"_type": "UMLActor",
+					"_id": "UC03_ACTOR_CUSTOMER",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "Customer"
+				},
+				{
+					"_type": "UMLUseCase",
+					"_id": "UC03_USECASE",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "MWT-UC03 View Previous Travel History"
+				},
+				{
+					"_type": "UMLCollaboration",
+					"_id": "UC03_COL",
+					"_parent": {
+						"$ref": "UC03_MODEL"
+					},
+					"name": "MWT-UC03 Design",
+					"ownedElements": [
+						{
+							"_type": "UMLInteraction",
+							"_id": "UC03_INT",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"name": "View Previous Travel History",
+							"ownedElements": [
+								{
+									"_type": "UMLSequenceDiagram",
+									"_id": "UC03_D",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "MWT_UC03_Design",
+									"defaultDiagram": true,
+									"ownedViews": [
+										{
+											"_type": "UMLCombinedFragmentView",
+											"_id": "UC03_F_1_V",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_F_1"
+											},
+											"subViews": [
+												{
+													"_type": "LabelView",
+													"_id": "UC03_F_1_NAME",
+													"_parent": {
+														"$ref": "UC03_F_1_V"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 87.337890625,
+													"top": 894,
+													"height": 14
+												},
+												{
+													"_type": "LabelView",
+													"_id": "UC03_F_1_TYPE",
+													"_parent": {
+														"$ref": "UC03_F_1_V"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;14;1",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 65,
+													"top": 894,
+													"width": 16.337890625,
+													"height": 14,
+													"text": "alt"
+												},
+												{
+													"_type": "UMLInteractionOperandCompartmentView",
+													"_id": "UC03_F_1_OC",
+													"_parent": {
+														"$ref": "UC03_F_1_V"
+													},
+													"model": {
+														"$ref": "UC03_F_1"
+													},
+													"subViews": [
+														{
+															"_type": "UMLInteractionOperandView",
+															"_id": "UC03_F_1_O_0_V",
+															"_parent": {
+																"$ref": "UC03_F_1_OC"
+															},
+															"model": {
+																"$ref": "UC03_F_1_O_0"
+															},
+															"subViews": [
+																{
+																	"_type": "LabelView",
+																	"_id": "UC03_F_1_O_0_GUARD",
+																	"_parent": {
+																		"$ref": "UC03_F_1_O_0_V"
+																	},
+																	"fillColor": "#FFFFFF",
+																	"font": "Arial;14;0",
+																	"parentStyle": false,
+																	"showShadow": false,
+																	"left": 80,
+																	"top": 928,
+																	"width": 150.1650390625,
+																	"height": 14,
+																	"text": "[historyList is not empty]",
+																	"horizontalAlignment": 0
+																}
+															],
+															"fillColor": "#FFFFFF",
+															"font": "Arial;14;0",
+															"parentStyle": false,
+															"showShadow": false,
+															"left": 60,
+															"top": 913,
+															"width": 1411,
+															"height": 147,
+															"guardLabel": {
+																"$ref": "UC03_F_1_O_0_GUARD"
+															}
+														},
+														{
+															"_type": "UMLInteractionOperandView",
+															"_id": "UC03_F_1_O_1_V",
+															"_parent": {
+																"$ref": "UC03_F_1_OC"
+															},
+															"model": {
+																"$ref": "UC03_F_1_O_1"
+															},
+															"subViews": [
+																{
+																	"_type": "LabelView",
+																	"_id": "UC03_F_1_O_1_GUARD",
+																	"_parent": {
+																		"$ref": "UC03_F_1_O_1_V"
+																	},
+																	"fillColor": "#FFFFFF",
+																	"font": "Arial;14;0",
+																	"parentStyle": false,
+																	"showShadow": false,
+																	"left": 80,
+																	"top": 1075,
+																	"width": 126.8134765625,
+																	"height": 14,
+																	"text": "[historyList is empty]",
+																	"horizontalAlignment": 0
+																}
+															],
+															"fillColor": "#FFFFFF",
+															"font": "Arial;14;0",
+															"parentStyle": false,
+															"showShadow": false,
+															"left": 60,
+															"top": 1060,
+															"width": 1411,
+															"height": 147,
+															"guardLabel": {
+																"$ref": "UC03_F_1_O_1_GUARD"
+															}
+														}
+													],
+													"fillColor": "#FFFFFF",
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 60,
+													"top": 913,
+													"width": 1411,
+													"height": 294
+												}
+											],
+											"fillColor": "#FFFFFF",
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 60,
+											"top": 889,
+											"width": 1411,
+											"height": 327,
+											"nameLabel": {
+												"$ref": "UC03_F_1_NAME"
+											},
+											"frameTypeLabel": {
+												"$ref": "UC03_F_1_TYPE"
+											},
+											"operandCompartment": {
+												"$ref": "UC03_F_1_OC"
+											}
+										},
+										{
+											"_type": "UMLTextView",
+											"_id": "UC03_TITLE",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"fillColor": "#FFFFFF",
+											"font": "Arial;20;1",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 65,
+											"top": 8,
+											"width": 1391,
+											"height": 32,
+											"text": "Sequence Diagram (use case: View Previous Travel History)"
+										},
+										{
+											"_type": "UMLSeqLifelineView",
+											"_id": "UC03_LV_C_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_L_C"
+											},
+											"subViews": [
+												{
+													"_type": "UMLNameCompartmentView",
+													"_id": "UC03_LV_C_3",
+													"_parent": {
+														"$ref": "UC03_LV_C_0"
+													},
+													"model": {
+														"$ref": "UC03_L_C"
+													},
+													"subViews": [
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_C_6",
+															"_parent": {
+																"$ref": "UC03_LV_C_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_C_8",
+															"_parent": {
+																"$ref": "UC03_LV_C_3"
+															},
+															"font": "Arial;14;1",
+															"parentStyle": true,
+															"left": 65,
+															"top": 87,
+															"width": 171,
+															"height": 14,
+															"text": ": Customer"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_C_10",
+															"_parent": {
+																"$ref": "UC03_LV_C_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"width": 222.5439453125,
+															"height": 14,
+															"text": "(from View Previous Travel History)"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_C_12",
+															"_parent": {
+																"$ref": "UC03_LV_C_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14,
+															"horizontalAlignment": 1
+														}
+													],
+													"font": "Arial;14;0",
+													"parentStyle": true,
+													"left": 60,
+													"top": 80,
+													"width": 181,
+													"height": 26,
+													"stereotypeLabel": {
+														"$ref": "UC03_LV_C_6"
+													},
+													"nameLabel": {
+														"$ref": "UC03_LV_C_8"
+													},
+													"namespaceLabel": {
+														"$ref": "UC03_LV_C_10"
+													},
+													"propertyLabel": {
+														"$ref": "UC03_LV_C_12"
+													}
+												},
+												{
+													"_type": "UMLLinePartView",
+													"_id": "UC03_LV_C_18",
+													"_parent": {
+														"$ref": "UC03_LV_C_0"
+													},
+													"model": {
+														"$ref": "UC03_L_C"
+													},
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 150,
+													"top": 107,
+													"width": 1,
+													"height": 1116
+												}
+											],
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 60,
+											"top": 40,
+											"width": 180,
+											"height": 1183,
+											"stereotypeDisplay": "icon",
+											"showVisibility": false,
+											"showProperty": false,
+											"nameCompartment": {
+												"$ref": "UC03_LV_C_3"
+											},
+											"linePart": {
+												"$ref": "UC03_LV_C_18"
+											}
+										},
+										{
+											"_type": "UMLSeqLifelineView",
+											"_id": "UC03_LV_HV_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_L_HV"
+											},
+											"subViews": [
+												{
+													"_type": "UMLNameCompartmentView",
+													"_id": "UC03_LV_HV_3",
+													"_parent": {
+														"$ref": "UC03_LV_HV_0"
+													},
+													"model": {
+														"$ref": "UC03_L_HV"
+													},
+													"subViews": [
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_HV_6",
+															"_parent": {
+																"$ref": "UC03_LV_HV_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_HV_8",
+															"_parent": {
+																"$ref": "UC03_LV_HV_3"
+															},
+															"font": "Arial;14;1",
+															"parentStyle": true,
+															"left": 416,
+															"top": 47,
+															"width": 171,
+															"height": 14,
+															"text": ": TravelHistoryView"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_HV_10",
+															"_parent": {
+																"$ref": "UC03_LV_HV_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"width": 222.5439453125,
+															"height": 14,
+															"text": "(from View Previous Travel History)"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_HV_12",
+															"_parent": {
+																"$ref": "UC03_LV_HV_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14,
+															"horizontalAlignment": 1
+														}
+													],
+													"font": "Arial;14;0",
+													"parentStyle": true,
+													"left": 411,
+													"top": 40,
+													"width": 181,
+													"height": 40,
+													"stereotypeLabel": {
+														"$ref": "UC03_LV_HV_6"
+													},
+													"nameLabel": {
+														"$ref": "UC03_LV_HV_8"
+													},
+													"namespaceLabel": {
+														"$ref": "UC03_LV_HV_10"
+													},
+													"propertyLabel": {
+														"$ref": "UC03_LV_HV_12"
+													}
+												},
+												{
+													"_type": "UMLLinePartView",
+													"_id": "UC03_LV_HV_18",
+													"_parent": {
+														"$ref": "UC03_LV_HV_0"
+													},
+													"model": {
+														"$ref": "UC03_L_HV"
+													},
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 501,
+													"top": 81,
+													"width": 1,
+													"height": 1142
+												}
+											],
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 411,
+											"top": 40,
+											"width": 180,
+											"height": 1183,
+											"stereotypeDisplay": "none",
+											"showVisibility": false,
+											"showProperty": false,
+											"nameCompartment": {
+												"$ref": "UC03_LV_HV_3"
+											},
+											"linePart": {
+												"$ref": "UC03_LV_HV_18"
+											}
+										},
+										{
+											"_type": "UMLSeqLifelineView",
+											"_id": "UC03_LV_TM_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_L_TM"
+											},
+											"subViews": [
+												{
+													"_type": "UMLNameCompartmentView",
+													"_id": "UC03_LV_TM_3",
+													"_parent": {
+														"$ref": "UC03_LV_TM_0"
+													},
+													"model": {
+														"$ref": "UC03_L_TM"
+													},
+													"subViews": [
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_TM_6",
+															"_parent": {
+																"$ref": "UC03_LV_TM_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_TM_8",
+															"_parent": {
+																"$ref": "UC03_LV_TM_3"
+															},
+															"font": "Arial;14;1",
+															"parentStyle": true,
+															"left": 696,
+															"top": 47,
+															"width": 171,
+															"height": 14,
+															"text": ": TravelManager"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_TM_10",
+															"_parent": {
+																"$ref": "UC03_LV_TM_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"width": 222.5439453125,
+															"height": 14,
+															"text": "(from View Previous Travel History)"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_TM_12",
+															"_parent": {
+																"$ref": "UC03_LV_TM_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14,
+															"horizontalAlignment": 1
+														}
+													],
+													"font": "Arial;14;0",
+													"parentStyle": true,
+													"left": 691,
+													"top": 40,
+													"width": 181,
+													"height": 40,
+													"stereotypeLabel": {
+														"$ref": "UC03_LV_TM_6"
+													},
+													"nameLabel": {
+														"$ref": "UC03_LV_TM_8"
+													},
+													"namespaceLabel": {
+														"$ref": "UC03_LV_TM_10"
+													},
+													"propertyLabel": {
+														"$ref": "UC03_LV_TM_12"
+													}
+												},
+												{
+													"_type": "UMLLinePartView",
+													"_id": "UC03_LV_TM_18",
+													"_parent": {
+														"$ref": "UC03_LV_TM_0"
+													},
+													"model": {
+														"$ref": "UC03_L_TM"
+													},
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 781,
+													"top": 81,
+													"width": 1,
+													"height": 1142
+												}
+											],
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 691,
+											"top": 40,
+											"width": 180,
+											"height": 1183,
+											"stereotypeDisplay": "none",
+											"showVisibility": false,
+											"showProperty": false,
+											"nameCompartment": {
+												"$ref": "UC03_LV_TM_3"
+											},
+											"linePart": {
+												"$ref": "UC03_LV_TM_18"
+											}
+										},
+										{
+											"_type": "UMLSeqLifelineView",
+											"_id": "UC03_LV_S_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_L_S"
+											},
+											"subViews": [
+												{
+													"_type": "UMLNameCompartmentView",
+													"_id": "UC03_LV_S_3",
+													"_parent": {
+														"$ref": "UC03_LV_S_0"
+													},
+													"model": {
+														"$ref": "UC03_L_S"
+													},
+													"subViews": [
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_S_6",
+															"_parent": {
+																"$ref": "UC03_LV_S_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_S_8",
+															"_parent": {
+																"$ref": "UC03_LV_S_3"
+															},
+															"font": "Arial;14;1",
+															"parentStyle": true,
+															"left": 976,
+															"top": 47,
+															"width": 171,
+															"height": 14,
+															"text": ": LoginSession"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_S_10",
+															"_parent": {
+																"$ref": "UC03_LV_S_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"width": 222.5439453125,
+															"height": 14,
+															"text": "(from View Previous Travel History)"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_S_12",
+															"_parent": {
+																"$ref": "UC03_LV_S_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14,
+															"horizontalAlignment": 1
+														}
+													],
+													"font": "Arial;14;0",
+													"parentStyle": true,
+													"left": 971,
+													"top": 40,
+													"width": 181,
+													"height": 40,
+													"stereotypeLabel": {
+														"$ref": "UC03_LV_S_6"
+													},
+													"nameLabel": {
+														"$ref": "UC03_LV_S_8"
+													},
+													"namespaceLabel": {
+														"$ref": "UC03_LV_S_10"
+													},
+													"propertyLabel": {
+														"$ref": "UC03_LV_S_12"
+													}
+												},
+												{
+													"_type": "UMLLinePartView",
+													"_id": "UC03_LV_S_18",
+													"_parent": {
+														"$ref": "UC03_LV_S_0"
+													},
+													"model": {
+														"$ref": "UC03_L_S"
+													},
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 1061,
+													"top": 81,
+													"width": 1,
+													"height": 1142
+												}
+											],
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 971,
+											"top": 40,
+											"width": 180,
+											"height": 1183,
+											"stereotypeDisplay": "none",
+											"showVisibility": false,
+											"showProperty": false,
+											"nameCompartment": {
+												"$ref": "UC03_LV_S_3"
+											},
+											"linePart": {
+												"$ref": "UC03_LV_S_18"
+											}
+										},
+										{
+											"_type": "UMLSeqLifelineView",
+											"_id": "UC03_LV_DA_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_L_DA"
+											},
+											"subViews": [
+												{
+													"_type": "UMLNameCompartmentView",
+													"_id": "UC03_LV_DA_3",
+													"_parent": {
+														"$ref": "UC03_LV_DA_0"
+													},
+													"model": {
+														"$ref": "UC03_L_DA"
+													},
+													"subViews": [
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_DA_6",
+															"_parent": {
+																"$ref": "UC03_LV_DA_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_DA_8",
+															"_parent": {
+																"$ref": "UC03_LV_DA_3"
+															},
+															"font": "Arial;14;1",
+															"parentStyle": true,
+															"left": 1256,
+															"top": 47,
+															"width": 171,
+															"height": 14,
+															"text": ": DataAccessManager"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_DA_10",
+															"_parent": {
+																"$ref": "UC03_LV_DA_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"width": 222.5439453125,
+															"height": 14,
+															"text": "(from View Previous Travel History)"
+														},
+														{
+															"_type": "LabelView",
+															"_id": "UC03_LV_DA_12",
+															"_parent": {
+																"$ref": "UC03_LV_DA_3"
+															},
+															"visible": false,
+															"font": "Arial;14;0",
+															"parentStyle": true,
+															"height": 14,
+															"horizontalAlignment": 1
+														}
+													],
+													"font": "Arial;14;0",
+													"parentStyle": true,
+													"left": 1251,
+													"top": 40,
+													"width": 181,
+													"height": 40,
+													"stereotypeLabel": {
+														"$ref": "UC03_LV_DA_6"
+													},
+													"nameLabel": {
+														"$ref": "UC03_LV_DA_8"
+													},
+													"namespaceLabel": {
+														"$ref": "UC03_LV_DA_10"
+													},
+													"propertyLabel": {
+														"$ref": "UC03_LV_DA_12"
+													}
+												},
+												{
+													"_type": "UMLLinePartView",
+													"_id": "UC03_LV_DA_18",
+													"_parent": {
+														"$ref": "UC03_LV_DA_0"
+													},
+													"model": {
+														"$ref": "UC03_L_DA"
+													},
+													"font": "Arial;14;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 1341,
+													"top": 81,
+													"width": 1,
+													"height": 1142
+												}
+											],
+											"font": "Arial;14;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"left": 1251,
+											"top": 40,
+											"width": 180,
+											"height": 1183,
+											"stereotypeDisplay": "none",
+											"showVisibility": false,
+											"showProperty": false,
+											"nameCompartment": {
+												"$ref": "UC03_LV_DA_3"
+											},
+											"linePart": {
+												"$ref": "UC03_LV_DA_18"
+											}
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_1_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_1"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_1_V_3",
+													"_parent": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_1"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 210,
+													"top": 182,
+													"width": 225.62255859375,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"edgePosition": 1,
+													"text": "OpenView(TravelHistoryView)()"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_1_V_7",
+													"_parent": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_1"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 322,
+													"top": 173,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_1_V_11",
+													"_parent": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_1"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 322,
+													"top": 208,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_1_V_15",
+													"_parent": {
+														"$ref": "UC03_M_1_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_1"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 494,
+													"top": 205,
+													"width": 14,
+													"height": 28
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_HV_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_C_18"
+											},
+											"points": "151:205;494:205",
+											"nameLabel": {
+												"$ref": "UC03_M_1_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_1_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_1_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_1_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_2_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_2"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_2_V_3",
+													"_parent": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_2"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 541,
+													"top": 250,
+													"width": 194,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"edgePosition": 1,
+													"text": "ViewPreviousTravelHistory()"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_2_V_7",
+													"_parent": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_2"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 638,
+													"top": 241,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_2_V_11",
+													"_parent": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_2"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 638,
+													"top": 276,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_2_V_15",
+													"_parent": {
+														"$ref": "UC03_M_2_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_2"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 774,
+													"top": 273,
+													"width": 14,
+													"height": 553
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_HV_18"
+											},
+											"points": "502:273;774:273",
+											"nameLabel": {
+												"$ref": "UC03_M_2_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_2_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_2_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_2_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_3_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_3"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_3_V_3",
+													"_parent": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_3"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 886,
+													"top": 318,
+													"width": 70,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"edgePosition": 1,
+													"text": "GetRole()"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_3_V_7",
+													"_parent": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_3"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 309,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_3_V_11",
+													"_parent": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_3"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 344,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_3_V_15",
+													"_parent": {
+														"$ref": "UC03_M_3_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_3"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 1054,
+													"top": 341,
+													"width": 14,
+													"height": 73
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_S_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"points": "788:341;1054:341",
+											"nameLabel": {
+												"$ref": "UC03_M_3_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_3_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_3_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_3_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_4_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_4"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_4_V_3",
+													"_parent": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_4"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 886,
+													"top": 418,
+													"width": 68,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"edgePosition": 1,
+													"text": "role"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_4_V_7",
+													"_parent": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_4"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 920,
+													"top": 427,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_4_V_11",
+													"_parent": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_4"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 392,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_4_V_15",
+													"_parent": {
+														"$ref": "UC03_M_4_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_4"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 774,
+													"top": 409,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_S_18"
+											},
+											"points": "1054:409;788:409",
+											"nameLabel": {
+												"$ref": "UC03_M_4_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_4_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_4_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_4_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_5_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_5"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_5_V_3",
+													"_parent": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_5"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 868,
+													"top": 454,
+													"width": 107,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"edgePosition": 1,
+													"text": "GetMemberId()"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_5_V_7",
+													"_parent": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_5"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 445,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_5_V_11",
+													"_parent": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_5"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 480,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_5_V_15",
+													"_parent": {
+														"$ref": "UC03_M_5_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_5"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 1054,
+													"top": 477,
+													"width": 14,
+													"height": 73
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_S_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"points": "788:477;1054:477",
+											"nameLabel": {
+												"$ref": "UC03_M_5_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_5_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_5_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_5_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_6_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_6"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_6_V_3",
+													"_parent": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_6"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 857,
+													"top": 554,
+													"width": 126.55517578125,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"edgePosition": 1,
+													"text": "memberId"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_6_V_7",
+													"_parent": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_6"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 920,
+													"top": 563,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_6_V_11",
+													"_parent": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_6"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 921,
+													"top": 528,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_6_V_15",
+													"_parent": {
+														"$ref": "UC03_M_6_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_6"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 774,
+													"top": 545,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_S_18"
+											},
+											"points": "1054:545;788:545",
+											"nameLabel": {
+												"$ref": "UC03_M_6_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_6_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_6_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_6_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_7_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_7"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_7_V_3",
+													"_parent": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_7"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 956,
+													"top": 590,
+													"width": 210,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"edgePosition": 1,
+													"text": "FindTravelHistories(memberId)"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_7_V_7",
+													"_parent": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_7"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 1061,
+													"top": 581,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_7_V_11",
+													"_parent": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_7"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 1061,
+													"top": 616,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_7_V_15",
+													"_parent": {
+														"$ref": "UC03_M_7_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_7"
+													},
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 1334,
+													"top": 613,
+													"width": 14,
+													"height": 73
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_DA_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"points": "788:613;1334:613",
+											"nameLabel": {
+												"$ref": "UC03_M_7_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_7_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_7_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_7_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_8_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_8"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_8_V_3",
+													"_parent": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_8"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 936,
+													"top": 690,
+													"width": 249,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"edgePosition": 1,
+													"text": "historyList"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_8_V_7",
+													"_parent": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_8"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 1060,
+													"top": 699,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_8_V_11",
+													"_parent": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_8"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 1061,
+													"top": 664,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_8_V_15",
+													"_parent": {
+														"$ref": "UC03_M_8_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_8"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 774,
+													"top": 681,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_DA_18"
+											},
+											"points": "1334:681;788:681",
+											"nameLabel": {
+												"$ref": "UC03_M_8_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_8_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_8_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_8_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_9_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_9"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_9_V_3",
+													"_parent": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_9"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 532,
+													"top": 830,
+													"width": 210,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"edgePosition": 1,
+													"text": "historyList"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_9_V_7",
+													"_parent": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_9"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 637,
+													"top": 839,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_9_V_11",
+													"_parent": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_9"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 638,
+													"top": 804,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_9_V_15",
+													"_parent": {
+														"$ref": "UC03_M_9_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_9"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 501,
+													"top": 821,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_HV_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_TM_18"
+											},
+											"points": "774:821;502:821",
+											"nameLabel": {
+												"$ref": "UC03_M_9_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_9_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_9_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_9_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_10_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_10"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_10_V_3",
+													"_parent": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_10"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 181,
+													"top": 990,
+													"width": 289.44580078125,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"edgePosition": 1,
+													"text": "historyList: List<TravelHistory> (latest first)"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_10_V_7",
+													"_parent": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_10"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 325,
+													"top": 999,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_10_V_11",
+													"_parent": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_10"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 326,
+													"top": 964,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_10_V_15",
+													"_parent": {
+														"$ref": "UC03_M_10_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_10"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 150,
+													"top": 981,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_C_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_HV_18"
+											},
+											"points": "501:981;151:981",
+											"nameLabel": {
+												"$ref": "UC03_M_10_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_10_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_10_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_10_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										},
+										{
+											"_type": "UMLSeqMessageView",
+											"_id": "UC03_M_11_V_0",
+											"_parent": {
+												"$ref": "UC03_D"
+											},
+											"model": {
+												"$ref": "UC03_M_11"
+											},
+											"subViews": [
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_11_V_3",
+													"_parent": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_11"
+													},
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 206,
+													"top": 1137,
+													"width": 238.20556640625,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 16,
+													"hostEdge": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"edgePosition": 1,
+													"text": "historyList: List<TravelHistory> = []"
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_11_V_7",
+													"_parent": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_11"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 325,
+													"top": 1146,
+													"width": 1,
+													"height": 15,
+													"alpha": 1.5707963267948966,
+													"distance": 25,
+													"hostEdge": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "EdgeLabelView",
+													"_id": "UC03_M_11_V_11",
+													"_parent": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_11"
+													},
+													"visible": false,
+													"font": "Arial;15;0",
+													"parentStyle": true,
+													"showShadow": false,
+													"left": 326,
+													"top": 1111,
+													"width": 1,
+													"height": 15,
+													"alpha": -1.5707963267948966,
+													"distance": 10,
+													"hostEdge": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"edgePosition": 1
+												},
+												{
+													"_type": "UMLActivationView",
+													"_id": "UC03_M_11_V_15",
+													"_parent": {
+														"$ref": "UC03_M_11_V_0"
+													},
+													"model": {
+														"$ref": "UC03_M_11"
+													},
+													"visible": false,
+													"fillColor": "#FFFFFF",
+													"font": "Arial;15;0",
+													"parentStyle": false,
+													"showShadow": false,
+													"left": 150,
+													"top": 1128,
+													"width": 14,
+													"height": 25
+												}
+											],
+											"font": "Arial;15;0",
+											"parentStyle": false,
+											"showShadow": false,
+											"head": {
+												"$ref": "UC03_LV_C_18"
+											},
+											"tail": {
+												"$ref": "UC03_LV_HV_18"
+											},
+											"points": "501:1128;151:1128",
+											"nameLabel": {
+												"$ref": "UC03_M_11_V_3"
+											},
+											"stereotypeLabel": {
+												"$ref": "UC03_M_11_V_7"
+											},
+											"propertyLabel": {
+												"$ref": "UC03_M_11_V_11"
+											},
+											"activation": {
+												"$ref": "UC03_M_11_V_15"
+											},
+											"showProperty": false,
+											"showType": false
+										}
+									],
+									"showSequenceNumber": false
+								}
+							],
+							"documentation": "Entry: an authenticated Customer requests history. MemberView also calls the same TravelHistoryView method immediately after successful customer login in UC02.\nAuthorization: use the current user server LoginSession. A missing session or a role other than Customer stops retrieval before any data query.\nFailure: DataAccessError is distinct from a successfully returned empty list. Stop processing, show a lookup error and allow a new ViewPreviousTravelHistory() request or popup closure.\nDisplay: historyList contains the historical productName, travelPeriod, tourLevel and price. Close the popup or move to another view without cancelling the successful login.",
+							"messages": [
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_1",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "ViewPreviousTravelHistory()",
+									"source": {
+										"$ref": "UC03_L_C"
+									},
+									"target": {
+										"$ref": "UC03_L_HV"
+									},
+									"signature": {
+										"$ref": "UC03_CLASS_TravelHistoryView_OP_ViewPreviousTravelHistory"
+									}
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_2",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "ViewPreviousTravelHistory()",
+									"source": {
+										"$ref": "UC03_L_HV"
+									},
+									"target": {
+										"$ref": "UC03_L_TM"
+									},
+									"signature": {
+										"$ref": "UC03_CLASS_TravelManager_OP_ViewPreviousTravelHistory"
+									}
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_3",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "GetRole()",
+									"source": {
+										"$ref": "UC03_L_TM"
+									},
+									"target": {
+										"$ref": "UC03_L_S"
+									},
+									"signature": {
+										"$ref": "UC03_CLASS_LoginSession_OP_GetRole"
+									}
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_4",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "role",
+									"source": {
+										"$ref": "UC03_L_S"
+									},
+									"target": {
+										"$ref": "UC03_L_TM"
+									},
+									"messageSort": "reply"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_5",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "GetMemberId()",
+									"source": {
+										"$ref": "UC03_L_TM"
+									},
+									"target": {
+										"$ref": "UC03_L_S"
+									},
+									"signature": {
+										"$ref": "UC03_CLASS_LoginSession_OP_GetMemberId"
+									}
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_6",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "memberId",
+									"source": {
+										"$ref": "UC03_L_S"
+									},
+									"target": {
+										"$ref": "UC03_L_TM"
+									},
+									"messageSort": "reply"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_7",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "FindTravelHistories(memberId)",
+									"source": {
+										"$ref": "UC03_L_TM"
+									},
+									"target": {
+										"$ref": "UC03_L_DA"
+									},
+									"signature": {
+										"$ref": "UC03_CLASS_DataAccessManager_OP_FindTravelHistories"
+									},
+									"arguments": "memberId"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_8",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "historyList",
+									"source": {
+										"$ref": "UC03_L_DA"
+									},
+									"target": {
+										"$ref": "UC03_L_TM"
+									},
+									"messageSort": "reply"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_9",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "historyList",
+									"source": {
+										"$ref": "UC03_L_TM"
+									},
+									"target": {
+										"$ref": "UC03_L_HV"
+									},
+									"messageSort": "reply"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_10",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "historyList: List<TravelHistory> (latest first)",
+									"source": {
+										"$ref": "UC03_L_HV"
+									},
+									"target": {
+										"$ref": "UC03_L_C"
+									},
+									"messageSort": "reply"
+								},
+								{
+									"_type": "UMLMessage",
+									"_id": "UC03_M_11",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"name": "historyList: List<TravelHistory> = []",
+									"source": {
+										"$ref": "UC03_L_HV"
+									},
+									"target": {
+										"$ref": "UC03_L_C"
+									},
+									"messageSort": "reply"
+								}
+							],
+							"participants": [
+								{
+									"_type": "UMLLifeline",
+									"_id": "UC03_L_C",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"represent": {
+										"$ref": "UC03_ROLE_C"
+									}
+								},
+								{
+									"_type": "UMLLifeline",
+									"_id": "UC03_L_HV",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"represent": {
+										"$ref": "UC03_ROLE_HV"
+									}
+								},
+								{
+									"_type": "UMLLifeline",
+									"_id": "UC03_L_TM",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"represent": {
+										"$ref": "UC03_ROLE_TM"
+									}
+								},
+								{
+									"_type": "UMLLifeline",
+									"_id": "UC03_L_S",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"represent": {
+										"$ref": "UC03_ROLE_S"
+									}
+								},
+								{
+									"_type": "UMLLifeline",
+									"_id": "UC03_L_DA",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"represent": {
+										"$ref": "UC03_ROLE_DA"
+									}
+								}
+							],
+							"fragments": [
+								{
+									"_type": "UMLCombinedFragment",
+									"_id": "UC03_F_1",
+									"_parent": {
+										"$ref": "UC03_INT"
+									},
+									"interactionOperator": "alt",
+									"operands": [
+										{
+											"_type": "UMLInteractionOperand",
+											"_id": "UC03_F_1_O_0",
+											"_parent": {
+												"$ref": "UC03_F_1"
+											},
+											"guard": "historyList is not empty"
+										},
+										{
+											"_type": "UMLInteractionOperand",
+											"_id": "UC03_F_1_O_1",
+											"_parent": {
+												"$ref": "UC03_F_1"
+											},
+											"guard": "historyList is empty"
+										}
+									]
+								}
+							]
+						}
+					],
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_ROLE_C",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"type": {
+								"$ref": "UC03_ACTOR_CUSTOMER"
+							}
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_ROLE_HV",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"type": {
+								"$ref": "UC03_CLASS_TravelHistoryView"
+							}
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_ROLE_TM",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"type": {
+								"$ref": "UC03_CLASS_TravelManager"
+							}
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_ROLE_S",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"type": {
+								"$ref": "UC03_CLASS_LoginSession"
+							}
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "UC03_ROLE_DA",
+							"_parent": {
+								"$ref": "UC03_COL"
+							},
+							"type": {
+								"$ref": "UC03_CLASS_DataAccessManager"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"documentation": "English editable design sequence. Class operations and logical types are sourced from the supplied Markdown specifications.",
+	"documentVersion": 1
+}
