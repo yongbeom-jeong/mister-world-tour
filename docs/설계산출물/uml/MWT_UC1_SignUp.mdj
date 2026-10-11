@@ -3496,16 +3496,16 @@
 													"parentStyle": true,
 													"showShadow": false,
 													"left": 439,
-													"top": 568,
+													"top": 560,
 													"width": 360,
 													"height": 15,
-													"alpha": 1.5042288267359163,
-													"distance": 15.033296378372908,
+													"alpha": 1.4289006721910127,
+													"distance": 7.0710678118654755,
 													"hostEdge": {
 														"$ref": "MWT_UC1_6d85366ef0bf4669891aaccd68fed88b"
 													},
 													"edgePosition": 1,
-													"text": "signUpResult = account conflict failure"
+													"text": "signUpResult"
 												},
 												{
 													"_type": "EdgeLabelView",
@@ -3746,6 +3746,7 @@
 													"model": {
 														"$ref": "MWT_UC1_95d086ab200148968e8b24ae18e703fc"
 													},
+													"visible": false,
 													"font": "Arial;15;0",
 													"parentStyle": true,
 													"showShadow": false,
@@ -3758,8 +3759,7 @@
 													"hostEdge": {
 														"$ref": "MWT_UC1_bb3a2a4cfeb5491ba7b7e1a3b8b97a4a"
 													},
-													"edgePosition": 1,
-													"text": "signUpResult"
+													"edgePosition": 1
 												},
 												{
 													"_type": "EdgeLabelView",
@@ -3880,11 +3880,11 @@
 											"font": "Arial;14;0",
 											"parentStyle": false,
 											"showShadow": false,
-											"left": 15,
-											"top": 1060,
+											"left": 8,
+											"top": 1096,
 											"width": 1745,
 											"height": 115,
-											"text": "Input validation: invalid registration information returns a failure result for correction before the account check.\nStorage error: verify this registration before retry or termination; account existence alone does not prove success.\nResult: show signUpResult. Success ends registration; failure permits correction and a new submission when retry is appropriate."
+											"text": "Invalid input or duplicate account: correct the information and resubmit or cancel.\nStorage failure: retry only when this registration is confirmed not saved. Finding the account alone does not confirm this request.\nUnknown storage outcome: end without reporting completion or saving again."
 										}
 									],
 									"showSequenceNumber": false
@@ -3972,7 +3972,7 @@
 									"_parent": {
 										"$ref": "MWT_UC1_2ee500dd500b43cf8e6f383efa9b57b3"
 									},
-									"name": "signUpResult = account conflict failure",
+									"name": "signUpResult",
 									"documentation": "UC1 alternative 4a: return an account conflict failure when accountExists is true. No Member is created or saved in this operand. The result label describes the existing SignUpResult; it defines no field, method or result code.",
 									"source": {
 										"$ref": "MWT_UC1_287c180e90c7493586715cf690822c18"
@@ -4062,7 +4062,6 @@
 									"_parent": {
 										"$ref": "MWT_UC1_2ee500dd500b43cf8e6f383efa9b57b3"
 									},
-									"name": "signUpResult",
 									"documentation": "UC1 step 6 and alternative 4a: display the returned SignUpResult. Success ends registration without automatic login. Failure permits correction and a new user submission; storage errors require verification before retry or termination. Repetition is described in the policy rather than drawn as a separate interaction.",
 									"source": {
 										"$ref": "MWT_UC1_1598d65e160448109234672ad08c2902"
