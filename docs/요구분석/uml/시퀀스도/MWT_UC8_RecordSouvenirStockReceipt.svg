@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1262" viewBox="0 0 1400 1262"><rect width="100%" height="100%" fill="white"/>
+<polyline points="170,130 170,1222" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="990,102 990,1222" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<circle cx="170" cy="37" r="12" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,49 170,78" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="148,59 192,59" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 150,101" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 190,101" fill="none" stroke="black" stroke-width="2"/>
+<rect x="106.0" y="104" width="128.0" height="29" fill="white"/>
+<text x="170" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: Employee</text>
+<rect x="885" y="25" width="210" height="70" fill="white" stroke="black" stroke-width="2"/>
+<rect x="952.5" y="43" width="75.0" height="29" fill="white"/>
+<text x="990" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: MWT</text>
+<rect x="983" y="190" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,190 983,190" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,190 968,183 968,197" fill="black"/>
+<rect x="418.0" y="154" width="324.0" height="26" fill="white"/>
+<text x="580.0" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : OpenView(&quot;SouvenirStockView&quot;)</text>
+<polyline points="990,280 1055,280 1055,308 997,308" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="308" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,308 1012,301 1012,315" fill="black"/>
+<rect x="813.5" y="244" width="193.0" height="26" fill="white"/>
+<text x="910" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2-1 : FindSouvenirs()</text>
+<polyline points="990,377 170,377" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,370 170,377 185,384" fill="none" stroke="black" stroke-width="2"/>
+<rect x="409.5" y="341" width="341.0" height="26" fill="white"/>
+<text x="580.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2 : souvenirList, currentStockQuantity</text>
+<rect x="983" y="467" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,467 983,467" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,467 968,460 968,474" fill="black"/>
+<rect x="466.5" y="431" width="227.0" height="26" fill="white"/>
+<text x="580.0" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-1 : souvenirId, quantity</text>
+<rect x="983" y="557" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,557 983,557" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,557 968,550 968,564" fill="black"/>
+<rect x="417.0" y="521" width="326.0" height="26" fill="white"/>
+<text x="580.0" y="542" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-2 : RecordSouvenirStockReceipt()</text>
+<polyline points="990,647 1055,647 1055,675 997,675" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="675" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,675 1012,668 1012,682" fill="black"/>
+<rect x="695.5" y="611" width="429.0" height="26" fill="white"/>
+<text x="910" y="632" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-1 : PrepareStockReceipt(souvenirId, quantity)</text>
+<polyline points="990,744 1055,744 1055,772 997,772" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="772" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,772 1012,765 1012,779" fill="black"/>
+<rect x="807.5078125" y="708" width="204.984375" height="26" fill="white"/>
+<text x="910" y="729" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-2 : ValidateReceipt()</text>
+<polyline points="990,841 1055,841 1055,869 997,869" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="869" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,869 1012,862 1012,876" fill="black"/>
+<rect x="603.5078125" y="805" width="612.984375" height="26" fill="white"/>
+<text x="910" y="826" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-1 : RecordSouvenirStockReceipt(souvenirId, quantity, requestKey)</text>
+<polyline points="990,938 1055,938 1055,966 997,966" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="966" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,966 1012,959 1012,973" fill="black"/>
+<rect x="765.5" y="902" width="289.0" height="26" fill="white"/>
+<text x="910" y="923" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-2 : SaveStockReceipt(receipt)</text>
+<polyline points="990,1035 1055,1035 1055,1063 997,1063" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1063" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1063 1012,1056 1012,1070" fill="black"/>
+<rect x="772.5" y="999" width="275.0" height="26" fill="white"/>
+<text x="910" y="1020" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6-1 : FindSouvenir(souvenirId)</text>
+<polyline points="990,1132 170,1132" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,1125 170,1132 185,1139" fill="none" stroke="black" stroke-width="2"/>
+<rect x="359.5" y="1096" width="441.0" height="26" fill="white"/>
+<text x="580.0" y="1117" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : StockReceiptResponse, currentStockQuantity</text>
+</svg>
