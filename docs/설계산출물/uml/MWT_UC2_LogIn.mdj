@@ -6031,6 +6031,7 @@
 													"model": {
 														"$ref": "MWT_UC2_1eaaf61807574467ab1beafcd4e20778"
 													},
+													"visible": false,
 													"font": "Arial;15;0",
 													"parentStyle": true,
 													"showShadow": false,
@@ -6043,8 +6044,7 @@
 													"hostEdge": {
 														"$ref": "MWT_UC2_fbdf588a537d4042b5d19f7f16ff1950"
 													},
-													"edgePosition": 1,
-													"text": "loginResult"
+													"edgePosition": 1
 												},
 												{
 													"_type": "EdgeLabelView",
@@ -6169,7 +6169,7 @@
 											"top": 1830,
 											"width": 1750,
 											"height": 115,
-											"text": "Authentication failure: missing accounts or incorrect passwords return a failure result; the user may correct credentials and submit again.\nLookup errors: return an error result and stop authentication before Member calls; do not treat errors as absent accounts or open a session/home.\nCustomer history: customer login starts UC3. Employee login has no history popup; history errors and popup closure preserve authentication."
+											"text": "Invalid credentials: correct the account/password and resubmit or cancel.\nLookup error: stop authentication and show an error; do not open a session or home.\nCustomer history error: retry UC3 or close the popup; keep the successful login."
 										},
 										{
 											"_type": "UMLSeqMessageView",
@@ -6616,7 +6616,6 @@
 									"_parent": {
 										"$ref": "MWT_UC2_bb36c2c59ee047ce83289704bdf36ccb"
 									},
-									"name": "loginResult",
 									"documentation": "Display the existing LoginResult after the selected authentication branch. Failure allows corrected credentials and a new submission or cancellation. History errors preserve authentication. Resubmission is described in the short prose rather than a loop.",
 									"source": {
 										"$ref": "MWT_UC2_bb56c7e15d314ef4b32f1ea511b4cac1"
