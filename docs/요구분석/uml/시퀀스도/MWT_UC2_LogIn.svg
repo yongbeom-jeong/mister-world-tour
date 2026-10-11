@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1293" viewBox="0 0 1400 1293"><rect width="100%" height="100%" fill="white"/>
+<rect x="70" y="927" width="1260" height="256" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="70,959 114,959 128,945 128,927" fill="none" stroke="black" stroke-width="2"/>
+<rect x="75" y="929" width="31.0" height="24" fill="white"/>
+<text x="78" y="948" text-anchor="start" font-family="Arial, sans-serif" font-size="18">opt</text>
+<rect x="82" y="986" width="156.0" height="24" fill="white"/>
+<text x="85" y="1005" text-anchor="start" font-family="Arial, sans-serif" font-size="18">[role == Customer]</text>
+<polyline points="170,130 170,1253" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="990,102 990,1253" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<circle cx="170" cy="37" r="12" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,49 170,78" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="148,59 192,59" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 150,101" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 190,101" fill="none" stroke="black" stroke-width="2"/>
+<rect x="43.0" y="104" width="254.0" height="29" fill="white"/>
+<text x="170" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: Customer / Employee</text>
+<rect x="885" y="25" width="210" height="70" fill="white" stroke="black" stroke-width="2"/>
+<rect x="952.5" y="43" width="75.0" height="29" fill="white"/>
+<text x="990" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: MWT</text>
+<rect x="983" y="190" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,190 983,190" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,190 968,183 968,197" fill="black"/>
+<rect x="493.0" y="154" width="174.0" height="26" fill="white"/>
+<text x="580.0" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : LogIn(loginInfo)</text>
+<polyline points="990,280 1055,280 1055,308 997,308" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="308" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,308 1012,301 1012,315" fill="black"/>
+<rect x="738.0" y="244" width="344.0" height="26" fill="white"/>
+<text x="910" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2-1 : FindMemberByAccount(account)</text>
+<polyline points="990,377 1055,377 1055,405 997,405" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="405" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,405 1012,398 1012,412" fill="black"/>
+<rect x="762.5" y="341" width="295.0" height="26" fill="white"/>
+<text x="910" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2-2 : CheckPassword(password)</text>
+<polyline points="990,474 1055,474 1055,502 997,502" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="502" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,502 1012,495 1012,509" fill="black"/>
+<rect x="814.5" y="438" width="191.0" height="26" fill="white"/>
+<text x="910" y="459" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-1 : GetMemberId()</text>
+<polyline points="990,571 1055,571 1055,599 997,599" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="599" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,599 1012,592 1012,606" fill="black"/>
+<rect x="840.0" y="535" width="140.0" height="26" fill="white"/>
+<text x="910" y="556" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-2 : GetRole()</text>
+<polyline points="990,668 1055,668 1055,696 997,696" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="696" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,696 1012,689 1012,703" fill="black"/>
+<rect x="749.5" y="632" width="321.0" height="26" fill="white"/>
+<text x="910" y="653" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-3 : LoginSession(memberId, role)</text>
+<polyline points="990,765 1055,765 1055,793 997,793" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="793" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,793 1012,786 1012,800" fill="black"/>
+<rect x="809.0" y="729" width="202.0" height="26" fill="white"/>
+<text x="910" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-1 : ShowHome(role)</text>
+<polyline points="990,862 170,862" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,855 170,862 185,869" fill="none" stroke="black" stroke-width="2"/>
+<rect x="491.5" y="826" width="177.0" height="26" fill="white"/>
+<text x="580.0" y="847" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4 : loginResult, role</text>
+<rect x="145" y="1023" width="945" height="95" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="145,1055 189,1055 203,1041 203,1023" fill="none" stroke="black" stroke-width="2"/>
+<rect x="150" y="1025" width="27.0" height="24" fill="white"/>
+<text x="153" y="1044" text-anchor="start" font-family="Arial, sans-serif" font-size="18">ref</text>
+<rect x="476.015625" y="1062" width="282.96875" height="26" fill="white"/>
+<text x="617.5" y="1083" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">MWT-UC3: View Travel History</text>
+</svg>
