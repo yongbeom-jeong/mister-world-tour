@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="2180" viewBox="0 0 1400 2180"><rect width="100%" height="100%" fill="white"/>
+<rect x="70" y="719" width="1260" height="1261" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="70,751 114,751 128,737 128,719" fill="none" stroke="black" stroke-width="2"/>
+<rect x="75" y="721" width="25.0" height="24" fill="white"/>
+<text x="78" y="740" text-anchor="start" font-family="Arial, sans-serif" font-size="18">alt</text>
+<rect x="82" y="778" width="119.0" height="24" fill="white"/>
+<text x="85" y="797" text-anchor="start" font-family="Arial, sans-serif" font-size="18">[Edit selected]</text>
+<polyline points="70,1445 1330,1445" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<rect x="82" y="1454" width="140.0" height="24" fill="white"/>
+<text x="85" y="1473" text-anchor="start" font-family="Arial, sans-serif" font-size="18">[Delete selected]</text>
+<polyline points="170,130 170,2140" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="990,102 990,2140" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<circle cx="170" cy="37" r="12" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,49 170,78" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="148,59 192,59" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 150,101" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 190,101" fill="none" stroke="black" stroke-width="2"/>
+<rect x="106.0" y="104" width="128.0" height="29" fill="white"/>
+<text x="170" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: Employee</text>
+<rect x="885" y="25" width="210" height="70" fill="white" stroke="black" stroke-width="2"/>
+<rect x="952.5" y="43" width="75.0" height="29" fill="white"/>
+<text x="990" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: MWT</text>
+<rect x="983" y="190" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,190 983,190" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,190 968,183 968,197" fill="black"/>
+<rect x="399.015625" y="154" width="361.96875" height="26" fill="white"/>
+<text x="580.0" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : OpenView(&quot;TourProductAdminView&quot;)</text>
+<polyline points="990,280 1055,280 1055,308 997,308" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="308" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,308 1012,301 1012,315" fill="black"/>
+<rect x="794.0" y="244" width="232.0" height="26" fill="white"/>
+<text x="910" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2-1 : FindProducts(filters)</text>
+<polyline points="990,377 170,377" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,370 170,377 185,384" fill="none" stroke="black" stroke-width="2"/>
+<rect x="513.5" y="341" width="133.0" height="26" fill="white"/>
+<text x="580.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2 : productList</text>
+<rect x="983" y="467" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,467 983,467" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,467 968,460 968,474" fill="black"/>
+<rect x="460.0" y="431" width="240.0" height="26" fill="white"/>
+<text x="580.0" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3 : SelectProduct(product)</text>
+<polyline points="990,557 1055,557 1055,585 997,585" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="585" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,585 1012,578 1012,592" fill="black"/>
+<rect x="781.0" y="521" width="258.0" height="26" fill="white"/>
+<text x="910" y="542" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-1 : FindProduct(productId)</text>
+<polyline points="990,654 170,654" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,647 170,654 185,661" fill="none" stroke="black" stroke-width="2"/>
+<rect x="508.0" y="618" width="144.0" height="26" fill="white"/>
+<text x="580.0" y="639" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4 : productData</text>
+<rect x="983" y="858" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,858 983,858" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,858 968,851 968,865" fill="black"/>
+<rect x="186.015625" y="794" width="787.96875" height="26" fill="white"/>
+<text x="580.0" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5.1 : ModifyTourProduct(productId, productName, theme, level, basePrice, travelPeriod,</text>
+<rect x="509.5" y="822" width="141.0" height="26" fill="white"/>
+<text x="580.0" y="843" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">departureDate)</text>
+<polyline points="990,948 1055,948 1055,976 997,976" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="976" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,976 1012,969 1012,983" fill="black"/>
+<rect x="773.0" y="912" width="274.0" height="26" fill="white"/>
+<text x="910" y="933" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : HasApplications(productId)</text>
+<polyline points="990,1045 1055,1045 1055,1073 997,1073" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1073" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1073 1012,1066 1012,1080" fill="black"/>
+<rect x="710.0" y="1009" width="400.0" height="26" fill="white"/>
+<text x="910" y="1030" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6-1 : LoadDefaultConfiguration(theme, level)</text>
+<polyline points="990,1142 1055,1142 1055,1170 997,1170" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1170" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1170 1012,1163 1012,1177" fill="black"/>
+<rect x="806.5078125" y="1106" width="206.984375" height="26" fill="white"/>
+<text x="910" y="1127" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6-2 : ValidateProduct()</text>
+<polyline points="990,1239 1055,1239 1055,1267 997,1267" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1267" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1267 1012,1260 1012,1274" fill="black"/>
+<rect x="728.0078125" y="1203" width="363.984375" height="26" fill="white"/>
+<text x="910" y="1224" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6-3 : ValidateConfiguration(theme, level)</text>
+<polyline points="990,1336 1055,1336 1055,1364 997,1364" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1364" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1364 1012,1357 1012,1371" fill="black"/>
+<rect x="777.0" y="1300" width="266.0" height="26" fill="white"/>
+<text x="910" y="1321" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">7.1 : UpdateProduct(product)</text>
+<rect x="983" y="1506" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,1506 983,1506" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,1506 968,1499 968,1513" fill="black"/>
+<rect x="463.515625" y="1470" width="232.96875" height="26" fill="white"/>
+<text x="580.0" y="1491" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5.2 : DeleteTourProduct()</text>
+<polyline points="990,1596 1055,1596 1055,1624 997,1624" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1624" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1624 1012,1617 1012,1631" fill="black"/>
+<rect x="773.0" y="1560" width="274.0" height="26" fill="white"/>
+<text x="910" y="1581" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : HasApplications(productId)</text>
+<polyline points="990,1693 170,1693" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,1686 170,1693 185,1700" fill="none" stroke="black" stroke-width="2"/>
+<rect x="463.0" y="1657" width="234.0" height="26" fill="white"/>
+<text x="580.0" y="1678" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">7.2 : deletionConfirmation</text>
+<rect x="983" y="1783" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,1783 983,1783" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,1783 968,1776 968,1790" fill="black"/>
+<rect x="452.5" y="1747" width="255.0" height="26" fill="white"/>
+<text x="580.0" y="1768" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">8 : deletionConfirmed = true</text>
+<polyline points="990,1873 1055,1873 1055,1901 997,1901" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1901" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1901 1012,1894 1012,1908" fill="black"/>
+<rect x="780.5" y="1837" width="259.0" height="26" fill="white"/>
+<text x="910" y="1858" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">9 : DeleteProduct(productId)</text>
+<polyline points="990,2050 170,2050" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,2043 170,2050 185,2057" fill="none" stroke="black" stroke-width="2"/>
+<rect x="494.5" y="2014" width="171.0" height="26" fill="white"/>
+<text x="580.0" y="2035" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">10 : ProductResult</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="978" viewBox="0 0 1400 978"><rect width="100%" height="100%" fill="white"/>
+<polyline points="170,130 170,938" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="990,102 990,938" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<circle cx="170" cy="37" r="12" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,49 170,78" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="148,59 192,59" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 150,101" fill="none" stroke="black" stroke-width="2"/>
+<polyline points="170,78 190,101" fill="none" stroke="black" stroke-width="2"/>
+<rect x="43.0" y="104" width="254.0" height="29" fill="white"/>
+<text x="170" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: Customer / Employee</text>
+<rect x="885" y="25" width="210" height="70" fill="white" stroke="black" stroke-width="2"/>
+<rect x="952.5" y="43" width="75.0" height="29" fill="white"/>
+<text x="990" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: MWT</text>
+<rect x="983" y="190" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,190 983,190" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,190 968,183 968,197" fill="black"/>
+<rect x="445.0" y="154" width="270.0" height="26" fill="white"/>
+<text x="580.0" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : OpenView(&quot;MemberView&quot;)</text>
+<polyline points="990,280 170,280" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,273 170,280 185,287" fill="none" stroke="black" stroke-width="2"/>
+<rect x="437.0078125" y="244" width="285.984375" height="26" fill="white"/>
+<text x="580.0" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2 : memberTypes, signUpItems</text>
+<rect x="983" y="370" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,370 983,370" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,370 968,363 968,377" fill="black"/>
+<rect x="264.0078125" y="334" width="631.984375" height="26" fill="white"/>
+<text x="580.0" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3 : SignUp(memberType, account, password, name, address, contact)</text>
+<polyline points="990,460 1055,460 1055,488 997,488" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="488" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,488 1012,481 1012,495" fill="black"/>
+<rect x="742.5078125" y="424" width="334.984375" height="26" fill="white"/>
+<text x="910" y="445" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-1 : Validate required member fields</text>
+<polyline points="990,557 1055,557 1055,585 997,585" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="585" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,585 1012,578 1012,592" fill="black"/>
+<rect x="779.0" y="521" width="262.0" height="26" fill="white"/>
+<text x="910" y="542" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-2 : ExistsAccount(account)</text>
+<polyline points="990,654 1055,654 1055,682 997,682" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="682" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,682 1012,675 1012,689" fill="black"/>
+<rect x="599.5" y="618" width="621.0" height="26" fill="white"/>
+<text x="910" y="639" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-1 : Member(account, passwordHash, name, address, contact, role)</text>
+<polyline points="990,751 1055,751 1055,779 997,779" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="779" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,779 1012,772 1012,786" fill="black"/>
+<rect x="780.0" y="715" width="260.0" height="26" fill="white"/>
+<text x="910" y="736" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-2 : SaveMember(member)</text>
+<polyline points="990,848 170,848" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,841 170,848 185,855" fill="none" stroke="black" stroke-width="2"/>
+<rect x="504.0" y="812" width="152.0" height="26" fill="white"/>
+<text x="580.0" y="833" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : signUpResult</text>
+</svg>
