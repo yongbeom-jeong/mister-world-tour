@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}신청 내역 | 미스터 월드 투어{% endblock %}
+{% block content %}
+<a href="{% url 'travel:my_applications' %}" class="small">&larr; 내 신청 목록</a>
+<div class="d-flex justify-content-between align-items-center mt-2 mb-3">
+  <h2 class="mb-0">신청 #{{ app.pk }}</h2>
+  {% if status == "CONFIRMED" %}
+    <span class="badge text-bg-success fs-6">출발 확정</span>
+  {% else %}
+    <span class="badge text-bg-secondary fs-6">출발 미확정</span>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">{{ app.product.name }}</h5>
+      <dl class="row small mb-0">
+        <dt class="col-4">여행지</dt><dd class="col-8">{{ app.product.destination }}</dd>
+        <dt class="col-4">출발일</dt><dd class="col-8">{{ app.product.departure_date|date:"Y-m-d" }} ({{ app.product.travel_days }}일)</dd>
+        <dt class="col-4">호텔</dt><dd class="col-8">{{ described.hotel_level }}</dd>
+        <dt class="col-4">교통</dt><dd class="col-8">{{ described.transport }}</dd>
+        <dt class="col-4">식사</dt><dd class="col-8">{{ described.meal }}</dd>
+        <dt class="col-4">음료</dt><dd class="col-8">{{ described.drinks }}</dd>
+        <dt class="col-4">신청 시각</dt><dd class="col-8">{{ app.submitted_at|date:"Y-m-d H:i" }}</dd>
+      </dl>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title">금액</h5>
+      <table class="table table-sm">
+        <tr><td>1인 가격 × {{ travelers|length }}명</td><td class="text-end">{{ app.subtotal|intcomma }}원</td></tr>
+        {% if app.discount_amount %}<tr class="text-success"><td>단골 할인 10%</td><td class="text-end">−{{ app.discount_amount|intcomma }}원</td></tr>{% endif %}
+        <tr class="fw-bold"><td>최종 금액</td><td class="text-end">{{ app.final_amount|intcomma }}원</td></tr>
+      </table>
+      <h6>여행자</h6>
+      <ul class="list-unstyled small mb-0">
+        {% for t in travelers %}<li>{{ t.name }}{% if t.is_applicant %} <span class="badge text-bg-secondary">본인</span>{% endif %}{% if t.contact %} · {{ t.contact }}{% endif %}</li>{% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

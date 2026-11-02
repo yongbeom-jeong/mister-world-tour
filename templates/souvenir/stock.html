@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}기념품 입고 | 미스터 월드 투어{% endblock %}
+{% block content %}
+<h2 class="mb-3">기념품 입고</h2>
+<p class="text-muted">품목을 선택하고 입고 수량을 입력하세요. 입고하면 재고가 바로 늘어납니다.</p>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-semibold">기념품 재고</span>
+      <button class="btn btn-sm btn-outline-secondary" id="reload">새로고침</button>
+    </div>
+    <div id="list-error" class="alert alert-danger" hidden></div>
+    <table class="table table-hover align-middle">
+      <thead><tr><th style="width:3rem"></th><th>품목</th><th>테마</th><th class="text-end">현재 재고</th></tr></thead>
+      <tbody id="souvenir-rows"><tr><td colspan="4" class="text-center text-muted">불러오는 중…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-body">
+        <form id="receipt-form" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <div class="form-label">입고 품목</div>
+            <div id="selected-name" class="fw-semibold text-muted">목록에서 품목을 선택하세요</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="quantity">입고 수량</label>
+            <input type="number" min="1" step="1" class="form-control" id="quantity" disabled>
+            <div class="form-text">1 이상의 정수</div>
+          </div>
+          <button class="btn btn-primary w-100" id="submit" disabled>입고 등록</button>
+        </form>
+        <div id="result" class="mt-3" hidden></div>
+        <button class="btn btn-outline-warning w-100 mt-2" id="retry" hidden>같은 입고 다시 확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const URLS = {
+    list: "{% url 'souvenir:list' %}",
+    prepare: "{% url 'souvenir:prepare' %}",
+    record: "{% url 'souvenir:record' %}",
+  };
+  const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const rows = document.getElementById("souvenir-rows");
+  const listError = document.getElementById("list-error");
+  const selectedName = document.getElementById("selected-name");
+  const qty = document.getElementById("quantity");
+  const submit = document.getElementById("submit");
+  const result = document.getElementById("result");
+  const retry = document.getElementById("retry");
+
+  let souvenirs = [];
+  let selectedId = null;
+  let pending = null;   // 반영 여부를 아직 확인하지 못한 입고 {request_key, souvenir_id, quantity}
+  let busy = false;
+
+  function show(kind, text) {
+    result.className = "mt-3 alert alert-" + kind;
+    result.textContent = text;
+    result.hidden = false;
+  }
+
+  function render() {
+    if (!souvenirs.length) {
+      rows.innerHTML = '<tr><td colspan="4" class="text-center text-muted">등록된 기념품이 없습니다.</td></tr>';
+      return;
+    }
+    rows.innerHTML = "";
+    for (const s of souvenirs) {
+      const tr = document.createElement("tr");
+      tr.style.cursor = "pointer";
+      tr.className = s.id === selectedId ? "table-primary" : "";
+      tr.innerHTML = `<td><input class="form-check-input" type="radio" name="souvenir" ${s.id === selectedId ? "checked" : ""}></td>
+        <td></td><td></td><td class="text-end fw-semibold"></td>`;
+      tr.children[1].textContent = s.name;
+      tr.children[2].textContent = s.theme;
+      tr.children[3].textContent = s.stock_quantity.toLocaleString() + "개";
+      tr.addEventListener("click", () => select(s.id));
+      rows.appendChild(tr);
+    }
+  }
+
+  async function loadList() {
+    listError.hidden = true;
+    try {
+      const res = await fetch(URLS.list);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.message);
+      souvenirs = data.souvenirs;
+      render();
+    } catch (e) {
+      // 조회 실패를 재고 0으로 보이지 않게 목록을 비우고 오류를 표시
+      souvenirs = [];
+      rows.innerHTML = "";
+      listError.textContent = "기념품 목록을 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.";
+      listError.hidden = false;
+    }
+  }
+
+  function select(id) {
+    if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
+    if (id !== selectedId) { qty.value = ""; result.hidden = true; }
+    selectedId = id;
+    const s = souvenirs.find(x => x.id === id);
+    selectedName.textContent = `${s.name} (현재 ${s.stock_quantity.toLocaleString()}개)`;
+    selectedName.classList.remove("text-muted");
+    qty.disabled = false;
+    submit.disabled = false;
+    qty.focus();
+    render();
+  }
+
+  async function post(url, body) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrf },
+      body: new URLSearchParams(body),
+    });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    return { res, data };
+  }
+
+  function setBusy(on) {
+    busy = on;
+    submit.disabled = on || !selectedId || !!pending;
+    qty.disabled = on || !selectedId || !!pending;
+    submit.textContent = on ? "처리 중…" : "입고 등록";
+  }
+
+  async function record() {
+    setBusy(true);
+    try {
+      const { res, data } = await post(URLS.record, pending);
+      if (res.ok && data && data.ok) {
+        pending = null;
+        retry.hidden = true;
+        show("success", data.message + (data.receipt ? ` (입고 ${data.receipt.quantity}개)` : ""));
+        qty.value = "";
+        if (data.stock_refresh_succeeded && data.current_souvenir) {
+          const i = souvenirs.findIndex(s => s.id === data.current_souvenir.id);
+          if (i >= 0) souvenirs[i] = data.current_souvenir;
+          render();
+          select(data.current_souvenir.id);
+          show("success", data.message + ` (입고 ${data.receipt.quantity}개)`);
+        } else {
+          loadList();
+        }
+      } else if (res.status >= 500 || !data) {
+        throw new Error("unknown");
+      } else {
+        pending = null;   // 확실히 거부된 요청: 다음 입고는 새로 준비
+        retry.hidden = true;
+        show("danger", data.message);
+      }
+    } catch (e) {
+      // 반영 여부를 알 수 없음: 같은 키로만 다시 확인 (새 입고로 바꾸지 않음)
+      show("warning", "입고 반영 여부를 확인하지 못했습니다. '같은 입고 다시 확인'을 눌러 주세요. 재고가 두 번 늘지 않습니다.");
+      retry.hidden = false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  document.getElementById("receipt-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (busy || pending || !selectedId) return;
+    const v = qty.value.trim();
+    if (!/^\d+$/.test(v) || Number(v) < 1) { show("danger", "입고 수량은 1 이상의 정수로 입력해 주세요."); return; }
+    setBusy(true);
+    try {
+      const { res, data } = await post(URLS.prepare, { souvenir_id: selectedId, quantity: v });
+      if (!res.ok || !data || !data.ok) { show("danger", (data && data.message) || "입고를 준비하지 못했습니다."); return; }
+      pending = { request_key: data.request_key, souvenir_id: data.souvenir_id, quantity: data.quantity };
+    } catch (e) {
+      show("danger", "서버에 연결하지 못했습니다. 다시 시도해 주세요.");
+      return;
+    } finally {
+      setBusy(false);
+    }
+    await record();
+  });
+
+  retry.addEventListener("click", () => { if (pending && !busy) record(); });
+  document.getElementById("reload").addEventListener("click", () => { if (!busy) loadList(); });
+  loadList();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}상품 관리 | 미스터 월드 투어{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">상품 관리</h2>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'travel:product_register' %}">+ 새 상품 등록</a>
+</div>
+
+<div class="row g-4">
+  {# 왼쪽: 상품 목록 #}
+  <div class="col-lg-5">
+    <form method="get" class="row g-2 mb-2">
+      <div class="col">{{ filters.theme }}</div>
+      <div class="col">{{ filters.tour_level }}</div>
+      <div class="col-auto"><button class="btn btn-outline-secondary">조회</button></div>
+    </form>
+    <div class="list-group">
+      {% for p in products %}
+        <a href="{% url 'travel:product_manage_detail' p.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+           class="list-group-item list-group-item-action{% if selected and selected.pk == p.pk %} active{% endif %}">
+          <div class="d-flex justify-content-between">
+            <span class="fw-semibold">{{ p.name }}</span>
+            <span class="small">{{ p.departure_date|date:"m/d" }} 출발</span>
+          </div>
+          <div class="small">{{ p.destination }} · {{ p.get_theme_display }} · {{ p.get_tour_level_display }} · {{ p.base_price|intcomma }}원</div>
+        </a>
+      {% empty %}
+        <div class="list-group-item text-muted">조건에 맞는 상품이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# 오른쪽: 선택한 상품 #}
+  <div class="col-lg-7">
+    {% if not selected %}
+      <div class="text-center text-muted border rounded p-5">왼쪽 목록에서 수정·삭제할 상품을 선택하세요.</div>
+    {% else %}
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">{{ selected.name }}</span>
+          {% if selected.departure_status %}
+            <span class="badge text-bg-{% if selected.departure_status == 'CONFIRMED' %}success{% else %}secondary{% endif %}">{{ selected.get_departure_status_display }}</span>
+          {% else %}
+            <span class="badge text-bg-info">신청별 출발 확정</span>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if has_applications %}
+            <div class="alert alert-warning">이 상품에는 여행 신청이 있어 수정·삭제할 수 없습니다.</div>
+          {% endif %}
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <fieldset {% if has_applications %}disabled{% endif %}>
+              {% include "travel/staff/_product_form.html" %}
+              <button class="btn btn-primary">수정</button>
+              <button type="button" class="btn btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteModal">삭제</button>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog"><div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">상품 삭제</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+          </div>
+          <div class="modal-body">'{{ selected.name }}' 상품을 삭제할까요? 되돌릴 수 없습니다.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+            <form method="post" action="{% url 'travel:product_delete' selected.pk %}">
+              {% csrf_token %}<button class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+        </div></div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
