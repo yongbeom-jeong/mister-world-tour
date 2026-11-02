@@ -1,0 +1,69 @@
+{# 상품 등록·수정 공통 입력 + 기본 구성 확인. 사용하는 쪽에서 <form> 으로 감싼다. #}
+{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+<div class="row">
+  <div class="col-md-8">{% include "includes/field.html" with field=form.name %}</div>
+  <div class="col-md-4">{% include "includes/field.html" with field=form.destination %}</div>
+  <div class="col-md-6">{% include "includes/field.html" with field=form.theme %}</div>
+  <div class="col-md-6">{% include "includes/field.html" with field=form.tour_level %}</div>
+  <div class="col-md-4">{% include "includes/field.html" with field=form.base_price %}</div>
+  <div class="col-md-4">{% include "includes/field.html" with field=form.travel_days %}</div>
+  <div class="col-md-4">{% include "includes/field.html" with field=form.departure_date %}</div>
+  <div class="col-12">{% include "includes/field.html" with field=form.description %}</div>
+</div>
+
+<div class="card bg-body-tertiary mb-3">
+  <div class="card-body py-2">
+    <div class="small fw-semibold mb-1">기본 서비스 구성 <span class="text-muted fw-normal">(테마·등급에 따라 자동 결정, 확인용)</span></div>
+    <dl class="row small mb-0" id="config-preview">
+      <dt class="col-4 col-md-2">테마 서비스</dt><dd class="col-8 col-md-4" data-k="theme_service">-</dd>
+      <dt class="col-4 col-md-2">기념품</dt><dd class="col-8 col-md-4" data-k="souvenir">-</dd>
+      <dt class="col-4 col-md-2">호텔</dt><dd class="col-8 col-md-4" data-k="hotel_level">-</dd>
+      <dt class="col-4 col-md-2">식사</dt><dd class="col-8 col-md-4" data-k="meal">-</dd>
+      <dt class="col-4 col-md-2">교통</dt><dd class="col-8 col-md-4" data-k="transport">-</dd>
+    </dl>
+    <div class="small text-danger" id="config-error" hidden></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const theme = document.getElementById("id_theme");
+  const level = document.getElementById("id_tour_level");
+  const cells = document.querySelectorAll("#config-preview [data-k]");
+  const err = document.getElementById("config-error");
+  const RESTRICTED = ["HONEYMOON", "FILIAL"];   // 초기 등급 그랜드·프리미엄만
+  let seq = 0;
+
+  function restrictLevels() {
+    const classic = level.querySelector('option[value="CLASSIC"]');
+    const restricted = RESTRICTED.includes(theme.value);
+    classic.disabled = restricted;
+    classic.textContent = restricted ? "클래식 (이 테마는 선택 불가)" : "클래식";
+    if (restricted && level.value === "CLASSIC") level.value = "";
+  }
+
+  async function loadConfig() {
+    const my = ++seq;
+    cells.forEach(c => c.textContent = "-");   // 이전 조합의 구성이 남지 않게 먼저 비운다
+    err.hidden = true;
+    if (!theme.value || !level.value) return;
+    try {
+      const q = new URLSearchParams({ theme: theme.value, tour_level: level.value });
+      const res = await fetch("{% url 'travel:default_configuration' %}?" + q);
+      const data = await res.json();
+      if (my !== seq) return;                    // 더 최근 요청이 있으면 버림
+      if (!data.ok) throw new Error(data.message);
+      cells.forEach(c => c.textContent = data.configuration[c.dataset.k]);
+    } catch (e) {
+      if (my !== seq) return;
+      err.textContent = "기본 구성을 불러오지 못했습니다. 테마·등급을 다시 선택해 주세요.";
+      err.hidden = false;
+    }
+  }
+
+  theme.addEventListener("change", () => { restrictLevels(); loadConfig(); });
+  level.addEventListener("change", loadConfig);
+  restrictLevels();
+  loadConfig();
+})();
+</script>

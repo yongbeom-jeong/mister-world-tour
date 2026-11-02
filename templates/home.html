@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if not user.is_authenticated %}
+  <div class="p-5 mb-4 bg-body-tertiary rounded-3">
+    <h1 class="display-6 fw-bold">미스터 월드 투어</h1>
+    <p class="fs-5 text-muted">허니문 · 효도 · 골프 · 트레킹, 테마로 떠나는 특별한 여행</p>
+    <a class="btn btn-primary btn-lg me-2" href="{% url 'members:login' %}">로그인</a>
+    <a class="btn btn-outline-primary btn-lg" href="{% url 'members:signup' %}">회원가입</a>
+  </div>
+
+{% elif user.is_customer %}
+  <h2 class="mb-4">{{ user.name }}님, 어디로 떠나볼까요?</h2>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">여행 상품 선택·신청</h5>
+          <p class="card-text text-muted">테마와 등급을 고르고 구성을 바꿔 바로 신청합니다.</p>
+          <a class="btn btn-primary" href="{% url 'travel:products' %}">상품 보기</a>
+          <a class="btn btn-outline-secondary ms-1" href="{% url 'travel:my_applications' %}">내 신청</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">이전 여행 이력</h5>
+          <p class="card-text text-muted">다녀온 여행을 최근 순으로 확인합니다.</p>
+          <button class="btn btn-outline-primary" data-history-open>이력 보기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% elif user.is_staff_member %}
+  <h2 class="mb-4">직원 메뉴</h2>
+  <div class="row g-3">
+    <div class="col-md-4"><div class="card h-100"><div class="card-body">
+      <h5 class="card-title">상품 등록</h5>
+      <p class="card-text text-muted">기획한 여행 상품을 등록합니다.</p>
+      <a class="btn btn-primary" href="{% url 'travel:product_register' %}">상품 등록</a>
+    </div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body">
+      <h5 class="card-title">상품 관리</h5>
+      <p class="card-text text-muted">등록된 상품을 수정·삭제합니다.</p>
+      <a class="btn btn-primary" href="{% url 'travel:product_manage' %}">상품 관리</a>
+    </div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body">
+      <h5 class="card-title">기념품 입고</h5>
+      <p class="card-text text-muted">기념품 재고를 확인하고 입고를 기록합니다.</p>
+      <a class="btn btn-primary" href="{% url 'souvenir:stock' %}">기념품 입고</a>
+    </div></div></div>
+  </div>
+{% endif %}
+
+{% if user.is_authenticated and user.is_customer %}
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historyModalLabel">이전 여행 이력</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body" id="historyBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" id="historyRetry" hidden>다시 시도</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated and user.is_customer %}
+<script>
+  const modal = new bootstrap.Modal(document.getElementById("historyModal"));
+  const body = document.getElementById("historyBody");
+  const retry = document.getElementById("historyRetry");
+
+  async function loadHistory() {
+    retry.hidden = true;
+    body.innerHTML = '<div class="text-center py-3"><div class="spinner-border" role="status"></div></div>';
+    try {
+      const res = await fetch("{% url 'travel:history' %}", { headers: { "X-Requested-With": "fetch" } });
+      body.innerHTML = await res.text();
+      retry.hidden = res.ok;
+    } catch (e) {
+      // 이전 결과를 남기지 않고 실패를 표시한다 (빈 이력과 구분)
+      body.innerHTML = '<div class="alert alert-danger mb-0">여행 이력을 불러오지 못했습니다. 네트워크를 확인해 주세요.</div>';
+      retry.hidden = false;
+    }
+  }
+
+  function openHistory() { modal.show(); loadHistory(); }
+  document.querySelectorAll("[data-history-open]").forEach(b => b.addEventListener("click", openHistory));
+  retry.addEventListener("click", loadHistory);
+  {% if show_history_popup %}openHistory();{% endif %}
+</script>
+{% endif %}
+{% endblock %}

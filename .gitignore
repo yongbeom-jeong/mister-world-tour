@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 가상환경
+.venv/
+venv/
+
+# 환경 설정 (비밀값)
+.env
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

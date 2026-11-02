@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}회원가입 | 미스터 월드 투어{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <h2 class="mb-4">회원가입</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "includes/field.html" with field=form.member_type %}
+      {% include "includes/field.html" with field=form.username %}
+      {% include "includes/field.html" with field=form.password1 %}
+      {% include "includes/field.html" with field=form.password2 %}
+      {% include "includes/field.html" with field=form.name %}
+      {% include "includes/field.html" with field=form.address %}
+      {% include "includes/field.html" with field=form.contact %}
+      <div id="staff-code-box">
+        {% include "includes/field.html" with field=form.staff_code %}
+      </div>
+      <button class="btn btn-primary w-100">가입하기</button>
+    </form>
+    <p class="text-center mt-3 small">이미 계정이 있나요? <a href="{% url 'members:login' %}">로그인</a></p>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  // 직원 유형을 골랐을 때만 직원 인증 코드 입력란을 보인다.
+  const box = document.getElementById("staff-code-box");
+  const radios = document.querySelectorAll('input[name="member_type"]');
+  function syncStaff() {
+    const checked = document.querySelector('input[name="member_type"]:checked');
+    box.style.display = checked && checked.value === "STAFF" ? "" : "none";
+  }
+  radios.forEach(r => r.addEventListener("change", syncStaff));
+  syncStaff();
+
+  // 입력하는 동안 형식 안내를 바로 보여준다. 최종 검사는 서버가 한다.
+  function liveHint(input, check) {
+    const hint = document.createElement("div");
+    hint.className = "small mt-1";
+    input.closest(".mb-3").appendChild(hint);
+    const update = () => {
+      if (!input.value) { hint.textContent = ""; return; }
+      const [ok, msg] = check(input.value);
+      hint.textContent = (ok ? "✓ " : "✗ ") + msg;
+      hint.className = "small mt-1 " + (ok ? "text-success" : "text-danger");
+    };
+    input.addEventListener("input", update);
+    return update;
+  }
+
+  const pw1 = document.getElementById("id_password1");
+  const pw2 = document.getElementById("id_password2");
+  liveHint(document.getElementById("id_username"), v =>
+    /^[A-Za-z0-9_]{4,20}$/.test(v) ? [true, "사용할 수 있는 형식입니다 (중복 여부는 가입 시 확인)"]
+                                   : [false, "영문·숫자·밑줄(_) 4~20자로 입력해 주세요"]);
+  liveHint(pw1, v =>
+    v.length < 8 ? [false, `8자 이상 입력해 주세요 (현재 ${v.length}자)`]
+    : /^\d+$/.test(v) ? [false, "숫자로만 된 비밀번호는 쓸 수 없습니다"]
+    : [true, "길이·형식 조건을 만족합니다"]);
+  const updatePw2 = liveHint(pw2, v =>
+    v === pw1.value ? [true, "비밀번호가 일치합니다"] : [false, "비밀번호가 일치하지 않습니다"]);
+  pw1.addEventListener("input", updatePw2);
+  liveHint(document.getElementById("id_contact"), v =>
+    /^01[016789]-?\d{3,4}-?\d{4}$/.test(v.trim()) ? [true, "올바른 휴대전화 번호 형식입니다"]
+                                                   : [false, "예: 010-1234-5678"]);
+</script>
+{% endblock %}

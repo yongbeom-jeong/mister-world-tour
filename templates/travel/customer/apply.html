@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}여행 신청 | 미스터 월드 투어{% endblock %}
+{% block content %}
+<a href="{% url 'travel:product_detail' product.pk %}" class="small">&larr; 구성 다시 고르기</a>
+<h2 class="mt-2 mb-3">여행 신청</h2>
+
+<div class="row g-4">
+  <div class="col-lg-5 order-lg-2">
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">{{ product.name }}</div>
+      <div class="card-body small">
+        <dl class="row mb-0">
+          <dt class="col-4">출발일</dt><dd class="col-8">{{ product.departure_date|date:"Y-m-d" }} ({{ product.travel_days }}일)</dd>
+          <dt class="col-4">호텔</dt><dd class="col-8">{{ described.hotel_level }}</dd>
+          <dt class="col-4">교통</dt><dd class="col-8">{{ described.transport }}</dd>
+          <dt class="col-4">식사</dt><dd class="col-8">{{ described.meal }}</dd>
+          <dt class="col-4">음료</dt><dd class="col-8">{{ described.drinks }}</dd>
+          <dt class="col-4">1인 가격</dt><dd class="col-8 fw-semibold">{{ unit_price|intcomma }}원</dd>
+        </dl>
+      </div>
+    </div>
+
+    {% if review %}
+      <div class="card border-primary" id="review-panel">
+        <div class="card-header bg-primary text-white fw-semibold">신청 금액 확인</div>
+        <div class="card-body">
+          <table class="table table-sm mb-3">
+            <tr><td>1인 가격 × {{ review.breakdown.traveler_count }}명</td><td class="text-end">{{ review.breakdown.subtotal|intcomma }}원</td></tr>
+            {% if review.breakdown.is_regular %}
+              <tr class="text-success"><td>단골 할인 10% <span class="small">(최근 3년 완료 여행 3회 이상)</span></td><td class="text-end">−{{ review.breakdown.discount_amount|intcomma }}원</td></tr>
+            {% endif %}
+            <tr class="fw-bold fs-5"><td>최종 금액</td><td class="text-end">{{ review.breakdown.final_amount|intcomma }}원</td></tr>
+          </table>
+          <div class="small text-muted mb-3">여행자: {% for t in review.travelers %}{{ t.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="submit">
+            <input type="hidden" name="request_key" value="{{ review.request_key }}">
+            <button class="btn btn-primary w-100" id="submit-btn">이 내용으로 신청 확정</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-7 order-lg-1">
+    <form method="post" id="traveler-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="action" value="review">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold">실제 여행자</span>
+        <span class="small text-muted">
+          {% if product.is_honeymoon %}신청 고객 + 동반 1명, 정확히 2명{% else %}신청 가능 인원 최대 {{ remaining }}명{% endif %}
+        </span>
+      </div>
+      {% if errors.travelers %}<div class="alert alert-danger py-2 small">{{ errors.travelers }}</div>{% endif %}
+
+      <div id="rows">
+        {# 첫 행: 신청 고객 본인 (계정 정보 사용) #}
+        <div class="row g-2 mb-2 traveler-row">
+          <div class="col-6"><input class="form-control" name="traveler_name" value="{{ user.name }}" readonly></div>
+          <div class="col-5"><input class="form-control" name="traveler_contact" value="{{ user.contact }}" readonly></div>
+          <div class="col-1 d-flex align-items-center"><span class="badge text-bg-secondary">본인</span></div>
+        </div>
+        {% for t in travelers|slice:"1:" %}
+          <div class="row g-2 mb-2 traveler-row">
+            <div class="col-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명" value="{{ t.name }}"></div>
+            <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)" value="{{ t.contact }}"></div>
+            <div class="col-1"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제">&times;</button></div>
+          </div>
+        {% endfor %}
+      </div>
+      {% for key, msg in errors.items %}{% if key != "travelers" %}<div class="text-danger small">{{ msg }}</div>{% endif %}{% endfor %}
+
+      <template id="row-template">
+        <div class="row g-2 mb-2 traveler-row">
+          <div class="col-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명"></div>
+          <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)"></div>
+          <div class="col-1"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제">&times;</button></div>
+        </div>
+      </template>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="add-row">+ 동반 여행자 추가</button>
+      <div class="form-text">여행자 1인당 테마 기념품 1개가 제공됩니다. 출발일은 상품에 정해져 있습니다.</div>
+      <button class="btn btn-outline-primary w-100 mt-3">{% if review %}다시 {% endif %}금액 확인</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const HONEYMOON = {{ product.is_honeymoon|yesno:"true,false" }};
+  const MAX = HONEYMOON ? 2 : {{ remaining }};
+  const rows = document.getElementById("rows");
+  const addBtn = document.getElementById("add-row");
+  const tpl = document.getElementById("row-template");
+
+  function count() { return rows.querySelectorAll(".traveler-row").length; }
+  function sync() { addBtn.disabled = count() >= MAX; addBtn.hidden = HONEYMOON && count() >= 2; }
+  function invalidateReview() {
+    // 여행자 정보가 바뀌면 이전 검토 금액으로 확정하지 못하게 한다
+    const panel = document.getElementById("review-panel");
+    if (panel) panel.remove();
+  }
+  function addRow() { if (count() < MAX) { rows.appendChild(tpl.content.cloneNode(true)); sync(); invalidateReview(); } }
+
+  addBtn.addEventListener("click", addRow);
+  rows.addEventListener("click", e => {
+    if (e.target.classList.contains("remove-row")) { e.target.closest(".traveler-row").remove(); sync(); invalidateReview(); }
+  });
+  rows.addEventListener("input", invalidateReview);
+  if (HONEYMOON && count() < 2) addRow();   // 허니문은 동반 1명 입력란을 바로 보여준다
+  sync();
+
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) submitBtn.closest("form").addEventListener("submit", () => {
+    submitBtn.disabled = true; submitBtn.textContent = "처리 중…";   // 반복 클릭 방지
+  });
+})();
+</script>
+{% endblock %}
