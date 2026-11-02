@@ -42,10 +42,19 @@ AWS EC2(Ubuntu 24.04)에 Nginx·Gunicorn·PostgreSQL 18 로 배포한다. 절차
 | 작업 | 명령 |
 |---|---|
 | 개발 서버 | `python manage.py runserver` |
-| 테스트 | `python manage.py test` |
+| 테스트 | `python manage.py test --noinput` |
 | 데모 데이터 | `python manage.py seed_demo` |
 | 모델 변경 반영 | `python manage.py makemigrations` → `python manage.py migrate` |
 | 패키지 추가 후 | `pip freeze > requirements.txt` |
+
+**다른 사람이 올린 코드를 받은 뒤(git pull)** 에는 가상환경을 켠 상태에서 아래를 실행한다.
+패키지·DB 구조·데모 사진이 바뀌었을 수 있다. 여러 번 실행해도 안전하다.
+
+```powershell
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_demo
+```
 
 ## 구조
 
@@ -57,8 +66,12 @@ apps/
   souvenir/      기념품 관리 (품목·재고·입고)
   speech/        음성인식 연동
   sms/           문자 발송 연동
-templates/       공통 템플릿 (base.html)
-static/          CSS·JS
+templates/       화면 템플릿 (base.html 공통 틀, 앱별 폴더)
+static/
+  css/mwt.css    공통 디자인 (색·글꼴·카드 등, 규칙은 AGENTS.md "화면 디자인")
+  img/photos/    기본 사진 (위키미디어 공용, 출처: credits.json → 사이트 푸터 "사진 출처")
+media/           직원이 올린 상품 사진 (git 제외, seed_demo 가 데모 사진을 넣음)
+deploy/          서버 설치·갱신 스크립트와 배포 안내
 docs/            요구분석·설계 산출물 (StarUML, Word)
 ```
 
