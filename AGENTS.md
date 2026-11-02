@@ -11,6 +11,7 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - 검사: `.venv/Scripts/python manage.py check`
 - 모델 변경 시: `makemigrations` 후 `migrate`, 생성된 마이그레이션 파일도 함께 커밋
 - 패키지 추가 시 `requirements.txt` 갱신
+- 배포: `deploy/DEPLOY.md` (서버 `/srv/mwt`, systemd 서비스 `mwt`, 설치 `deploy/setup.sh`, 갱신 `deploy/update.sh`). `deploy/`·`*.sh`는 LF 줄바꿈 유지
 - DB: 개발 PC는 SQLite, 배포 서버(AWS)만 PostgreSQL 18 (`.env`의 `POSTGRES_DB` 유무로 전환). 테스트는 `--noinput` 권장
   - SQLite는 `select_for_update` 잠금을 무시하므로, 동시성(정원·재고) 로직은 배포 서버의 PostgreSQL에서 다시 확인
 - 데모 데이터: `.venv/Scripts/python manage.py seed_demo` (여러 번 실행해도 중복 없음, 비밀번호 `demo1234!`)
