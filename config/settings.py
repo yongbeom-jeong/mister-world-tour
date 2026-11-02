@@ -24,6 +24,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only-change-me"
 DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h]
 CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+# 개발 중에만 같은 사이트 안의 iframe 표시 허용 (모바일 화면 미리보기용). 운영은 기본값 DENY
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
 
 if not DEBUG and SECRET_KEY.startswith("django-insecure"):
     raise RuntimeError("운영 모드(DJANGO_DEBUG=False)에서는 .env 의 DJANGO_SECRET_KEY 를 반드시 설정해야 합니다.")
@@ -76,6 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.travel.context_processors.site",
             ],
         },
     },
@@ -139,6 +143,12 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"  # 배포 시 collectstatic 대상 (Nginx 가 제공)
 
+# 업로드 파일 (직원이 올린 상품 사진). 배포 시 Nginx 가 /media/ 로 제공
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
@@ -161,3 +171,6 @@ LOGGING = {
 if "test" in sys.argv:
     LOGGING["loggers"]["apps"]["level"] = "WARNING"  # 테스트 출력은 경고 이상만
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]  # 테스트 속도용 (운영에는 영향 없음)
+    import tempfile
+
+    MEDIA_ROOT = Path(tempfile.gettempdir()) / "mwt-test-media"  # 테스트 업로드가 실제 media/ 에 섞이지 않게

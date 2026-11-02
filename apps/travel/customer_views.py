@@ -93,6 +93,7 @@ def product_detail(request, product_id: int):
         "described": cfg.describe(config),
         "unit_price": booking.calculate_unit_price(product, config),
         "options": _option_choices(product),
+        "option_fields": [("hotel_level", "호텔"), ("transport", "교통"), ("meal", "식사")],
         "no_drink_meals": json.dumps(sorted(NO_DRINK_MEALS)),
         "included_drinks": json.dumps({k: sorted(v) for k, v in INCLUDED_DRINKS.items()}),
         "remaining": booking.remaining_seats(product),

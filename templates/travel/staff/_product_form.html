@@ -1,27 +1,56 @@
-{# 상품 등록·수정 공통 입력 + 기본 구성 확인. 사용하는 쪽에서 <form> 으로 감싼다. #}
+{% load mwt %}
+{# 상품 등록·수정 공통 입력 + 사진 + 기본 구성 확인. 사용하는 쪽에서 <form enctype="multipart/form-data"> 로 감싼다. #}
 {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-<div class="row">
-  <div class="col-md-8">{% include "includes/field.html" with field=form.name %}</div>
-  <div class="col-md-4">{% include "includes/field.html" with field=form.destination %}</div>
-  <div class="col-md-6">{% include "includes/field.html" with field=form.theme %}</div>
-  <div class="col-md-6">{% include "includes/field.html" with field=form.tour_level %}</div>
-  <div class="col-md-4">{% include "includes/field.html" with field=form.base_price %}</div>
-  <div class="col-md-4">{% include "includes/field.html" with field=form.travel_days %}</div>
-  <div class="col-md-4">{% include "includes/field.html" with field=form.departure_date %}</div>
-  <div class="col-12">{% include "includes/field.html" with field=form.description %}</div>
-</div>
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="row">
+      <div class="col-md-8">{% include "includes/field.html" with field=form.name %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with field=form.destination %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with field=form.theme %}</div>
+      <div class="col-md-6">{% include "includes/field.html" with field=form.tour_level %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with field=form.base_price %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with field=form.travel_days %}</div>
+      <div class="col-md-4">{% include "includes/field.html" with field=form.departure_date %}</div>
+      <div class="col-12">{% include "includes/field.html" with field=form.description %}</div>
+    </div>
+  </div>
 
-<div class="card bg-body-tertiary mb-3">
-  <div class="card-body py-2">
-    <div class="small fw-semibold mb-1">기본 서비스 구성 <span class="text-muted fw-normal">(테마·등급에 따라 자동 결정, 확인용)</span></div>
-    <dl class="row small mb-0" id="config-preview">
-      <dt class="col-4 col-md-2">테마 서비스</dt><dd class="col-8 col-md-4" data-k="theme_service">-</dd>
-      <dt class="col-4 col-md-2">기념품</dt><dd class="col-8 col-md-4" data-k="souvenir">-</dd>
-      <dt class="col-4 col-md-2">호텔</dt><dd class="col-8 col-md-4" data-k="hotel_level">-</dd>
-      <dt class="col-4 col-md-2">식사</dt><dd class="col-8 col-md-4" data-k="meal">-</dd>
-      <dt class="col-4 col-md-2">교통</dt><dd class="col-8 col-md-4" data-k="transport">-</dd>
-    </dl>
-    <div class="small text-danger" id="config-error" hidden></div>
+  <div class="col-xl-5">
+    {# 대표 사진 #}
+    <div class="mb-3">
+      <div class="form-label">대표 사진</div>
+      <div class="rounded-3 overflow-hidden mb-2 position-relative" style="aspect-ratio:16/10;background:#dde3ee">
+        <img id="photo-preview" class="w-100 h-100" style="object-fit:cover"
+             src="{% if form.instance.image %}{{ form.instance.image.url }}{% elif form.instance.theme %}{{ form.instance|product_photo }}{% else %}{% photo 'hero' 'sm' %}{% endif %}" alt="대표 사진 미리보기">
+        <span class="tag position-absolute" style="top:.6rem;left:.6rem" id="photo-label">
+          {% if form.instance.image %}현재 사진{% else %}테마 기본 사진{% endif %}</span>
+      </div>
+      <input type="file" name="{{ form.image.html_name }}" id="id_image" accept="image/jpeg,image/png,image/webp"
+             class="form-control {% if form.image.errors %}is-invalid{% endif %}">
+      {% if form.instance.image %}
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="{{ form.image.html_name }}-clear" id="image-clear">
+          <label class="form-check-label small" for="image-clear">사진 삭제 (테마 기본 사진 사용)</label>
+        </div>
+      {% endif %}
+      {% for e in form.image.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      <div class="form-text">{{ form.image.help_text }}</div>
+    </div>
+
+    {# 기본 구성 (자동) #}
+    <div class="mwt-card bg-gold-soft border-0">
+      <div class="mwt-card-body">
+        <div class="small fw-bold mb-2"><i class="bi bi-magic me-1"></i>기본 서비스 구성 <span class="text-muted fw-normal">테마·등급에 따라 자동 결정</span></div>
+        <dl class="info-list small mb-0" id="config-preview">
+          <dt>테마 서비스</dt><dd data-k="theme_service">-</dd>
+          <dt>기념품</dt><dd data-k="souvenir">-</dd>
+          <dt>호텔</dt><dd data-k="hotel_level">-</dd>
+          <dt>식사</dt><dd data-k="meal">-</dd>
+          <dt>교통</dt><dd data-k="transport">-</dd>
+        </dl>
+        <div class="small text-danger mt-2" id="config-error" hidden></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -60,6 +89,23 @@
       err.hidden = false;
     }
   }
+
+  // 사진 미리보기: 새 파일을 고르면 바로 보여 준다 (저장은 등록·수정 버튼을 눌렀을 때)
+  const file = document.getElementById("id_image");
+  const preview = document.getElementById("photo-preview");
+  const label = document.getElementById("photo-label");
+  const original = preview.src;
+  file.addEventListener("change", () => {
+    const f = file.files[0];
+    if (!f) { preview.src = original; return; }
+    if (f.size > 5 * 1024 * 1024) {
+      file.value = ""; preview.src = original;
+      label.textContent = "5MB를 넘는 파일은 올릴 수 없습니다";
+      return;
+    }
+    preview.src = URL.createObjectURL(f);
+    label.textContent = "새 사진 (저장 전)";
+  });
 
   theme.addEventListener("change", () => { restrictLevels(); loadConfig(); });
   level.addEventListener("change", loadConfig);

@@ -1,21 +1,21 @@
-{% load humanize %}
+{% load mwt %}
 {% if histories %}
-  <div class="table-responsive">
-    <table class="table table-sm align-middle mb-0">
-      <thead><tr><th>상품</th><th>기간</th><th>등급</th><th class="text-end">가격</th><th>완료일</th></tr></thead>
-      <tbody>
-        {% for h in histories %}
-          <tr>
-            <td>{{ h.product_name }}</td>
-            <td>{{ h.travel_days }}일</td>
-            <td>{{ h.get_tour_level_display }}</td>
-            <td class="text-end">{{ h.price|intcomma }}원</td>
-            <td>{% if h.completed %}{{ h.completed_at|date:"Y-m-d" }}{% else %}<span class="badge text-bg-secondary">미완료</span>{% endif %}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="list-group list-group-flush">
+    {% for h in histories %}
+      <div class="list-group-item px-0 py-3 d-flex gap-3 align-items-center">
+        <div class="stat-icon"><i class="bi bi-airplane"></i></div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">{{ h.product_name }}</div>
+          <div class="small text-muted">{{ h.travel_days }}일 · {{ h.get_tour_level_display }} ·
+            {% if h.completed %}{{ h.completed_at|date:"Y-m-d" }} 완료{% else %}<span class="tag tag-muted">미완료</span>{% endif %}</div>
+        </div>
+        <div class="fw-bold text-end">{{ h.price|won }}</div>
+      </div>
+    {% endfor %}
   </div>
 {% else %}
-  <p class="text-muted mb-0">이전 여행 이력이 없습니다.</p>
+  <div class="text-center py-4">
+    <i class="bi bi-compass fs-1 text-muted"></i>
+    <p class="text-muted mt-2 mb-0">이전 여행 이력이 없습니다. 첫 여행을 떠나 보세요!</p>
+  </div>
 {% endif %}

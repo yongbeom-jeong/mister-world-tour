@@ -1,37 +1,46 @@
 {% extends "base.html" %}
 {% block title %}기념품 입고 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <div class="eyebrow">Staff · Souvenir Stock</div>
+      <h1>기념품 입고</h1>
+      <p>입고할 품목을 고르고 수량을 입력하세요. 등록하면 재고가 바로 늘어납니다. 여행자 1인당 1개씩 필요합니다.</p>
+    </div>
+  </section>
+{% endblock %}
 {% block content %}
-<h2 class="mb-3">기념품 입고</h2>
-<p class="text-muted">품목을 선택하고 입고 수량을 입력하세요. 입고하면 재고가 바로 늘어납니다.</p>
-
 <div class="row g-4">
-  <div class="col-lg-7">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <span class="fw-semibold">기념품 재고</span>
-      <button class="btn btn-sm btn-outline-secondary" id="reload">새로고침</button>
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="fw-bold">기념품 재고</span>
+      <button class="btn btn-sm btn-outline-primary" id="reload"><i class="bi bi-arrow-clockwise me-1"></i>새로고침</button>
     </div>
     <div id="list-error" class="alert alert-danger" hidden></div>
-    <table class="table table-hover align-middle">
-      <thead><tr><th style="width:3rem"></th><th>품목</th><th>테마</th><th class="text-end">현재 재고</th></tr></thead>
-      <tbody id="souvenir-rows"><tr><td colspan="4" class="text-center text-muted">불러오는 중…</td></tr></tbody>
-    </table>
+    <div class="row g-3" id="souvenir-rows">
+      <div class="col-12 text-center text-muted py-4"><div class="spinner-border spinner-border-sm"></div> 불러오는 중…</div>
+    </div>
   </div>
 
-  <div class="col-lg-5">
-    <div class="card">
-      <div class="card-body">
+  <div class="col-lg-4">
+    <div class="mwt-card sticky-panel">
+      <div class="mwt-card-head"><span><i class="bi bi-box-arrow-in-down me-1"></i>입고 등록</span></div>
+      <div class="mwt-card-body">
         <form id="receipt-form" novalidate>
           {% csrf_token %}
           <div class="mb-3">
             <div class="form-label">입고 품목</div>
-            <div id="selected-name" class="fw-semibold text-muted">목록에서 품목을 선택하세요</div>
+            <div id="selected-name" class="fw-semibold text-muted">왼쪽에서 품목을 선택하세요</div>
           </div>
           <div class="mb-3">
             <label class="form-label" for="quantity">입고 수량</label>
-            <input type="number" min="1" step="1" class="form-control" id="quantity" disabled>
-            <div class="form-text">1 이상의 정수</div>
+            <div class="input-group">
+              <input type="number" min="1" step="1" class="form-control form-control-lg" id="quantity" disabled>
+              <span class="input-group-text">개</span>
+            </div>
+            <div class="form-text">1 이상의 정수 (한 번에 최대 10,000개)</div>
           </div>
-          <button class="btn btn-primary w-100" id="submit" disabled>입고 등록</button>
+          <button class="btn btn-gold btn-lg w-100" id="submit" disabled>입고 등록</button>
         </form>
         <div id="result" class="mt-3" hidden></div>
         <button class="btn btn-outline-warning w-100 mt-2" id="retry" hidden>같은 입고 다시 확인</button>
@@ -69,23 +78,31 @@
     result.hidden = false;
   }
 
+  const LOW = 10;   // 재고 부족 강조 기준 (홈 대시보드와 같음)
   function render() {
     if (!souvenirs.length) {
-      rows.innerHTML = '<tr><td colspan="4" class="text-center text-muted">등록된 기념품이 없습니다.</td></tr>';
+      rows.innerHTML = '<div class="col-12 text-center text-muted py-4">등록된 기념품이 없습니다.</div>';
       return;
     }
     rows.innerHTML = "";
     for (const s of souvenirs) {
-      const tr = document.createElement("tr");
-      tr.style.cursor = "pointer";
-      tr.className = s.id === selectedId ? "table-primary" : "";
-      tr.innerHTML = `<td><input class="form-check-input" type="radio" name="souvenir" ${s.id === selectedId ? "checked" : ""}></td>
-        <td></td><td></td><td class="text-end fw-semibold"></td>`;
-      tr.children[1].textContent = s.name;
-      tr.children[2].textContent = s.theme;
-      tr.children[3].textContent = s.stock_quantity.toLocaleString() + "개";
-      tr.addEventListener("click", () => select(s.id));
-      rows.appendChild(tr);
+      const col = document.createElement("div");
+      col.className = "col-sm-6";
+      col.innerHTML = `<div class="mwt-card mwt-card-body souvenir-tile h-100 ${s.id === selectedId ? "selected" : ""}" role="button" tabindex="0">
+          <div class="d-flex justify-content-between align-items-start">
+            <div><div class="fw-bold fs-5" data-name></div><div class="small text-muted" data-theme></div></div>
+            <div class="stat-icon"><i class="bi bi-gift"></i></div>
+          </div>
+          <div class="mt-3"><span class="stock-num ${s.stock_quantity < LOW ? "stock-low" : ""}" data-stock></span><span class="text-muted"> 개</span>
+            ${s.stock_quantity < LOW ? '<span class="tag tag-muted ms-2 stock-low">재고 부족</span>' : ""}</div>
+        </div>`;
+      col.querySelector("[data-name]").textContent = s.name;
+      col.querySelector("[data-theme]").textContent = s.theme;
+      col.querySelector("[data-stock]").textContent = s.stock_quantity.toLocaleString();
+      const tile = col.firstElementChild;
+      tile.addEventListener("click", () => select(s.id));
+      tile.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.id); } });
+      rows.appendChild(col);
     }
   }
 

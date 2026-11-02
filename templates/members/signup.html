@@ -1,25 +1,50 @@
 {% extends "base.html" %}
+{% load mwt %}
 {% block title %}회원가입 | 미스터 월드 투어{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6 col-lg-5">
-    <h2 class="mb-4">회원가입</h2>
-    <form method="post" novalidate>
-      {% csrf_token %}
-      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-      {% include "includes/field.html" with field=form.member_type %}
-      {% include "includes/field.html" with field=form.username %}
-      {% include "includes/field.html" with field=form.password1 %}
-      {% include "includes/field.html" with field=form.password2 %}
-      {% include "includes/field.html" with field=form.name %}
-      {% include "includes/field.html" with field=form.address %}
-      {% include "includes/field.html" with field=form.contact %}
-      <div id="staff-code-box">
-        {% include "includes/field.html" with field=form.staff_code %}
-      </div>
-      <button class="btn btn-primary w-100">가입하기</button>
-    </form>
-    <p class="text-center mt-3 small">이미 계정이 있나요? <a href="{% url 'members:login' %}">로그인</a></p>
+{% block full_width %}
+<div class="auth-wrap">
+  <div class="auth-photo" style="background-image:url('{% photo "theme_trekking" %}')">
+    <div>
+      <div class="eyebrow mb-2">Join Mister World</div>
+      <h2 class="mb-2">특별한 여행의 시작</h2>
+      <p class="mb-0 opacity-75">가입하면 테마 여행을 고르고 바로 신청할 수 있어요.<br>최근 3년 동안 3번 이상 함께한 고객님께는 10% 단골 할인을 드립니다.</p>
+    </div>
+  </div>
+  <div class="auth-form">
+    <div class="inner" style="max-width:480px">
+      <h1 class="h2 mb-1">회원가입</h1>
+      <p class="text-muted mb-4">성명·주소·연락처는 여행 신청과 출발 확정 문자에 사용됩니다.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        <div class="mb-3">
+          <div class="form-label">회원 유형 <span class="text-danger">*</span></div>
+          <div class="chip-group">
+            {% for radio in form.member_type %}
+              <input type="radio" class="btn-check" name="{{ form.member_type.html_name }}" id="{{ radio.id_for_label }}"
+                     value="{{ radio.data.value }}" {% if radio.data.selected %}checked{% endif %}>
+              <label class="btn" for="{{ radio.id_for_label }}"><i class="bi {% if radio.data.value == 'STAFF' %}bi-briefcase{% else %}bi-person{% endif %} me-1"></i>{{ radio.choice_label }}</label>
+            {% endfor %}
+          </div>
+          {% for e in form.member_type.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+        </div>
+        {% include "includes/field.html" with field=form.username %}
+        <div class="row g-2">
+          <div class="col-sm-6">{% include "includes/field.html" with field=form.password1 %}</div>
+          <div class="col-sm-6">{% include "includes/field.html" with field=form.password2 %}</div>
+        </div>
+        <div class="row g-2">
+          <div class="col-sm-5">{% include "includes/field.html" with field=form.name %}</div>
+          <div class="col-sm-7">{% include "includes/field.html" with field=form.contact %}</div>
+        </div>
+        {% include "includes/field.html" with field=form.address %}
+        <div id="staff-code-box">
+          {% include "includes/field.html" with field=form.staff_code %}
+        </div>
+        <button class="btn btn-gold btn-lg w-100 mt-2">가입하기</button>
+      </form>
+      <p class="text-center mt-4 mb-0 small">이미 계정이 있나요? <a href="{% url 'members:login' %}" class="fw-semibold">로그인</a></p>
+    </div>
   </div>
 </div>
 {% endblock %}

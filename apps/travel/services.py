@@ -8,6 +8,7 @@ from django.db.models import F
 
 from apps.souvenir import services as souvenir_services
 
+from . import images
 from .choices import LEVEL_DEFAULTS, THEME_DEFAULTS, HotelLevel, MealOption, Theme, TourLevel, TransportOption
 from .models import TravelHistory, TravelProduct
 
@@ -82,21 +83,33 @@ def _fill(product: TravelProduct, data: dict) -> None:
     product.full_clean()
 
 
-def register_tour_product(data: dict) -> TravelProduct:
+def _apply_image(product: TravelProduct, image) -> None:
+    """image: None=그대로, False=삭제(테마 기본 사진 사용), 업로드 파일=교체. 실패 시 images.InvalidImage."""
+    if image is None:
+        return
+    if image is False:
+        product.image = ""
+        return
+    product.image.save("upload.jpg", images.process_upload(image), save=False)
+
+
+def register_tour_product(data: dict, image=None) -> TravelProduct:
     """UC6 상품 등록. 기본 구성·기념품·출발 상태는 시스템이 결정한다."""
     product = TravelProduct()
     _fill(product, data)
+    _apply_image(product, image)
     product.save()
     return product
 
 
-def modify_tour_product(product_id: int, data: dict) -> TravelProduct:
+def modify_tour_product(product_id: int, data: dict, image=None) -> TravelProduct:
     """UC7 상품 수정. 같은 상품을 잠근 상태에서 신청 존재 여부를 확인한 뒤 변경한다."""
     with transaction.atomic():
         product = _lock(product_id)
         if product.applications.exists():
             raise ProductHasApplications(product_id)
         _fill(product, data)
+        _apply_image(product, image)
         product.save()
     return product
 

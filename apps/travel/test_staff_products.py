@@ -86,6 +86,40 @@ class StaffProductTests(TestCase):
         self.assertEqual(res.context["selected"].pk, p.pk)
         self.assertEqual(TravelProduct.objects.get(pk=p.pk).name, "새 상품")
 
+    def test_manage_page_has_unique_field_ids(self):
+        """목록 필터와 상품 입력 폼이 같은 id 를 쓰면 기본 구성 미리보기가 엉뚱한 값을 읽는다."""
+        p = self.product()
+        html = self.client.get(reverse("travel:product_manage_detail", args=[p.pk])).content.decode()
+        for field_id in ("id_theme", "id_tour_level"):
+            self.assertEqual(html.count(f'id="{field_id}"'), 1, field_id)
+
+    def test_register_with_photo_and_remove_it(self):
+        import io
+
+        from PIL import Image
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        buf = io.BytesIO()
+        Image.new("RGB", (2400, 1200), "navy").save(buf, "PNG")
+        photo = SimpleUploadedFile("big.png", buf.getvalue(), content_type="image/png")
+        self.client.post(reverse("travel:product_register"), {**self.data(), "image": photo})
+        p = TravelProduct.objects.get(name="새 상품")
+        self.assertTrue(p.image.name.endswith(".jpg"))
+        with Image.open(p.image.path) as im:
+            self.assertEqual(max(im.size), 1600)  # 큰 사진은 1600px 로 줄임
+
+        self.client.post(reverse("travel:product_manage_detail", args=[p.pk]), {**self.data(), "image-clear": "on"})
+        p.refresh_from_db()
+        self.assertFalse(p.image)  # 테마 기본 사진 사용
+
+    def test_non_image_upload_rejected(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        fake = SimpleUploadedFile("x.jpg", b"not an image", content_type="image/jpeg")
+        res = self.client.post(reverse("travel:product_register"), {**self.data(), "image": fake})
+        self.assertIn("image", res.context["form"].errors)
+        self.assertFalse(TravelProduct.objects.exists())
+
     def test_modify_regenerates_default_configuration(self):
         p = self.product()
         self.client.post(reverse("travel:product_manage_detail", args=[p.pk]),

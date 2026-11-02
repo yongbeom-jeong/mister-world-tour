@@ -9,6 +9,8 @@
 
 from datetime import date, timedelta
 
+from django.conf import settings
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -59,6 +61,14 @@ PRODUCTS = [
      "성판악 코스 정상 등반과 올레 7코스."),
 ]
 
+# 데모 상품 사진 (static/img/photos/<이름>.jpg, 출처는 credits.json)
+PRODUCT_PHOTOS = {
+    "몰디브 워터빌라 허니문": "maldives", "발리 우붓 로맨틱 허니문": "bali", "하와이 마우이 허니문": "maui",
+    "제주 힐링 효도 여행": "jeju", "벳푸 온천 효도 여행": "beppu", "타이베이 효도 여행": "taipei",
+    "치앙마이 골프 챌린지": "chiangmai", "다낭 골프 챌린지": "danang", "미야자키 골프 챌린지": "miyazaki",
+    "안나푸르나 베이스캠프 트레킹": "annapurna", "융프라우 알프스 트레킹": "jungfrau", "한라산·올레길 트레킹": "hallasan",
+}
+
 # 초기 기념품 재고 (입고 내역으로 기록)
 STOCK = {"커플 기념티": 20, "건강 인삼": 30, "골프공": 50, "기념품 스카프": 40}
 
@@ -98,6 +108,7 @@ class Command(BaseCommand):
         members = self._members()
         self._stock(members["staff1"])
         n_products = self._products(today)
+        self._photos()
         n_hist = self._histories(members, today)
         n_apps = self._applications(members)
 
@@ -179,3 +190,13 @@ class Command(BaseCommand):
             booking.submit_travel_application(member, review)
             created += 1
         return created
+
+    def _photos(self) -> None:
+        """사진이 없는 데모 상품에 기본 사진을 업로드 파일처럼 넣는다 (직원이 올린 사진은 건드리지 않음)."""
+        photo_dir = settings.BASE_DIR / "static" / "img" / "photos"
+        for name, photo in PRODUCT_PHOTOS.items():
+            p = TravelProduct.objects.filter(name=name).first()
+            if p is None or p.image:
+                continue
+            with open(photo_dir / f"{photo}.jpg", "rb") as f:
+                p.image.save(f"{photo}.jpg", File(f), save=True)
