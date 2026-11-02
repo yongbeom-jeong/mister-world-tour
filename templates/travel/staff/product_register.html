@@ -1,14 +1,25 @@
 {% extends "base.html" %}
 {% block title %}상품 등록 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+      <div>
+        <div class="eyebrow">Staff · New Package</div>
+        <h1>상품 등록</h1>
+        <p>기획한 새 여행 상품을 입력합니다. 기존 상품의 수정·삭제는 상품 관리에서 합니다.</p>
+      </div>
+      <a class="btn btn-outline-light btn-sm" href="{% url 'travel:product_manage' %}"><i class="bi bi-list-ul me-1"></i>상품 관리로</a>
+    </div>
+  </section>
+{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">상품 등록</h2>
-  <a class="btn btn-outline-secondary btn-sm" href="{% url 'travel:product_manage' %}">상품 관리로</a>
-</div>
-<p class="text-muted">기획한 새 여행 상품을 입력합니다. 기존 상품의 수정·삭제는 <a href="{% url 'travel:product_manage' %}">상품 관리</a>에서 합니다.</p>
-<form method="post" novalidate class="col-lg-9">
+<form method="post" enctype="multipart/form-data" novalidate class="mwt-card">
   {% csrf_token %}
-  {% include "travel/staff/_product_form.html" %}
-  <button class="btn btn-primary">등록</button>
+  <div class="mwt-card-body">
+    {% include "travel/staff/_product_form.html" %}
+  </div>
+  <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
+    <button class="btn btn-gold"><i class="bi bi-plus-lg me-1"></i>등록</button>
+  </div>
 </form>
 {% endblock %}

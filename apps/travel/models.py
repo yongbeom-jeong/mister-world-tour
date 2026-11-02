@@ -49,6 +49,7 @@ class TravelProduct(ConfigurationFields):
     # 여행지·소개: 설계에 없는 항목. 화면 표시용으로 임의 추가
     destination = models.CharField("여행지", max_length=100, blank=True)
     description = models.TextField("상품 소개", blank=True)
+    image = models.ImageField("대표 사진", upload_to="products/%Y/%m/", blank=True)  # 없으면 테마 기본 사진
     theme = models.CharField("테마", max_length=10, choices=Theme.choices)
     tour_level = models.CharField("초기 등급", max_length=10, choices=TourLevel.choices)
     base_price = models.PositiveIntegerField("1인 기본 가격(원)")

@@ -59,6 +59,15 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
   - 상품 목록 화면에 "문장으로 입력" 칸이 있어 마이크 없이도 시험 가능
 - seed_demo 신청: customer2가 다낭 골프 2명(1명 더 오면 확정), 제주 효도 8명(확정, 남은 2자리)
 
+## 화면 디자인
+- 고급 여행사 콘셉트: 네이비(`--mwt-navy`) + 골드(`--mwt-gold`), 본문 Pretendard, 제목 Noto Serif KR. 공통 스타일은 `static/css/mwt.css` 하나에서 관리
+- 공통 부품: `.mwt-page-head`(내부 페이지 머리), `.mwt-hero`(사진 배너), `.mwt-card`/`.mwt-card-body`, `.product-card`(`templates/travel/customer/_product_card.html`), `.tag`, `.chip-group`, `.option-tile`, `.stepper`, `.btn-gold`
+- 템플릿 도구 `{% load mwt %}`: `product|product_photo[:"sm"]`, `값|won`, `테마코드|theme_info:"en|icon|tagline|photo"`, `{% photo "이름" ["sm"] %}`, `dict|get_item:키`
+- 사진: 기본 사진은 `static/img/photos/`(1600px, `sm/`은 800px), 출처는 `credits.json` → `/credits/` 페이지. CC BY·BY-SA 라 출처 표시 필수, 사진을 바꾸면 credits.json 도 갱신
+- 상품 사진 업로드: `TravelProduct.image`(media/products/…), 서버에서 최대 1600px JPEG 로 재저장(`apps/travel/images.py`). 없으면 테마 기본 사진
+- JS 가 쓰는 id(`id_theme`, `config-input`, `review-panel` 등)는 화면마다 하나만. 같은 화면의 다른 폼은 `auto_id` 를 바꿔 충돌을 피한다 (예: 목록 필터 `filter_%s`)
+- 브라우저로 확인할 때 휴대폰 폭은 같은 사이트 iframe(390px)으로 미리보기 가능 (DEBUG 에서만 SAMEORIGIN 허용)
+
 ## 규칙
 - 화면 문구·주석은 한국어. 코드 식별자는 영어.
 - 비밀값(API 키, DB 비밀번호)은 `.env`에만 두고 `settings.py`에서 `os.getenv`로 읽는다.

@@ -124,15 +124,21 @@ ok "실행 중: $(systemctl is-active $SERVICE)"
 
 # ---------------------------------------------------------------- 6. Nginx
 step "6/7 Nginx"
-sudo chmod o+rx "$APP_DIR"                      # Nginx(www-data)가 정적 파일을 읽을 수 있게
+mkdir -p "$APP_DIR/media"
+sudo chmod o+rx "$APP_DIR" "$APP_DIR/media"     # Nginx(www-data)가 정적 파일·업로드 사진을 읽을 수 있게
 sudo tee /etc/nginx/sites-available/$SERVICE >/dev/null <<NGINX
 server {
     listen 80;
     server_name $HOST $PUBLIC_IP;
-    client_max_body_size 5M;
+    client_max_body_size 8M;                    # 사진 업로드(5MB) + 폼 여유
 
     location /static/ {
         alias $APP_DIR/staticfiles/;
+        expires 7d;
+    }
+
+    location /media/ {                            # 직원이 올린 상품 사진
+        alias $APP_DIR/media/;
         expires 7d;
     }
 

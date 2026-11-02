@@ -1,22 +1,40 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load mwt %}
 {% block title %}내 신청 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <div class="eyebrow">My Bookings</div>
+      <h1>내 여행 신청</h1>
+      <p>신청한 여행과 출발 확정 여부를 확인하세요.</p>
+    </div>
+  </section>
+{% endblock %}
 {% block content %}
-<h2 class="mb-3">내 여행 신청</h2>
 {% if applications %}
-  <div class="list-group">
+  <div class="row g-3">
     {% for a in applications %}
-      <a class="list-group-item list-group-item-action" href="{% url 'travel:application_detail' a.pk %}">
-        <div class="d-flex justify-content-between">
-          <span class="fw-semibold">{{ a.product.name }}</span>
-          {% if a.current_departure_status == "CONFIRMED" %}<span class="badge text-bg-success">출발 확정</span>
-          {% else %}<span class="badge text-bg-secondary">출발 미확정</span>{% endif %}
-        </div>
-        <div class="small text-muted">{{ a.product.departure_date|date:"Y-m-d" }} 출발 · {{ a.n_travelers }}명 · {{ a.final_amount|intcomma }}원</div>
-      </a>
+      <div class="col-lg-6">
+        <a class="mwt-card d-flex text-decoration-none text-reset overflow-hidden h-100" href="{% url 'travel:application_detail' a.pk %}">
+          <img src="{{ a.product|product_photo:'sm' }}" alt="" style="width:9.5rem;object-fit:cover;flex-shrink:0">
+          <div class="p-3 flex-grow-1">
+            <div class="d-flex justify-content-between gap-2 mb-1">
+              <span class="fw-bold">{{ a.product.name }}</span>
+              {% if a.current_departure_status == "CONFIRMED" %}<span class="tag tag-success flex-shrink-0">출발 확정</span>
+              {% else %}<span class="tag tag-muted flex-shrink-0">출발 미확정</span>{% endif %}
+            </div>
+            <div class="small text-muted mb-2"><i class="bi bi-calendar3"></i> {{ a.product.departure_date|date:"Y-m-d" }} 출발 · <i class="bi bi-people"></i> {{ a.n_travelers }}명</div>
+            <div class="fw-bold text-gold">{{ a.final_amount|won }}</div>
+          </div>
+        </a>
+      </div>
     {% endfor %}
   </div>
 {% else %}
-  <p class="text-muted">아직 신청한 여행이 없습니다. <a href="{% url 'travel:products' %}">여행 상품 보러 가기</a></p>
+  <div class="mwt-card mwt-card-body text-center py-5">
+    <i class="bi bi-suitcase2 fs-1 text-muted"></i>
+    <p class="mt-2 text-muted">아직 신청한 여행이 없습니다.</p>
+    <a class="btn btn-gold" href="{% url 'travel:products' %}">여행 상품 보러 가기</a>
+  </div>
 {% endif %}
 {% endblock %}
