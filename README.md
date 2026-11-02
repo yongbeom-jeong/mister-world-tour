@@ -20,6 +20,11 @@ python manage.py createsuperuser      # /admin 관리자 계정 (선택)
 python manage.py runserver            # http://127.0.0.1:8000
 ```
 
+## 서버 배포
+
+AWS EC2(Ubuntu 24.04)에 Nginx·Gunicorn·PostgreSQL 18 로 배포한다. 절차: [deploy/DEPLOY.md](deploy/DEPLOY.md)
+(`deploy/setup.sh` 한 번 실행으로 설치·HTTPS 까지 완료, 갱신은 `deploy/update.sh`)
+
 ## 데이터베이스
 
 | 환경 | DB | 설정 |

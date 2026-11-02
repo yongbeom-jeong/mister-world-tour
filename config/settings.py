@@ -23,6 +23,18 @@ def env_bool(name: str, default: bool = False) -> bool:
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only-change-me")
 DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h]
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+
+if not DEBUG and SECRET_KEY.startswith("django-insecure"):
+    raise RuntimeError("운영 모드(DJANGO_DEBUG=False)에서는 .env 의 DJANGO_SECRET_KEY 를 반드시 설정해야 합니다.")
+
+# HTTPS 운영 (Nginx 가 HTTPS 를 처리하고 Gunicorn 으로 넘긴다)
+if env_bool("DJANGO_HTTPS", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = False  # 리다이렉트는 Nginx 가 담당
+    SECURE_HSTS_SECONDS = 3600   # 과제 서버라 짧게
 
 
 # 앱 -----------------------------------------------------------------
