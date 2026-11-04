@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load mwt %}
+{% block title %}여행 상품 | 미스터 월드 투어{% endblock %}
+
+{% block page_head %}
+  <section class="mwt-page-head with-photo" style="background-image:linear-gradient(90deg,rgba(13,23,43,.9),rgba(13,23,43,.45)),url('{% if theme %}{% photo theme|theme_info:"photo" %}{% else %}{% photo "hero" %}{% endif %}')">
+    <div class="container">
+      <div class="eyebrow">{% if theme %}{{ theme|theme_info:"en" }}{% else %}All Packages{% endif %}</div>
+      <h1>{% for v, label in themes %}{% if v == theme %}{{ label }}{% endif %}{% endfor %}{% if not theme %}여행 상품 선택{% endif %}</h1>
+      <p>{% if theme %}{{ theme|theme_info:"tagline" }}{% else %}테마와 등급을 고르거나, 마이크 버튼을 눌러 말로 찾아보세요.{% endif %}</p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+  {# 테마·등급 필터 #}
+  <div class="col-lg-7">
+    <form method="get" class="mwt-card mwt-card-body h-100" id="filter-form">
+      <div class="small fw-bold text-muted mb-2">테마</div>
+      <div class="chip-group mb-3">
+        <input type="radio" class="btn-check" name="theme" id="theme-all" value="" {% if not theme %}checked{% endif %}>
+        <label class="btn btn-sm" for="theme-all">전체</label>
+        {% for v, label in themes %}
+          <input type="radio" class="btn-check" name="theme" id="theme-{{ v }}" value="{{ v }}" {% if theme == v %}checked{% endif %}>
+          <label class="btn btn-sm" for="theme-{{ v }}"><i class="bi {{ v|theme_info:'icon' }} me-1"></i>{{ label|cut:" 투어" }}</label>
+        {% endfor %}
+      </div>
+      <div class="small fw-bold text-muted mb-2">투어 등급</div>
+      <div class="chip-group">
+        <input type="radio" class="btn-check" name="tour_level" id="level-all" value="" {% if not level %}checked{% endif %}>
+        <label class="btn btn-sm" for="level-all">전체</label>
+        {% for v, label in levels %}
+          <input type="radio" class="btn-check" name="tour_level" id="level-{{ v }}" value="{{ v }}" {% if level == v %}checked{% endif %}>
+          <label class="btn btn-sm" for="level-{{ v }}">{{ label }}</label>
+        {% endfor %}
+      </div>
+      <div class="form-text mt-2"><i class="bi bi-info-circle"></i> 클래식 3등급 호텔·도시락 · 그랜드 4등급·현지식 · 프리미엄 5등급·스테이크와 샴페인. 허니문·효도는 그랜드 이상.</div>
+    </form>
+  </div>
+
+  {# 음성 선택 #}
+  <div class="col-lg-5">
+    <div class="mwt-card voice-box mwt-card-body h-100" id="voice-box">
+      <div class="d-flex align-items-center gap-3">
+        <button type="button" class="btn btn-gold mic-btn" id="mic-btn" aria-label="음성으로 선택"><i class="bi bi-mic-fill"></i></button>
+        <div>
+          <div class="fw-bold">음성으로 선택</div>
+          <div id="voice-status" class="small text-muted">예: "골프 그랜드", "허니문", "몰디브", "두 번째 상품"</div>
+        </div>
+      </div>
+      <form id="voice-text-form" class="input-group input-group-sm mt-3">
+        <input id="voice-text" class="form-control" placeholder="마이크 없이 테스트: 문장 입력 (예: 트레킹 클래식)" maxlength="200">
+        <button class="btn btn-outline-primary" style="border-radius:0 10px 10px 0">보내기</button>
+      </form>
+      <div id="voice-result" class="alert mt-2 mb-0 py-2 small" hidden></div>
+    </div>
+  </div>
+</div>
+
+{% if notice %}<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ notice }}</div>{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="text-muted small">{{ products|length }}개 상품 · 출발일이 가까운 순</div>
+</div>
+
+<div class="row g-4">
+  {% for p in products %}
+    <div class="col-md-6 col-lg-4">{% include "travel/customer/_product_card.html" with p=p %}</div>
+  {% empty %}
+    {% if not notice %}
+      <div class="col-12">
+        <div class="mwt-card mwt-card-body text-center py-5">
+          <i class="bi bi-search fs-1 text-muted"></i>
+          <p class="mt-2 mb-0 text-muted">조건에 맞는 상품이 없습니다. 다른 테마나 등급을 골라 보세요.</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // 테마·등급을 바꾸면 바로 목록을 새로 조회한다 (이전 선택은 새 조건에서 비워짐)
+  document.querySelectorAll("#filter-form input[type=radio]").forEach(r =>
+    r.addEventListener("change", () => document.getElementById("filter-form").submit()));
+
+  // ---------------------------------------------------------------- 음성 선택 (SelectByVoice)
+  (() => {
+    const CURRENT = { theme: "{{ theme|default:'' }}", tour_level: "{{ level|default:'' }}" };
+    const PRODUCTS_URL = "{% url 'travel:products' %}";
+    const csrf = "{{ csrf_token }}";
+    const micBtn = document.getElementById("mic-btn");
+    const status = document.getElementById("voice-status");
+    const box = document.getElementById("voice-result");
+    const HINT = status.textContent;
+
+    function show(kind, text) { box.className = "alert mt-2 mb-0 py-2 small alert-" + kind; box.textContent = text; box.hidden = false; }
+
+    async function send(transcript) {
+      show("secondary", `"${transcript}" 확인 중…`);
+      try {
+        const res = await fetch("{% url 'speech:recognize' %}", {
+          method: "POST",
+          headers: { "X-CSRFToken": csrf, "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript, ...CURRENT }),
+        });
+        const r = await res.json();
+        const heard = r.recognized_text ? `"${r.recognized_text}" → ` : "";
+        if (r.status !== "SUCCESS") { show("warning", heard + r.message); return; }   // 직전 선택 유지
+        show("success", heard + r.message);
+        if (r.kind === "PRODUCT") {
+          location.href = PRODUCTS_URL + r.product_id + "/";   // GUI 와 같은 상품 선택 경로
+        } else {
+          // 말한 조건만 바꾸고 나머지는 현재 화면 조건 유지
+          const q = new URLSearchParams({ theme: r.theme || CURRENT.theme, tour_level: r.tour_level || CURRENT.tour_level });
+          location.href = PRODUCTS_URL + "?" + q;
+        }
+      } catch (e) {
+        show("danger", "음성 선택을 처리하지 못했습니다. 다시 시도하거나 화면에서 직접 선택해 주세요.");
+      }
+    }
+
+    document.getElementById("voice-text-form").addEventListener("submit", ev => {
+      ev.preventDefault();
+      const v = document.getElementById("voice-text").value.trim();
+      if (v) send(v);
+    });
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      micBtn.disabled = true;
+      status.textContent = "이 브라우저는 음성인식을 지원하지 않습니다 (Chrome·Edge 권장). 아래 칸에 문장으로 시험할 수 있습니다.";
+      return;
+    }
+    let listening = false;
+    micBtn.addEventListener("click", () => {
+      if (listening) return;
+      const rec = new Recognition();
+      rec.lang = "ko-KR";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onstart = () => { listening = true; micBtn.classList.add("listening"); status.textContent = "듣는 중… 말씀하세요"; };
+      rec.onend = () => { listening = false; micBtn.classList.remove("listening"); status.textContent = HINT; };
+      rec.onerror = e => {
+        const why = { "no-speech": "음성이 들리지 않았습니다.", "not-allowed": "마이크 권한이 필요합니다.",
+                      "audio-capture": "마이크를 찾을 수 없습니다." }[e.error] || "음성을 인식하지 못했습니다.";
+        show("warning", why + " 다시 말하거나 화면에서 직접 선택해 주세요.");
+      };
+      rec.onresult = e => send(e.results[0][0].transcript);
+      rec.start();
+    });
+  })();
+</script>
+{% endblock %}

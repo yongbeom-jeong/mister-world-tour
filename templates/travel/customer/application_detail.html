@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load mwt %}
+{% block title %}신청 내역 | 미스터 월드 투어{% endblock %}
+
+{% block page_head %}
+  <section class="mwt-hero mwt-hero-small" style="background-image:url('{{ app.product|product_photo }}');min-height:300px">
+    <div class="container py-4">
+      <a href="{% url 'travel:my_applications' %}" class="text-white-50 small text-decoration-none"><i class="bi bi-arrow-left"></i> 내 신청 목록</a>
+      <div class="eyebrow mt-3">Booking #{{ app.pk }}</div>
+      <h1 class="mb-2">{{ app.product.name }}</h1>
+      {% if status == "CONFIRMED" %}
+        <span class="tag tag-success fs-6 px-3 py-2"><i class="bi bi-check-circle-fill"></i> 출발 확정</span>
+      {% else %}
+        <span class="tag fs-6 px-3 py-2"><i class="bi bi-hourglass-split"></i> 출발 미확정 · 3명이 모이면 확정</span>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
+{% block messages_class %}mt-4{% endblock %}
+
+{% block content %}
+<ol class="stepper mt-4">
+  <li class="done">상품 선택</li><li class="done">구성 변경</li><li class="done">여행자 입력</li><li class="done">신청 완료</li>
+</ol>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="mwt-card mwt-card-body h-100">
+      <h2 class="h5 mb-3"><i class="bi bi-map me-1 text-gold"></i>여행 정보</h2>
+      <dl class="info-list">
+        <dt>여행지</dt><dd>{{ app.product.destination }}</dd>
+        <dt>출발일</dt><dd>{{ app.product.departure_date|date:"Y년 n월 j일" }} ({{ app.product.travel_days }}일)</dd>
+        <dt>호텔</dt><dd>{{ described.hotel_level }}</dd>
+        <dt>교통</dt><dd>{{ described.transport }}</dd>
+        <dt>식사</dt><dd>{{ described.meal }}</dd>
+        <dt>음료</dt><dd>{{ described.drinks }}</dd>
+        <dt>신청 시각</dt><dd>{{ app.submitted_at|date:"Y-m-d H:i" }}</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="mwt-card mwt-card-body h-100">
+      <h2 class="h5 mb-3"><i class="bi bi-receipt me-1 text-gold"></i>금액</h2>
+      <table class="table price-table">
+        <tr><td>1인 {{ app.unit_price|won }} × {{ travelers|length }}명</td><td class="text-end">{{ app.subtotal|won }}</td></tr>
+        {% if app.discount_amount %}<tr class="text-success"><td>단골 할인 10%</td><td class="text-end">−{{ app.discount_amount|won }}</td></tr>{% endif %}
+        <tr class="total"><td>최종 금액</td><td class="text-end">{{ app.final_amount|won }}</td></tr>
+      </table>
+      <h3 class="h6 mt-4">여행자</h3>
+      <ul class="list-unstyled small mb-0">
+        {% for t in travelers %}
+          <li class="py-1 d-flex align-items-center gap-2"><i class="bi bi-person"></i>{{ t.name }}
+            {% if t.is_applicant %}<span class="tag tag-navy">본인</span>{% endif %}
+            {% if t.contact %}<span class="text-muted">{{ t.contact }}</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="text-center mt-4">
+  <a class="btn btn-outline-primary" href="{% url 'travel:products' %}">다른 여행 둘러보기</a>
+</div>
+{% endblock %}

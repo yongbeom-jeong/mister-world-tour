@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load mwt %}
+{% block title %}여행 신청 | 미스터 월드 투어{% endblock %}
+
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <a href="{% url 'travel:product_detail' product.pk %}" class="small"><i class="bi bi-arrow-left"></i> 구성 다시 고르기</a>
+      <h1 class="mt-2">여행 신청</h1>
+      <p>함께 떠날 여행자를 입력하고 최종 금액을 확인하세요.</p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+<ol class="stepper">
+  <li class="done">상품 선택</li>
+  <li class="done">구성 변경</li>
+  <li class="{% if review %}done{% else %}current{% endif %}">여행자 입력</li>
+  <li class="{% if review %}current{% endif %}">금액 확인·신청</li>
+</ol>
+
+<div class="row g-4">
+  {# ---------------------------------------------------------------- 요약 #}
+  <div class="col-lg-5 order-2">
+    {% if review %}
+      <div class="mwt-card border-0" id="review-panel" style="margin-bottom:1rem;box-shadow:0 0 0 2px var(--mwt-navy), var(--mwt-shadow-lg)">
+        <div class="mwt-card-head bg-navy text-white rounded-top" style="border-radius:var(--mwt-radius) var(--mwt-radius) 0 0"><span><i class="bi bi-receipt me-1"></i>신청 금액 확인</span></div>
+        <div class="mwt-card-body">
+          <table class="table price-table mb-2">
+            <tr><td>1인 {{ review.breakdown.unit_price|won }} × {{ review.breakdown.traveler_count }}명</td><td class="text-end">{{ review.breakdown.subtotal|won }}</td></tr>
+            {% if review.breakdown.is_regular %}
+              <tr class="text-success"><td><i class="bi bi-award"></i> 단골 할인 10% <div class="small text-muted">최근 3년 완료 여행 3회 이상</div></td><td class="text-end">−{{ review.breakdown.discount_amount|won }}</td></tr>
+            {% endif %}
+            <tr class="total"><td>최종 금액</td><td class="text-end">{{ review.breakdown.final_amount|won }}</td></tr>
+          </table>
+          <div class="small text-muted mb-3"><i class="bi bi-people"></i> {% for t in review.travelers %}{{ t.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="submit">
+            <input type="hidden" name="request_key" value="{{ review.request_key }}">
+            <button class="btn btn-gold btn-lg w-100" id="submit-btn"><i class="bi bi-check2-circle me-1"></i>이 내용으로 신청 확정</button>
+          </form>
+          <div class="small text-muted mt-2 text-center">여행자 정보를 고치면 금액을 다시 확인해야 합니다.</div>
+        </div>
+      </div>
+    {% endif %}
+    <div class="mwt-card overflow-hidden mb-3">
+      <img src="{{ product|product_photo:'sm' }}" alt="" class="w-100" style="aspect-ratio:16/8;object-fit:cover">
+      <div class="mwt-card-body">
+        <div class="d-flex gap-2 mb-2">
+          <span class="tag tag-navy">{{ product.get_theme_display|cut:" 투어" }}</span>
+          <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
+        </div>
+        <h2 class="h5 mb-3">{{ product.name }}</h2>
+        <dl class="info-list small">
+          <dt>출발일</dt><dd>{{ product.departure_date|date:"Y년 n월 j일" }} · {{ product.travel_days }}일</dd>
+          <dt>호텔</dt><dd>{{ described.hotel_level }}</dd>
+          <dt>교통</dt><dd>{{ described.transport }}</dd>
+          <dt>식사</dt><dd>{{ described.meal }}</dd>
+          <dt>음료</dt><dd>{{ described.drinks }}</dd>
+          <dt>1인 가격</dt><dd class="text-gold">{{ unit_price|won }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+
+  {# ---------------------------------------------------------------- 여행자 입력 #}
+  <div class="col-lg-7 order-1">
+    <form method="post" id="traveler-form" class="mwt-card" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="action" value="review">
+      <div class="mwt-card-head">
+        <span><i class="bi bi-people me-1"></i>실제 여행자</span>
+        <span class="small text-muted fw-normal">
+          {% if product.is_honeymoon %}신청 고객 + 동반 1명, 정확히 2명{% else %}최대 {{ remaining }}명까지 신청 가능{% endif %}
+        </span>
+      </div>
+      <div class="mwt-card-body">
+        {% if errors.travelers %}<div class="alert alert-danger py-2 small">{{ errors.travelers }}</div>{% endif %}
+
+        <div id="rows">
+          {# 첫 행: 신청 고객 본인 (계정 정보 사용) #}
+          <div class="row g-2 mb-2 traveler-row align-items-center">
+            <div class="col-5 col-md-6"><input class="form-control bg-light" name="traveler_name" value="{{ user.name }}" readonly aria-label="신청 고객 성명"></div>
+            <div class="col-5"><input class="form-control bg-light" name="traveler_contact" value="{{ user.contact }}" readonly aria-label="신청 고객 연락처"></div>
+            <div class="col-2 col-md-1 text-center px-0"><span class="tag tag-navy">본인</span></div>
+          </div>
+          {% for t in travelers|slice:"1:" %}
+            <div class="row g-2 mb-2 traveler-row align-items-center">
+              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명" value="{{ t.name }}"></div>
+              <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)" value="{{ t.contact }}"></div>
+              <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
+            </div>
+          {% endfor %}
+        </div>
+        {% for key, msg in errors.items %}{% if key != "travelers" %}<div class="text-danger small"><i class="bi bi-exclamation-circle"></i> {{ msg }}</div>{% endif %}{% endfor %}
+
+        <template id="row-template">
+          <div class="row g-2 mb-2 traveler-row align-items-center">
+            <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명"></div>
+            <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)"></div>
+            <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
+          </div>
+        </template>
+        <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="add-row"><i class="bi bi-person-plus"></i> 동반 여행자 추가</button>
+        <div class="form-text mt-3"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
+        <button class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-calculator me-1"></i>{% if review %}다시 {% endif %}금액 확인</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const HONEYMOON = {{ product.is_honeymoon|yesno:"true,false" }};
+  const MAX = HONEYMOON ? 2 : {{ remaining }};
+  const rows = document.getElementById("rows");
+  const addBtn = document.getElementById("add-row");
+  const tpl = document.getElementById("row-template");
+
+  function count() { return rows.querySelectorAll(".traveler-row").length; }
+  function sync() { addBtn.disabled = count() >= MAX; addBtn.hidden = HONEYMOON && count() >= 2; }
+  function invalidateReview() {
+    // 여행자 정보가 바뀌면 이전 검토 금액으로 확정하지 못하게 한다
+    const panel = document.getElementById("review-panel");
+    if (panel) panel.remove();
+    document.querySelectorAll(".stepper li")[2].className = "current";
+    document.querySelectorAll(".stepper li")[3].className = "";
+  }
+  function addRow() { if (count() < MAX) { rows.appendChild(tpl.content.cloneNode(true)); sync(); invalidateReview(); } }
+
+  addBtn.addEventListener("click", addRow);
+  rows.addEventListener("click", e => {
+    const btn = e.target.closest(".remove-row");
+    if (btn) { btn.closest(".traveler-row").remove(); sync(); invalidateReview(); }
+  });
+  rows.addEventListener("input", invalidateReview);
+  if (HONEYMOON && count() < 2) addRow();   // 허니문은 동반 1명 입력란을 바로 보여준다
+  sync();
+
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) submitBtn.closest("form").addEventListener("submit", () => {
+    submitBtn.disabled = true; submitBtn.textContent = "처리 중…";   // 반복 클릭 방지
+  });
+})();
+</script>
+{% endblock %}

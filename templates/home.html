@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load mwt %}
+
+{% block page_head %}
+  {% if not user.is_authenticated or user.is_customer %}
+    <section class="mwt-hero {% if user.is_authenticated %}mwt-hero-small{% endif %}" style="background-image:url('{% photo "hero" %}')">
+      <div class="container py-5">
+        <div class="eyebrow mb-3">Mister World Theme Tour</div>
+        {% if user.is_authenticated %}
+          <h1 class="mb-3">{{ user.name }}님,<br>이번엔 어디로 떠나볼까요?</h1>
+          <p class="lead mb-4">테마와 등급을 고르고, 호텔·식사를 마음대로 바꿔 바로 신청하세요. 말로 골라도 됩니다.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-gold btn-lg" href="{% url 'travel:products' %}"><i class="bi bi-compass me-1"></i>여행 상품 보기</a>
+            <button class="btn btn-outline-light btn-lg" data-history-open><i class="bi bi-clock-history me-1"></i>이전 여행 이력</button>
+          </div>
+        {% else %}
+          <h1 class="mb-3">특별한 날,<br>가장 멋있는 장소에서</h1>
+          <p class="lead mb-4">사랑하는 사람(배우자, 부모님, 친구)에게 잊지 못할 여행의 감동을 선물하세요.
+            허니문부터 효도·골프·트레킹까지, 테마에 맞춘 맞춤형 여행을 준비했습니다.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-gold btn-lg" href="{% url 'members:signup' %}">회원가입하고 시작하기</a>
+            <a class="btn btn-outline-light btn-lg" href="{% url 'members:login' %}">로그인</a>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% else %}
+    <section class="mwt-page-head">
+      <div class="container">
+        <div class="eyebrow">Staff</div>
+        <h1>직원 메뉴</h1>
+        <p>{{ user.name }}님, 오늘의 상품과 기념품 재고를 확인하세요.</p>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block full_width %}
+{% if not user.is_authenticated or user.is_customer %}
+
+  {# ---------------------------------------------------------------- 테마 #}
+  <section class="mwt-section" id="themes">
+    <div class="container">
+      <div class="eyebrow">Theme Packages</div>
+      <h2 class="section-title">네 가지 테마, 단 하나의 여행</h2>
+      <p class="section-sub">테마마다 연출·기념품·전용 차량이 다릅니다. 등급(클래식·그랜드·프리미엄)에 따라 호텔과 식사가 달라져요.</p>
+      <div class="row g-3 g-lg-4">
+        {% for t in site_themes %}
+          <div class="col-6 col-lg-3">
+            <a class="theme-card" href="{% if user.is_authenticated %}{% url 'travel:products' %}?theme={{ t.code }}{% else %}{% url 'members:login' %}{% endif %}">
+              <img src="{{ t.photo_sm }}" alt="{{ t.label }}" loading="lazy">
+              <div class="theme-body">
+                <div class="theme-en">{{ t.en }}</div>
+                <h3>{{ t.label|cut:" 투어" }}</h3>
+                <p>{{ t.tagline }}</p>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ---------------------------------------------------------------- 곧 출발하는 상품 #}
+  {% if featured %}
+  <section class="mwt-section pt-0">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+        <div>
+          <div class="eyebrow">Departing Soon</div>
+          <h2 class="section-title mb-0">곧 출발하는 여행</h2>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'travel:products' %}">전체 상품 보기 <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="row g-4">
+        {% for p in featured %}
+          <div class="col-md-6 col-lg-4">{% include "travel/customer/_product_card.html" with p=p %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ---------------------------------------------------------------- 이용 방법 #}
+  <section class="mwt-section bg-white border-top border-bottom">
+    <div class="container">
+      <div class="row g-4 text-center">
+        <div class="col-md-4">
+          <div class="feature-icon"><i class="bi bi-mic"></i></div>
+          <h5>화면이나 음성으로 고르기</h5>
+          <p class="text-muted mb-0">"골프 그랜드", "몰디브"처럼 말해도 상품을 찾아 드립니다.</p>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-icon"><i class="bi bi-sliders"></i></div>
+          <h5>호텔·교통·식사 자유롭게</h5>
+          <p class="text-muted mb-0">클래식 트레킹에 스테이크와 샴페인도 OK. 바꾸는 즉시 가격이 계산돼요.</p>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-icon"><i class="bi bi-chat-dots"></i></div>
+          <h5>출발 확정은 문자로</h5>
+          <p class="text-muted mb-0">3명 이상 모이면 출발 확정! 최근 3년 3회 이상 여행한 단골은 10% 할인.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% else %}
+  {# ================================================================ 직원 대시보드 #}
+  <div class="container pb-4">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">등록 상품</div><div class="stat-value">{{ stats.products }}</div></div>
+        <div class="stat-icon"><i class="bi bi-airplane"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">여행 신청</div><div class="stat-value">{{ stats.applications }}</div></div>
+        <div class="stat-icon"><i class="bi bi-journal-check"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">출발 확정 상품</div><div class="stat-value">{{ stats.confirmed }}</div></div>
+        <div class="stat-icon"><i class="bi bi-flag"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">재고 부족 기념품</div><div class="stat-value {% if stats.low_stock %}stock-low{% endif %}">{{ stats.low_stock|length }}</div></div>
+        <div class="stat-icon"><i class="bi bi-box-seam"></i></div></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><a class="action-card" href="{% url 'travel:product_register' %}"><i class="bi bi-plus-square"></i>
+        <div><div class="fw-bold">상품 등록</div><div class="small opacity-75">기획한 여행 상품을 등록합니다.</div></div></a></div>
+      <div class="col-md-4"><a class="action-card" href="{% url 'travel:product_manage' %}"><i class="bi bi-pencil-square"></i>
+        <div><div class="fw-bold">상품 관리</div><div class="small opacity-75">등록된 상품을 수정·삭제합니다.</div></div></a></div>
+      <div class="col-md-4"><a class="action-card" href="{% url 'souvenir:stock' %}"><i class="bi bi-box-arrow-in-down"></i>
+        <div><div class="fw-bold">기념품 입고</div><div class="small opacity-75">재고를 확인하고 입고를 기록합니다.</div></div></a></div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">최근 등록한 상품 <a class="small fw-normal" href="{% url 'travel:product_manage' %}">전체 보기</a></div>
+          <div class="list-group list-group-flush">
+            {% for p in recent_products %}
+              <a class="list-group-item list-group-item-action d-flex gap-3 align-items-center py-3" href="{% url 'travel:product_manage_detail' p.pk %}">
+                <img class="thumb" src="{{ p|product_photo:'sm' }}" alt="">
+                <div class="flex-grow-1 text-truncate">
+                  <div class="fw-semibold text-truncate">{{ p.name }}</div>
+                  <div class="small text-muted">{{ p.get_theme_display }} · {{ p.departure_date|date:"m/d" }} 출발</div>
+                </div>
+                <span class="tag {% if p.n_apps %}tag-navy{% else %}tag-muted{% endif %}">신청 {{ p.n_apps }}건</span>
+              </a>
+            {% empty %}
+              <div class="list-group-item text-muted py-4 text-center">등록된 상품이 없습니다.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">기념품 재고 <a class="small fw-normal" href="{% url 'souvenir:stock' %}">입고하기</a></div>
+          <div class="mwt-card-body">
+            {% for s in souvenirs %}
+              <div class="d-flex justify-content-between align-items-center {% if not forloop.last %}mb-3{% endif %}">
+                <div><div class="fw-semibold">{{ s.name }}</div><div class="small text-muted">{{ s.get_theme_display }}</div></div>
+                <div class="text-end">
+                  <span class="fw-bold fs-5 {% if s.stock_quantity < low_stock_limit %}stock-low{% endif %}">{{ s.stock_quantity }}</span><span class="text-muted small">개</span>
+                  {% if s.stock_quantity < low_stock_limit %}<div class="small stock-low">재고 부족</div>{% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% if user.is_authenticated and user.is_customer %}
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow">Travel History</div>
+          <h5 class="modal-title font-serif" id="historyModalLabel">이전 여행 이력</h5>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body" id="historyBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" id="historyRetry" hidden>다시 시도</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated and user.is_customer %}
+<script>
+  const modal = new bootstrap.Modal(document.getElementById("historyModal"));
+  const body = document.getElementById("historyBody");
+  const retry = document.getElementById("historyRetry");
+
+  async function loadHistory() {
+    retry.hidden = true;
+    body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-secondary" role="status"></div></div>';
+    try {
+      const res = await fetch("{% url 'travel:history' %}", { headers: { "X-Requested-With": "fetch" } });
+      body.innerHTML = await res.text();
+      retry.hidden = res.ok;
+    } catch (e) {
+      // 이전 결과를 남기지 않고 실패를 표시한다 (빈 이력과 구분)
+      body.innerHTML = '<div class="alert alert-danger mb-0">여행 이력을 불러오지 못했습니다. 네트워크를 확인해 주세요.</div>';
+      retry.hidden = false;
+    }
+  }
+
+  function openHistory() { modal.show(); loadHistory(); }
+  document.querySelectorAll("[data-history-open]").forEach(b => b.addEventListener("click", openHistory));
+  retry.addEventListener("click", loadHistory);
+  {% if show_history_popup %}openHistory();{% endif %}
+</script>
+{% endif %}
+{% endblock %}
