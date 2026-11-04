@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}사진 출처 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <div class="eyebrow">Credits</div>
+      <h1>사진 출처</h1>
+      <p>이 사이트의 기본 사진은 위키미디어 공용(Wikimedia Commons)의 자유 이용 사진입니다. 라이선스에 따라 저작자를 표시합니다.</p>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+<div class="row g-3">
+  {% for c in credits %}
+    <div class="col-md-6 col-lg-4">
+      <div class="mwt-card h-100 overflow-hidden">
+        <img src="{% static 'img/photos/sm/' %}{{ c.file }}" alt="{{ c.description }}" class="w-100" style="aspect-ratio:16/10;object-fit:cover" loading="lazy">
+        <div class="mwt-card-body small">
+          <div class="fw-bold mb-1">{{ c.description }}</div>
+          <div class="text-muted">저작자: {{ c.author }}</div>
+          <div>라이선스:
+            {% if c.license_url %}<a href="{{ c.license_url }}" target="_blank" rel="noopener">{{ c.license }}</a>{% else %}{{ c.license }}{% endif %}
+          </div>
+          <a href="{{ c.source }}" target="_blank" rel="noopener">원본 보기 <i class="bi bi-box-arrow-up-right"></i></a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+<p class="small text-muted mt-4">웹 표시를 위해 크기를 줄이고 다시 저장했습니다(변경 사항). 직원이 올린 상품 사진의 권리는 올린 사람에게 있습니다.</p>
+{% endblock %}

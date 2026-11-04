@@ -1,0 +1,19 @@
+{# 폼 필드 하나를 Bootstrap 형식으로 표시. 사용: {% include "includes/field.html" with field=form.xxx %} #}
+<div class="mb-3">
+  {% if field.field.widget.input_type == "radio" %}
+    <div class="form-label">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</div>
+    <div>
+      {% for radio in field %}
+        <div class="form-check form-check-inline">
+          {{ radio.tag }}
+          <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+    {{ field }}
+  {% endif %}
+  {% for e in field.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+  {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+</div>

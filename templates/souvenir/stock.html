@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}기념품 입고 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <div class="eyebrow">Staff · Souvenir Stock</div>
+      <h1>기념품 입고</h1>
+      <p>입고할 품목을 고르고 수량을 입력하세요. 등록하면 재고가 바로 늘어납니다. 여행자 1인당 1개씩 필요합니다.</p>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="fw-bold">기념품 재고</span>
+      <button class="btn btn-sm btn-outline-primary" id="reload"><i class="bi bi-arrow-clockwise me-1"></i>새로고침</button>
+    </div>
+    <div id="list-error" class="alert alert-danger" hidden></div>
+    <div class="row g-3" id="souvenir-rows">
+      <div class="col-12 text-center text-muted py-4"><div class="spinner-border spinner-border-sm"></div> 불러오는 중…</div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="mwt-card sticky-panel">
+      <div class="mwt-card-head"><span><i class="bi bi-box-arrow-in-down me-1"></i>입고 등록</span></div>
+      <div class="mwt-card-body">
+        <form id="receipt-form" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <div class="form-label">입고 품목</div>
+            <div id="selected-name" class="fw-semibold text-muted">왼쪽에서 품목을 선택하세요</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="quantity">입고 수량</label>
+            <div class="input-group">
+              <input type="number" min="1" step="1" class="form-control form-control-lg" id="quantity" disabled>
+              <span class="input-group-text">개</span>
+            </div>
+            <div class="form-text">1 이상의 정수 (한 번에 최대 10,000개)</div>
+          </div>
+          <button class="btn btn-gold btn-lg w-100" id="submit" disabled>입고 등록</button>
+        </form>
+        <div id="result" class="mt-3" hidden></div>
+        <button class="btn btn-outline-warning w-100 mt-2" id="retry" hidden>같은 입고 다시 확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const URLS = {
+    list: "{% url 'souvenir:list' %}",
+    prepare: "{% url 'souvenir:prepare' %}",
+    record: "{% url 'souvenir:record' %}",
+  };
+  const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
+  const rows = document.getElementById("souvenir-rows");
+  const listError = document.getElementById("list-error");
+  const selectedName = document.getElementById("selected-name");
+  const qty = document.getElementById("quantity");
+  const submit = document.getElementById("submit");
+  const result = document.getElementById("result");
+  const retry = document.getElementById("retry");
+
+  let souvenirs = [];
+  let selectedId = null;
+  let pending = null;   // 반영 여부를 아직 확인하지 못한 입고 {request_key, souvenir_id, quantity}
+  let busy = false;
+
+  function show(kind, text) {
+    result.className = "mt-3 alert alert-" + kind;
+    result.textContent = text;
+    result.hidden = false;
+  }
+
+  const LOW = 10;   // 재고 부족 강조 기준 (홈 대시보드와 같음)
+  function render() {
+    if (!souvenirs.length) {
+      rows.innerHTML = '<div class="col-12 text-center text-muted py-4">등록된 기념품이 없습니다.</div>';
+      return;
+    }
+    rows.innerHTML = "";
+    for (const s of souvenirs) {
+      const col = document.createElement("div");
+      col.className = "col-sm-6";
+      col.innerHTML = `<div class="mwt-card mwt-card-body souvenir-tile h-100 ${s.id === selectedId ? "selected" : ""}" role="button" tabindex="0">
+          <div class="d-flex justify-content-between align-items-start">
+            <div><div class="fw-bold fs-5" data-name></div><div class="small text-muted" data-theme></div></div>
+            <div class="stat-icon"><i class="bi bi-gift"></i></div>
+          </div>
+          <div class="mt-3"><span class="stock-num ${s.stock_quantity < LOW ? "stock-low" : ""}" data-stock></span><span class="text-muted"> 개</span>
+            ${s.stock_quantity < LOW ? '<span class="tag tag-muted ms-2 stock-low">재고 부족</span>' : ""}</div>
+        </div>`;
+      col.querySelector("[data-name]").textContent = s.name;
+      col.querySelector("[data-theme]").textContent = s.theme;
+      col.querySelector("[data-stock]").textContent = s.stock_quantity.toLocaleString();
+      const tile = col.firstElementChild;
+      tile.addEventListener("click", () => select(s.id));
+      tile.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.id); } });
+      rows.appendChild(col);
+    }
+  }
+
+  async function loadList() {
+    listError.hidden = true;
+    try {
+      const res = await fetch(URLS.list);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.message);
+      souvenirs = data.souvenirs;
+      render();
+    } catch (e) {
+      // 조회 실패를 재고 0으로 보이지 않게 목록을 비우고 오류를 표시
+      souvenirs = [];
+      rows.innerHTML = "";
+      listError.textContent = "기념품 목록을 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.";
+      listError.hidden = false;
+    }
+  }
+
+  function select(id) {
+    if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
+    if (id !== selectedId) { qty.value = ""; result.hidden = true; }
+    selectedId = id;
+    const s = souvenirs.find(x => x.id === id);
+    selectedName.textContent = `${s.name} (현재 ${s.stock_quantity.toLocaleString()}개)`;
+    selectedName.classList.remove("text-muted");
+    qty.disabled = false;
+    submit.disabled = false;
+    qty.focus();
+    render();
+  }
+
+  async function post(url, body) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrf },
+      body: new URLSearchParams(body),
+    });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    return { res, data };
+  }
+
+  function setBusy(on) {
+    busy = on;
+    submit.disabled = on || !selectedId || !!pending;
+    qty.disabled = on || !selectedId || !!pending;
+    submit.textContent = on ? "처리 중…" : "입고 등록";
+  }
+
+  async function record() {
+    setBusy(true);
+    try {
+      const { res, data } = await post(URLS.record, pending);
+      if (res.ok && data && data.ok) {
+        pending = null;
+        retry.hidden = true;
+        show("success", data.message + (data.receipt ? ` (입고 ${data.receipt.quantity}개)` : ""));
+        qty.value = "";
+        if (data.stock_refresh_succeeded && data.current_souvenir) {
+          const i = souvenirs.findIndex(s => s.id === data.current_souvenir.id);
+          if (i >= 0) souvenirs[i] = data.current_souvenir;
+          render();
+          select(data.current_souvenir.id);
+          show("success", data.message + ` (입고 ${data.receipt.quantity}개)`);
+        } else {
+          loadList();
+        }
+      } else if (res.status >= 500 || !data) {
+        throw new Error("unknown");
+      } else {
+        pending = null;   // 확실히 거부된 요청: 다음 입고는 새로 준비
+        retry.hidden = true;
+        show("danger", data.message);
+      }
+    } catch (e) {
+      // 반영 여부를 알 수 없음: 같은 키로만 다시 확인 (새 입고로 바꾸지 않음)
+      show("warning", "입고 반영 여부를 확인하지 못했습니다. '같은 입고 다시 확인'을 눌러 주세요. 재고가 두 번 늘지 않습니다.");
+      retry.hidden = false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  document.getElementById("receipt-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (busy || pending || !selectedId) return;
+    const v = qty.value.trim();
+    if (!/^\d+$/.test(v) || Number(v) < 1) { show("danger", "입고 수량은 1 이상의 정수로 입력해 주세요."); return; }
+    setBusy(true);
+    try {
+      const { res, data } = await post(URLS.prepare, { souvenir_id: selectedId, quantity: v });
+      if (!res.ok || !data || !data.ok) { show("danger", (data && data.message) || "입고를 준비하지 못했습니다."); return; }
+      pending = { request_key: data.request_key, souvenir_id: data.souvenir_id, quantity: data.quantity };
+    } catch (e) {
+      show("danger", "서버에 연결하지 못했습니다. 다시 시도해 주세요.");
+      return;
+    } finally {
+      setBusy(false);
+    }
+    await record();
+  });
+
+  retry.addEventListener("click", () => { if (pending && !busy) record(); });
+  document.getElementById("reload").addEventListener("click", () => { if (!busy) loadList(); });
+  loadList();
+})();
+</script>
+{% endblock %}

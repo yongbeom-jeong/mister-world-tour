@@ -1,0 +1,26 @@
+{% load mwt %}
+{# 상품 카드. 사용: {% include "travel/customer/_product_card.html" with p=product %} #}
+<article class="product-card position-relative">
+  <div class="pc-photo">
+    <img src="{{ p|product_photo:'sm' }}" alt="{{ p.name }}" loading="lazy">
+    <div class="pc-tags">
+      <span class="tag"><i class="bi {{ p.theme|theme_info:'icon' }}"></i>{{ p.get_theme_display|cut:" 투어" }}</span>
+      <span class="tag tag-gold">{{ p.get_tour_level_display }}</span>
+      {% if p.departure_status == "CONFIRMED" %}<span class="tag tag-success"><i class="bi bi-check2"></i>출발 확정</span>{% endif %}
+    </div>
+  </div>
+  <div class="pc-body">
+    <h3>{{ p.name }}</h3>
+    <div class="pc-meta">
+      <span><i class="bi bi-geo-alt"></i> {{ p.destination }}</span>
+      <span><i class="bi bi-calendar3"></i> {{ p.departure_date|date:"n/j" }} 출발</span>
+      <span><i class="bi bi-clock"></i> {{ p.travel_days }}일</span>
+    </div>
+    <p class="pc-desc">{{ p.description|truncatechars:60 }}</p>
+    <div class="d-flex justify-content-between align-items-end">
+      <div class="pc-price">{{ p.base_price|won }}<small> / 1인~</small></div>
+      <span class="btn btn-primary btn-sm">자세히 <i class="bi bi-arrow-right"></i></span>
+    </div>
+  </div>
+  <a class="stretched-card-link" href="{% url 'travel:product_detail' p.pk %}" aria-label="{{ p.name }} 자세히 보기"></a>
+</article>
