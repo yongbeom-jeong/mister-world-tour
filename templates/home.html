@@ -1,25 +1,24 @@
 {% extends "base.html" %}
 {% load mwt %}
+{% block page_class %}home-page{% endblock %}
 
 {% block page_head %}
   {% if not user.is_authenticated or user.is_customer %}
-    <section class="mwt-hero {% if user.is_authenticated %}mwt-hero-small{% endif %}" style="background-image:url('{% photo "hero" %}')">
+    <section class="mwt-hero home-hero" style="background-image:url('{% photo "hero" %}')">
       <div class="container py-5">
-        <div class="eyebrow mb-3">Mister World Theme Tour</div>
         {% if user.is_authenticated %}
           <h1 class="mb-3">{{ user.name }}님,<br>이번엔 어디로 떠나볼까요?</h1>
-          <p class="lead mb-4">테마와 등급을 고르고, 호텔·식사를 마음대로 바꿔 바로 신청하세요. 말로 골라도 됩니다.</p>
+          <p class="lead mb-4">취향에 맞는 테마를 찾고, 호텔과 식사를 골라 나만의 여행을 완성하세요.</p>
           <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-gold btn-lg" href="{% url 'travel:products' %}"><i class="bi bi-compass me-1"></i>여행 상품 보기</a>
             <button class="btn btn-outline-light btn-lg" data-history-open><i class="bi bi-clock-history me-1"></i>이전 여행 이력</button>
           </div>
         {% else %}
           <h1 class="mb-3">특별한 날,<br>가장 멋있는 장소에서</h1>
-          <p class="lead mb-4">사랑하는 사람(배우자, 부모님, 친구)에게 잊지 못할 여행의 감동을 선물하세요.
-            허니문부터 효도·골프·트레킹까지, 테마에 맞춘 맞춤형 여행을 준비했습니다.</p>
+          <p class="lead mb-4">허니문부터 효도·골프·트레킹까지.<br>소중한 사람과 떠나는, 취향에 맞춘 테마 여행.</p>
           <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-gold btn-lg" href="{% url 'members:signup' %}">회원가입하고 시작하기</a>
-            <a class="btn btn-outline-light btn-lg" href="{% url 'members:login' %}">로그인</a>
+            <a class="btn btn-gold btn-lg" href="#themes">여행 테마 둘러보기 <i class="bi bi-arrow-down ms-1"></i></a>
+            <a class="hero-secondary-link" href="{% url 'members:login' %}">로그인하고 상품 보기 <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
           </div>
         {% endif %}
       </div>
@@ -27,7 +26,6 @@
   {% else %}
     <section class="mwt-page-head">
       <div class="container">
-        <div class="eyebrow">Staff</div>
         <h1>직원 메뉴</h1>
         <p>{{ user.name }}님, 오늘의 상품과 기념품 재고를 확인하세요.</p>
       </div>
@@ -41,7 +39,6 @@
   {# ---------------------------------------------------------------- 테마 #}
   <section class="mwt-section" id="themes">
     <div class="container">
-      <div class="eyebrow">Theme Packages</div>
       <h2 class="section-title">네 가지 테마, 단 하나의 여행</h2>
       <p class="section-sub">테마마다 연출·기념품·전용 차량이 다릅니다. 등급(클래식·그랜드·프리미엄)에 따라 호텔과 식사가 달라져요.</p>
       <div class="row g-3 g-lg-4">
@@ -50,7 +47,6 @@
             <a class="theme-card" href="{% if user.is_authenticated %}{% url 'travel:products' %}?theme={{ t.code }}{% else %}{% url 'members:login' %}{% endif %}">
               <img src="{{ t.photo_sm }}" alt="{{ t.label }}" loading="lazy">
               <div class="theme-body">
-                <div class="theme-en">{{ t.en }}</div>
                 <h3>{{ t.label|cut:" 투어" }}</h3>
                 <p>{{ t.tagline }}</p>
               </div>
@@ -67,7 +63,6 @@
     <div class="container">
       <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
         <div>
-          <div class="eyebrow">Departing Soon</div>
           <h2 class="section-title mb-0">곧 출발하는 여행</h2>
         </div>
         <a class="btn btn-outline-primary btn-sm" href="{% url 'travel:products' %}">전체 상품 보기 <i class="bi bi-arrow-right"></i></a>
@@ -82,23 +77,19 @@
   {% endif %}
 
   {# ---------------------------------------------------------------- 이용 방법 #}
-  <section class="mwt-section bg-white border-top border-bottom">
+  <section class="mwt-section travel-guide">
     <div class="container">
-      <div class="row g-4 text-center">
-        <div class="col-md-4">
-          <div class="feature-icon"><i class="bi bi-mic"></i></div>
-          <h5>화면이나 음성으로 고르기</h5>
-          <p class="text-muted mb-0">"골프 그랜드", "몰디브"처럼 말해도 상품을 찾아 드립니다.</p>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-icon"><i class="bi bi-sliders"></i></div>
-          <h5>호텔·교통·식사 자유롭게</h5>
-          <p class="text-muted mb-0">클래식 트레킹에 스테이크와 샴페인도 OK. 바꾸는 즉시 가격이 계산돼요.</p>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-icon"><i class="bi bi-chat-dots"></i></div>
-          <h5>출발 확정은 문자로</h5>
-          <p class="text-muted mb-0">3명 이상 모이면 출발 확정! 최근 3년 3회 이상 여행한 단골은 10% 할인.</p>
+      <div class="row g-4">
+        <div class="col-lg-4"><h2 class="section-title">이용 안내</h2></div>
+        <div class="col-lg-8">
+          <dl class="guide-list">
+            <div class="guide-row"><dt>화면이나 음성으로 고르기</dt>
+              <dd>"골프 그랜드", "몰디브"처럼 말해도 상품을 찾아 드립니다.</dd></div>
+            <div class="guide-row"><dt>호텔·교통·식사 자유롭게</dt>
+              <dd>클래식 트레킹에 스테이크와 샴페인도 OK. 바꾸는 즉시 가격이 계산돼요.</dd></div>
+            <div class="guide-row"><dt>출발 확정은 문자로</dt>
+              <dd>3명 이상 모이면 출발 확정! 최근 3년 3회 이상 여행한 단골은 10% 할인.</dd></div>
+          </dl>
         </div>
       </div>
     </div>
@@ -177,7 +168,6 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <div class="eyebrow">Travel History</div>
           <h5 class="modal-title font-serif" id="historyModalLabel">이전 여행 이력</h5>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>

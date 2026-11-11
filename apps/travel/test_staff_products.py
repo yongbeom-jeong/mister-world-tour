@@ -40,12 +40,11 @@ class StaffProductTests(TestCase):
 
     # ---------------------------------------------------------------- 등록 (UC6)
 
-    def test_register_sets_default_configuration_and_souvenir(self):
+    def test_register_sets_default_configuration(self):
         res = self.client.post(reverse("travel:product_register"), self.data())
         p = TravelProduct.objects.get(name="새 상품")
         self.assertRedirects(res, reverse("travel:product_manage_detail", args=[p.pk]))
         self.assertEqual((p.hotel_level, p.meal), (HotelLevel.STAR3, MealOption.LUNCHBOX))
-        self.assertEqual(p.souvenir.name, "골프공")
         self.assertEqual(p.departure_status, DepartureStatus.PENDING)
 
     def test_register_validation(self):
@@ -128,7 +127,6 @@ class StaffProductTests(TestCase):
         self.assertEqual(p.name, "바뀐 상품")
         self.assertEqual((p.hotel_level, p.transport), (HotelLevel.STAR5, "LUXURY_CAR_2"))
         self.assertIsNone(p.departure_status)  # 허니문은 상품 공동 상태 없음
-        self.assertEqual(p.souvenir.name, "커플 기념티")
 
     def test_modify_validation_error_keeps_saved_product(self):
         p = self.product()

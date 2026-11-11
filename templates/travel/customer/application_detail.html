@@ -5,9 +5,9 @@
 {% block page_head %}
   <section class="mwt-hero mwt-hero-small" style="background-image:url('{{ app.product|product_photo }}');min-height:300px">
     <div class="container py-4">
-      <a href="{% url 'travel:my_applications' %}" class="text-white-50 small text-decoration-none"><i class="bi bi-arrow-left"></i> 내 신청 목록</a>
-      <div class="eyebrow mt-3">Booking #{{ app.pk }}</div>
-      <h1 class="mb-2">{{ app.product.name }}</h1>
+      <a href="{% url 'travel:my_applications' %}" class="text-white small text-decoration-none"><i class="bi bi-arrow-left"></i> 내 신청 목록</a>
+      <h1 class="mt-3 mb-2">{{ app.product.name }}</h1>
+      <p class="small mb-3">신청 번호 #{{ app.pk }}</p>
       {% if status == "CONFIRMED" %}
         <span class="tag tag-success fs-6 px-3 py-2"><i class="bi bi-check-circle-fill"></i> 출발 확정</span>
       {% else %}

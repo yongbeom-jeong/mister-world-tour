@@ -10,7 +10,8 @@ from django.utils import timezone
 
 from apps.members.models import Member
 from apps.sms.services import ConsoleSMSClient
-from apps.souvenir.models import Souvenir
+from apps.souvenir import services as souvenir_services
+from apps.souvenir.models import Souvenir, StockIssue
 
 from . import booking
 from . import configuration as cfg
@@ -21,8 +22,7 @@ from .models import TravelApplication, TravelHistory, TravelProduct
 def make_product(theme=Theme.GOLF, level=TourLevel.GRAND, price=1_000_000, days_ahead=30, name=None):
     p = TravelProduct(name=name or f"{theme} 상품", destination="어딘가", theme=theme, tour_level=level,
                       base_price=price, travel_days=4,
-                      departure_date=timezone.localdate() + timedelta(days=days_ahead),
-                      souvenir=Souvenir.objects.filter(theme=theme).first())
+                      departure_date=timezone.localdate() + timedelta(days=days_ahead))
     p.apply_default_configuration()
     p.save()
     return p
@@ -135,7 +135,7 @@ class ReviewTests(BookingTestBase):
 
     def test_souvenir_stock_shortage(self):
         p = make_product()
-        Souvenir.objects.filter(pk=p.souvenir_id).update(stock_quantity=1)
+        Souvenir.objects.filter(theme=p.theme).update(stock_quantity=1)
         with self.assertRaises(booking.BookingError) as cm:
             booking.review_application(self.alice, p.pk, cfg.default_configuration(p), self.rows(self.alice, "밥"))
         self.assertIn("재고", cm.exception.message)
@@ -239,6 +239,73 @@ class SubmitTests(BookingTestBase):
             booking.submit_travel_application(customer("mallory"), review)
 
 
+class SouvenirDeductionTests(BookingTestBase):
+    """출발 확정 시 테마 기념품 차감 (테마 품목마다 여행자 1인당 1개)."""
+
+    def stock(self, name):
+        return Souvenir.objects.get(name=name).stock_quantity
+
+    def test_group_deducts_all_travelers_when_confirmed(self):
+        p = make_product(Theme.GOLF)
+        bob = customer("bob")
+        self.book(bob, p, "동반")  # 2명, 확정 전 → 차감 없음
+        self.assertEqual(self.stock("골프공"), 100)
+        result = self.book(self.alice, p)  # 3명 → 확정, 3개 차감
+        self.assertEqual(self.stock("골프공"), 97)
+        self.assertEqual(result.souvenirs_issued, 3)
+        self.book(customer("carol"), p, "x")  # 확정 뒤 추가 2명 → 그 신청분만
+        self.assertEqual(self.stock("골프공"), 95)
+        self.assertEqual(StockIssue.objects.count(), 3)
+
+    def test_honeymoon_deducts_per_application(self):
+        p = make_product(Theme.HONEYMOON)
+        self.book(self.alice, p, "배우자")
+        self.assertEqual(self.stock("커플 기념티"), 98)
+
+    def test_every_souvenir_of_theme_is_deducted(self):
+        extra = souvenir_services.register_souvenir("골프 장갑", Theme.GOLF)
+        Souvenir.objects.filter(pk=extra.pk).update(stock_quantity=10)
+        p = make_product(Theme.GOLF)
+        self.book(self.alice, p, "a", "b")  # 3명 → 확정
+        self.assertEqual((self.stock("골프공"), self.stock("골프 장갑")), (97, 7))
+        self.assertEqual(booking.theme_souvenir_names(p), ["골프공", "골프 장갑"])
+
+    def test_other_theme_not_deducted(self):
+        self.book(self.alice, make_product(Theme.GOLF), "a", "b")
+        self.assertEqual(self.stock("기념품 스카프"), 100)
+
+    def test_confirmation_needs_stock_for_all_pending_travelers(self):
+        p = make_product(Theme.GOLF)
+        self.book(customer("bob"), p, "동반")  # 2명 대기
+        Souvenir.objects.filter(name="골프공").update(stock_quantity=2)
+        with self.assertRaises(booking.BookingError) as cm:  # 확정되면 3개 필요
+            self.book(self.alice, p)
+        self.assertIn("3개가 필요", cm.exception.message)
+        self.assertEqual(TravelApplication.objects.count(), 1)  # 신청도 저장되지 않음
+        self.assertEqual(self.stock("골프공"), 2)
+
+    def test_shortage_at_submit_rolls_back_everything(self):
+        extra = souvenir_services.register_souvenir("골프 장갑", Theme.GOLF)
+        Souvenir.objects.filter(pk=extra.pk).update(stock_quantity=10)
+        p = make_product(Theme.GOLF)
+        review = booking.review_application(self.alice, p.pk, cfg.default_configuration(p),
+                                            self.rows(self.alice, "a", "b"))
+        Souvenir.objects.filter(pk=extra.pk).update(stock_quantity=1)  # 검토 뒤 재고가 줄어듦
+        with self.assertRaises(booking.BookingError):
+            booking.submit_travel_application(self.alice, review)
+        self.assertFalse(TravelApplication.objects.exists())
+        self.assertEqual(self.stock("골프공"), 100)  # 앞 품목 차감도 되돌아감
+        self.assertFalse(StockIssue.objects.exists())
+
+    def test_theme_without_souvenir_cannot_apply(self):
+        p = make_product(Theme.TREKKING)
+        StockIssue.objects.all().delete()
+        Souvenir.objects.filter(theme=Theme.TREKKING).delete()
+        with self.assertRaises(booking.BookingError) as cm:
+            booking.review_application(self.alice, p.pk, cfg.default_configuration(p), self.rows(self.alice))
+        self.assertIn("기념품 정보가 없어", cm.exception.message)
+
+
 class ApplyFlowHttpTests(BookingTestBase):
     def test_full_flow(self):
         p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
@@ -262,8 +329,11 @@ class ApplyFlowHttpTests(BookingTestBase):
         self.assertContains(res, "출발 확정")
         self.assertContains(res, "출발 확정 문자: 성공 1건")
 
-        # 뒤로 가기 후 같은 키로 다시 제출해도 중복 저장되지 않음 (검토 내용은 이미 소진)
-        self.client.post(reverse("travel:apply"), {"action": "submit", "request_key": review.request_key})
+        # 뒤로 가기 후 같은 키로 다시 제출: 중복 저장 없이 기존 신청으로 안내
+        res = self.client.post(reverse("travel:apply"), {"action": "submit", "request_key": review.request_key},
+                               follow=True)
+        self.assertRedirects(res, reverse("travel:application_detail", args=[app.pk]))
+        self.assertContains(res, "이미 처리된 신청입니다")
         self.assertEqual(TravelApplication.objects.count(), 1)
 
     def test_apply_without_selection_redirects(self):

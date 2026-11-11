@@ -155,6 +155,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # 외부 서비스 ---------------------------------------------------------
 # 업체 미정: 클래스 경로로 교체한다. 기본값은 개발용 가짜 구현.
 SMS_CLIENT = os.getenv("SMS_CLIENT", "apps.sms.services.ConsoleSMSClient")
+# 솔라피 (SMS_CLIENT=apps.sms.solapi.SolapiSMSClient 일 때 사용)
+SOLAPI_API_KEY = os.getenv("SOLAPI_API_KEY", "")
+SOLAPI_API_SECRET = os.getenv("SOLAPI_API_SECRET", "")
+SOLAPI_SENDER = os.getenv("SOLAPI_SENDER", "")  # 솔라피에 등록한 발신번호
+SMS_TIMEOUT = int(os.getenv("SMS_TIMEOUT", "10"))  # 초
+# 비워 두면 모든 번호로 발송. 값이 있으면 이 번호들로만 실제 발송 (데모 계정의 가상 번호로 문자가 나가지 않게)
+SMS_ALLOWED_NUMBERS = [n.strip() for n in os.getenv("SMS_ALLOWED_NUMBERS", "").split(",") if n.strip()]
 SPEECH_CLIENT = os.getenv("SPEECH_CLIENT", "apps.speech.services.BrowserTranscriptClient")
 
 
@@ -171,6 +178,7 @@ LOGGING = {
 if "test" in sys.argv:
     LOGGING["loggers"]["apps"]["level"] = "WARNING"  # 테스트 출력은 경고 이상만
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]  # 테스트 속도용 (운영에는 영향 없음)
+    SMS_CLIENT = "apps.sms.services.ConsoleSMSClient"  # 테스트는 .env 와 상관없이 실제 문자를 보내지 않음
     import tempfile
 
     MEDIA_ROOT = Path(tempfile.gettempdir()) / "mwt-test-media"  # 테스트 업로드가 실제 media/ 에 섞이지 않게
