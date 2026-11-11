@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% load mwt %}
 {% block title %}{{ product.name }} | 미스터 월드 투어{% endblock %}
+{% block page_class %}product-detail-page{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-hero mwt-hero-small" style="background-image:url('{{ product|product_photo }}');min-height:420px">
+  <section class="mwt-hero product-hero" style="background-image:url('{{ product|product_photo }}')">
     <div class="container py-5">
-      <a href="{% url 'travel:products' %}?theme={{ product.theme }}" class="text-white-50 small text-decoration-none"><i class="bi bi-arrow-left"></i> {{ product.get_theme_display }} 상품 목록</a>
+      <a href="{% url 'travel:products' %}?theme={{ product.theme }}" class="text-white small text-decoration-none"><i class="bi bi-arrow-left"></i> {{ product.get_theme_display }} 상품 목록</a>
       <div class="d-flex gap-2 mt-3 mb-2">
         <span class="tag"><i class="bi {{ product.theme|theme_info:'icon' }}"></i>{{ product.get_theme_display|cut:" 투어" }}</span>
         <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
@@ -20,21 +21,19 @@
 {% block content %}
 <div class="row g-4 mt-1">
   {# ---------------------------------------------------------------- 상품 소개 #}
-  <div class="col-lg-7">
+  <div class="col-lg-5">
     <div class="mwt-card mwt-card-body mb-4">
-      <div class="eyebrow">Overview</div>
       <h2 class="h4 font-serif mt-1">여행 소개</h2>
       <p class="mb-0 fs-6">{{ product.description|default:"상품 소개가 준비 중입니다."|linebreaksbr }}</p>
     </div>
 
     <div class="mwt-card mwt-card-body mb-4">
-      <div class="eyebrow">Included</div>
       <h2 class="h4 font-serif mt-1 mb-3">기본으로 포함된 것</h2>
       <div class="row g-3">
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-stars"></i></div>
           <div><div class="small text-muted">테마 서비스</div><div class="fw-semibold">{{ product.theme_service }}</div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-gift"></i></div>
-          <div><div class="small text-muted">기념품</div><div class="fw-semibold">{{ product.souvenir.name|default:"-" }} <span class="small text-muted fw-normal">(1인 1개)</span></div></div></div>
+          <div><div class="small text-muted">기념품</div><div class="fw-semibold">{{ souvenirs|join:", "|default:"-" }} <span class="small text-muted fw-normal">(1인 1개씩)</span></div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-building"></i></div>
           <div><div class="small text-muted">기본 호텔</div><div class="fw-semibold">{{ product.get_hotel_level_display }}</div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-cup-hot"></i></div>
@@ -54,13 +53,14 @@
   </div>
 
   {# ---------------------------------------------------------------- 구성 변경 #}
-  <div class="col-lg-5">
-    <div class="mwt-card sticky-panel">
+  <div class="col-lg-7">
+    <div class="mwt-card">
       <div class="mwt-card-head"><span><i class="bi bi-sliders me-1"></i>나만의 여행 구성</span><span class="small text-muted fw-normal">1인 기준</span></div>
       <div class="mwt-card-body">
+        <div class="configuration-grid">
         {% for field, title in option_fields %}
-          <div class="mb-3">
-            <div class="form-label">{{ title }}</div>
+          <fieldset>
+            <legend class="form-label">{{ title }}</legend>
             <div class="option-group">
               {% for v, label, extra in options|get_item:field %}
                 <label class="m-0">
@@ -70,11 +70,11 @@
                 </label>
               {% endfor %}
             </div>
-          </div>
+          </fieldset>
         {% endfor %}
 
-        <div class="mb-3">
-          <div class="form-label">음료 추가</div>
+        <fieldset>
+          <legend class="form-label">음료 추가</legend>
           <div class="option-group">
             {% for v, label, price in options.drinks %}
               <label class="m-0">
@@ -85,26 +85,30 @@
             {% endfor %}
           </div>
           <div class="form-text">도시락 구성에는 음료를 추가할 수 없어요.</div>
+        </fieldset>
         </div>
-
-        <div id="config-msg" class="alert alert-danger py-2 small" hidden></div>
-
-        <div class="d-flex justify-content-between align-items-end border-top pt-3">
-          <div>
-            <div class="small text-muted">1인 가격 (옵션 포함)</div>
-            <div class="price-big"><span id="unit-price">{{ unit_price|stringformat:"d" }}</span>원</div>
-          </div>
-          <div class="text-end small text-muted">기본 {{ product.base_price|won }}</div>
-        </div>
-        <form method="post" action="{% url 'travel:start_application' product.pk %}" class="mt-3">
-          {% csrf_token %}
-          <input type="hidden" name="config" id="config-input" value="{{ config_json }}">
-          <button class="btn btn-gold btn-lg w-100" id="apply-btn">이 구성으로 신청하기 <i class="bi bi-arrow-right"></i></button>
-        </form>
+        <div id="config-msg" class="alert alert-danger py-2 small mt-3 mb-0" role="alert" hidden></div>
       </div>
     </div>
   </div>
 </div>
+<aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
+  <div class="container booking-bar-inner">
+    <div class="booking-bar-product d-none d-lg-block">
+      <div class="fw-bold">{{ product.name }}</div>
+      <div class="small text-muted">{{ product.departure_date|date:"n월 j일" }} 출발 · {{ product.travel_days }}일 · 기본 {{ product.base_price|won }}</div>
+    </div>
+    <div class="booking-bar-price">
+      <div class="small text-muted">1인 가격 · 옵션 포함, 단골 할인 적용 전</div>
+      <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price">{{ unit_price|stringformat:"d" }}</span>원</div>
+    </div>
+    <form method="post" action="{% url 'travel:start_application' product.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="config" id="config-input" value="{{ config_json }}">
+      <button class="btn btn-gold btn-lg" id="apply-btn">이 구성으로 신청하기 <i class="bi bi-arrow-right"></i></button>
+    </form>
+  </div>
+</aside>
 {% endblock %}
 
 {% block extra_js %}

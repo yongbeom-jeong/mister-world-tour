@@ -113,3 +113,40 @@ class StockReceiptViewTests(TestCase):
         self.assertEqual(self.client.get(reverse("souvenir:stock")).status_code, 403)
         res = self.client.post(reverse("souvenir:prepare"), {"souvenir_id": 1, "quantity": 1})
         self.assertEqual(res.status_code, 403)
+
+
+class SouvenirRegistrationTests(TestCase):
+    def setUp(self):
+        self.staff = Member.objects.create_user(username="staff9", password="x", name="직원", contact="010-1",
+                                                role=Member.Role.STAFF)
+        self.client.force_login(self.staff)
+        self.url = reverse("souvenir:register")
+
+    def test_register_links_theme_and_opens_stock_page(self):
+        res = self.client.post(self.url, {"name": " 골프 장갑 ", "theme": "GOLF"})
+        s = Souvenir.objects.get(name="골프 장갑")
+        self.assertEqual((s.theme, s.stock_quantity), ("GOLF", 0))
+        self.assertRedirects(res, reverse("souvenir:stock") + f"?selected={s.pk}")
+        self.assertEqual(services.souvenir_names_for_theme("GOLF"), ["골프공", "골프 장갑"])
+
+    def test_validation(self):
+        cases = [({"name": "", "theme": "GOLF"}, "name"), ({"name": "골프공", "theme": "GOLF"}, "name"),
+                 ({"name": "골프 장갑", "theme": ""}, "theme"), ({"name": "x" * 51, "theme": "GOLF"}, "name")]
+        for data, field in cases:
+            with self.subTest(data=data):
+                res = self.client.post(self.url, data)
+                self.assertEqual(res.status_code, 200)
+                self.assertIn(field, res.context["errors"])
+        self.assertEqual(Souvenir.objects.count(), 4)
+
+    def test_page_lists_souvenirs_by_theme(self):
+        res = self.client.get(self.url)
+        self.assertContains(res, "커플 기념티")
+        self.assertContains(res, "기념품 스카프")
+
+    def test_customer_forbidden(self):
+        customer = Member.objects.create_user(username="cust9", password="x", name="고객", contact="010-2")
+        self.client.force_login(customer)
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+        self.assertEqual(self.client.post(self.url, {"name": "a", "theme": "GOLF"}).status_code, 403)
+        self.assertEqual(Souvenir.objects.count(), 4)

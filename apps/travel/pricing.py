@@ -23,7 +23,7 @@ OPTION_PRICE_TABLE: dict[str, dict[str, int]] = {
 MIN_UNIT_PRICE_RATIO = 0.5  # 옵션을 아무리 낮춰도 1인 가격은 기본 가격의 50% 이상 (임시 정책)
 
 # 추가 음료 1인 금액(원). 식사에 기본 포함된 음료는 0원 (기본 제공분 중복 과금 방지)
-DRINK_PRICES: dict[str, int] = {"WINE": 50_000, "BEER": 20_000, "CHAMPAGNE": 60_000}
+DRINK_PRICES: dict[str, int] = {"WINE": 50_000, "BEER": 20_000, "CHAMPAGNE": 60_000, "COFFEE": 10_000}
 
 
 @dataclass(frozen=True)

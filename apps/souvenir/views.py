@@ -1,10 +1,13 @@
 import logging
 
+from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.members.decorators import staff_role_required
+from apps.travel.choices import Theme
 
 from . import services
 
@@ -20,6 +23,29 @@ def _souvenir_json(s) -> dict:
 def stock_page(request):
     """UC8 기념품 입고 화면. 목록은 페이지가 열린 뒤 JSON 으로 불러온다."""
     return render(request, "souvenir/stock.html")
+
+
+@staff_role_required
+def register_page(request):
+    """기념품 품목 등록: 이름과 연결할 테마. 등록 후 입고 화면에서 그 품목을 선택한 상태로 연다."""
+    values, errors = {"name": "", "theme": ""}, {}
+    if request.method == "POST":
+        values = {"name": request.POST.get("name", "").strip(), "theme": request.POST.get("theme", "")}
+        try:
+            souvenir = services.register_souvenir(values["name"], values["theme"])
+        except services.SouvenirRegistrationError as e:
+            errors = e.errors
+        else:
+            messages.success(request, f"'{souvenir.name}'을(를) {souvenir.get_theme_display()}에 등록했습니다. "
+                                      "입고 수량을 등록해 주세요.")
+            return redirect(reverse("souvenir:stock") + f"?selected={souvenir.pk}")
+    by_theme = {t: [] for t in Theme.values}
+    for s in services.load_souvenirs():
+        by_theme[s.theme].append(s)
+    return render(request, "souvenir/register.html", {
+        "values": values, "errors": errors,
+        "themes": [(value, label, by_theme[value]) for value, label in Theme.choices],
+    })
 
 
 @staff_role_required

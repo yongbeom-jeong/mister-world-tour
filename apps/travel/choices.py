@@ -43,6 +43,7 @@ class DrinkOption(models.TextChoices):
     WINE = "WINE", "와인 페어링"
     BEER = "BEER", "수제맥주 세트"
     CHAMPAGNE = "CHAMPAGNE", "샴페인"
+    COFFEE = "COFFEE", "스페셜티 커피"  # 과제 원문 "샴페인, 커피 추가"
 
 
 class DepartureStatus(models.TextChoices):
