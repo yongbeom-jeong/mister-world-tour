@@ -5,7 +5,7 @@ from apps.travel.choices import Theme
 
 
 class Souvenir(models.Model):
-    """미리 등록된 기념품 품목과 현재 재고 (설계 06장 Souvenir)."""
+    """기념품 품목과 현재 재고 (설계 06장 Souvenir). 테마에 연결되며 한 테마에 여러 품목이 있을 수 있다."""
 
     name = models.CharField("품목 이름", max_length=50, unique=True)
     theme = models.CharField("대응 테마", max_length=10, choices=Theme.choices)
@@ -46,3 +46,29 @@ class StockReceipt(models.Model):
 
     def matches_request(self, employee_id: int, souvenir_id: int, quantity: int) -> bool:
         return (self.employee_id, self.souvenir_id, self.quantity) == (employee_id, souvenir_id, quantity)
+
+
+class StockIssue(models.Model):
+    """출발 확정으로 차감한 기념품 (품목·신청마다 1행, 여행자 1인당 1개).
+
+    허니문은 신청이 확정될 때, 다른 테마는 상품이 확정될 때(그때까지의 신청 전부)와
+    확정 뒤 추가 신청마다 차감한다. 테마에 연결된 품목이 여러 개면 품목마다 차감한다.
+    (품목, 신청)마다 한 번만 기록해 두 번 차감되지 않게 한다.
+    """
+
+    souvenir = models.ForeignKey(Souvenir, on_delete=models.PROTECT, related_name="issues", verbose_name="품목")
+    application = models.ForeignKey(
+        "travel.TravelApplication", on_delete=models.PROTECT, related_name="souvenir_issues", verbose_name="여행 신청"
+    )
+    quantity = models.PositiveIntegerField("차감 수량")
+    issued_at = models.DateTimeField("차감 시점", auto_now_add=True)
+    stock_after = models.PositiveIntegerField("차감 직후 재고")
+
+    class Meta:
+        verbose_name = "기념품 차감"
+        verbose_name_plural = "기념품 차감"
+        ordering = ["-issued_at"]
+        constraints = [models.UniqueConstraint(fields=["souvenir", "application"], name="unique_issue_per_application")]
+
+    def __str__(self) -> str:
+        return f"{self.souvenir.name} -{self.quantity}"

@@ -63,7 +63,7 @@ config/          Django 설정·URL
 apps/
   members/       회원 관리 (Member: 고객·직원, 로그인)
   travel/        여행 관리 (상품·구성·신청·할인·출발 확정)
-  souvenir/      기념품 관리 (품목·재고·입고)
+  souvenir/      기념품 관리 (품목 등록·입고·출발 확정 시 차감)
   speech/        음성인식 연동
   sms/           문자 발송 연동
 templates/       화면 템플릿 (base.html 공통 틀, 앱별 폴더)
@@ -79,7 +79,7 @@ docs/            요구분석·설계 산출물 (StarUML, Word)
 
 | 아이디 | 유형 | 용도 |
 |---|---|---|
-| `staff1` | 직원 | 상품 등록·관리, 기념품 입고 |
+| `staff1` | 직원 | 상품 등록·관리, 기념품 등록·입고 |
 | `regular1` | 고객 | 단골 (최근 3년 완료 여행 3회 → 10% 할인) |
 | `customer2` | 고객 | 비단골 (3년 내 2회) |
 | `newbie` | 고객 | 이력 없음 |
@@ -88,10 +88,30 @@ docs/            요구분석·설계 산출물 (StarUML, Word)
 
 ## 외부 서비스 (음성인식·문자)
 
-업체가 정해지지 않아 가짜 구현으로 동작한다. `.env`에서 클래스 경로로 교체한다.
+기본은 가짜 구현으로 동작하고, `.env`에서 클래스 경로로 교체한다. 문자는 솔라피로 실제 발송할 수 있다(아래).
 
 | 기능 | 현재 동작 | 확인 방법 |
 |---|---|---|
 | 음성 선택 | 브라우저 내장 음성인식(Chrome·Edge, 한국어) | 고객 → 여행 상품 → 🎤 버튼. 마이크가 없으면 "문장으로 입력" 칸 사용 |
 | 출발 확정 문자 | 실제로 보내지 않고 `runserver` 창에 `[SMS 가짜 발송]` 로그 | 신청 결과 화면의 "출발 확정 문자: 성공 N건" |
 | 문자 재시도 시연 | `.env`에 `SMS_CLIENT=apps.sms.services.FlakyDemoSMSClient` | 번호마다 2번 실패 후 3번째 성공이 로그에 보임 |
+| 실제 문자 (솔라피) | `.env`에 `SMS_CLIENT=apps.sms.solapi.SolapiSMSClient` + 솔라피 키·발신번호 | `manage.py send_test_sms 010-xxxx-xxxx` 로 시험 발송 |
+
+### 솔라피로 실제 문자 보내기
+
+1. [솔라피](https://solapi.com) 가입 → 잔액 충전 (단문 18원. 출발 확정 문자는 단문 90byte 안에 맞춰 보낸다. 첫 실명인증 시 300포인트)
+2. 콘솔에서 **발신번호 등록** (본인 휴대폰 인증) → **API Key 발급** (Key·Secret)
+3. `.env` 설정 후 서버 재시작
+
+   ```
+   SMS_CLIENT=apps.sms.solapi.SolapiSMSClient
+   SOLAPI_API_KEY=발급받은 키
+   SOLAPI_API_SECRET=발급받은 시크릿
+   SOLAPI_SENDER=01012345678
+   SMS_ALLOWED_NUMBERS=010-1111-2222,010-3333-4444
+   ```
+
+4. `.venv/Scripts/python manage.py send_test_sms 010-1111-2222` 로 휴대폰 수신 확인
+
+`SMS_ALLOWED_NUMBERS`에 넣은 번호로만 실제 발송된다. 데모 계정(`seed_demo`)의 연락처는 임의 번호이므로,
+시연 중에는 팀원 번호만 넣어 두고 팀원 번호로 가입한 고객 계정으로 신청한다. 목록 밖 번호는 "실패"로 기록되고 재시도하지 않는다.

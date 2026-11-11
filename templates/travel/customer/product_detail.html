@@ -33,7 +33,7 @@
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-stars"></i></div>
           <div><div class="small text-muted">테마 서비스</div><div class="fw-semibold">{{ product.theme_service }}</div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-gift"></i></div>
-          <div><div class="small text-muted">기념품</div><div class="fw-semibold">{{ product.souvenir.name|default:"-" }} <span class="small text-muted fw-normal">(1인 1개)</span></div></div></div>
+          <div><div class="small text-muted">기념품</div><div class="fw-semibold">{{ souvenirs|join:", "|default:"-" }} <span class="small text-muted fw-normal">(1인 1개씩)</span></div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-building"></i></div>
           <div><div class="small text-muted">기본 호텔</div><div class="fw-semibold">{{ product.get_hotel_level_display }}</div></div></div>
         <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-cup-hot"></i></div>

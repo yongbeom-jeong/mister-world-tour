@@ -4,6 +4,8 @@
 - 준비: 입력을 검사하고 요청 키와 최초 요청 시점을 정해 사용자별 서버 문맥(세션)에 보관한다. 저장하지 않는다.
 - 등록: 같은 키로 이미 저장된 입고가 있으면 그 결과를 돌려주고 재고를 다시 늘리지 않는다.
   없으면 준비한 내용과 일치하는지 확인하고, 입고 내역 저장과 재고 증가를 한 트랜잭션으로 반영한다.
+
+품목 등록(직원이 이름·테마 지정)과 출발 확정 시 재고 차감(issue_for_departure)도 여기서 한다.
 """
 
 import uuid
@@ -15,7 +17,9 @@ from django.db.models import F
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from .models import Souvenir, StockReceipt
+from apps.travel.choices import Theme
+
+from .models import Souvenir, StockIssue, StockReceipt
 
 MAX_QUANTITY = 10_000  # 한 번에 입고할 수 있는 최대 수량 (임시 정책: 오입력 방지)
 MAX_PENDING_KEYS = 20  # 세션에 보관할 준비 문맥 수 (여러 탭 대비, 오래된 것부터 정리)
@@ -50,11 +54,6 @@ class StockReceiptError(Exception):
 
 def load_souvenirs() -> list[Souvenir]:
     return list(Souvenir.objects.order_by("theme", "name"))
-
-
-def find_souvenir_for_theme(theme: str) -> Souvenir | None:
-    """테마에 대응하는 등록 기념품. 여러 개면 가장 먼저 등록된 품목."""
-    return Souvenir.objects.filter(theme=theme).order_by("id").first()
 
 
 def get_stock_quantity(souvenir_id: int) -> int | None:
@@ -159,3 +158,86 @@ def _success(receipt: StockReceipt, message: str) -> StockReceiptResponse:
     except Exception:  # 입고는 성공했지만 현재 재고 재조회 실패 → 성공은 유지
         res.message += " 현재 재고는 다시 조회해 주세요."
     return res
+
+
+# ---------------------------------------------------------------- 품목 등록
+
+MAX_NAME = 50
+
+
+class SouvenirRegistrationError(Exception):
+    def __init__(self, errors: dict):
+        super().__init__(str(errors))
+        self.errors = errors
+
+
+def register_souvenir(name, theme) -> Souvenir:
+    """새 기념품 품목을 테마에 연결해 재고 0개로 등록한다. 수량은 입고(UC8)로 늘린다.
+
+    등록 즉시 그 테마 상품의 신청 검사·출발 확정 차감 대상이 된다 (테마 품목마다 여행자 1인당 1개).
+    """
+    name = (name or "").strip()
+    errors = {}
+    if not name:
+        errors["name"] = "품목 이름을 입력해 주세요."
+    elif len(name) > MAX_NAME:
+        errors["name"] = f"품목 이름은 {MAX_NAME}자 이내로 입력해 주세요."
+    elif Souvenir.objects.filter(name__iexact=name).exists():
+        errors["name"] = "이미 등록된 품목 이름입니다."
+    if theme not in Theme.values:
+        errors["theme"] = "연결할 테마를 선택해 주세요."
+    if errors:
+        raise SouvenirRegistrationError(errors)
+    try:
+        return Souvenir.objects.create(name=name, theme=theme)
+    except IntegrityError:  # 동시에 같은 이름이 등록된 경우
+        raise SouvenirRegistrationError({"name": "이미 등록된 품목 이름입니다."})
+
+
+# ---------------------------------------------------------------- 테마 기념품 조회·차감 (Travel Management 가 호출)
+
+def souvenirs_for_theme(theme: str) -> list[Souvenir]:
+    return list(Souvenir.objects.filter(theme=theme).order_by("id"))
+
+
+def souvenir_names_for_theme(theme: str) -> list[str]:
+    return list(Souvenir.objects.filter(theme=theme).order_by("id").values_list("name", flat=True))
+
+
+class SouvenirShortage(Exception):
+    def __init__(self, name: str, needed: int, stock: int):
+        super().__init__(f"{name}: needed={needed} stock={stock}")
+        self.name = name
+        self.needed = needed
+        self.stock = stock
+
+
+def issue_for_departure(theme: str, items: list[tuple[int, int]]) -> int:
+    """출발 확정된 신청들의 테마 기념품을 차감한다. items: [(신청 id, 여행자 수)].
+
+    테마에 연결된 품목마다 여행자 1인당 1개. 호출자의 트랜잭션 안에서 실행하며,
+    한 품목이라도 모자라면 SouvenirShortage 를 낸다 (호출자 트랜잭션이 취소되어 앞의 차감도 되돌아감).
+    (품목, 신청)마다 한 번만 차감하고, 재고 감소는 '재고 >= 필요 수량' 조건부 UPDATE 라 음수가 되지 않는다.
+    반환값은 차감한 총 개수 (모든 품목 합계).
+    """
+    app_ids = [a for a, _ in items]
+    total = 0
+    for souvenir in souvenirs_for_theme(theme):
+        done = set(StockIssue.objects.filter(souvenir=souvenir, application_id__in=app_ids)
+                   .values_list("application_id", flat=True))
+        todo = [(a, n) for a, n in items if a not in done and n > 0]
+        needed = sum(n for _, n in todo)
+        if not needed:
+            continue
+        updated = Souvenir.objects.filter(pk=souvenir.pk, stock_quantity__gte=needed).update(
+            stock_quantity=F("stock_quantity") - needed)
+        stock = Souvenir.objects.values_list("stock_quantity", flat=True).get(pk=souvenir.pk)
+        if not updated:
+            raise SouvenirShortage(souvenir.name, needed, stock)
+        remaining = stock + needed
+        for application_id, n in todo:
+            remaining -= n
+            StockIssue.objects.create(souvenir=souvenir, application_id=application_id, quantity=n,
+                                      stock_after=remaining)
+        total += needed
+    return total

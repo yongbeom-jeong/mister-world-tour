@@ -37,7 +37,7 @@ def view_previous_travel_history(member_id: int) -> list[TravelHistory]:
 
 def load_products(theme: str | None = None, level: str | None = None) -> list[TravelProduct]:
     """상품 목록. 조건을 생략하면 전체 (직원 관리 화면)."""
-    qs = TravelProduct.objects.select_related("souvenir")
+    qs = TravelProduct.objects.all()
     if theme:
         qs = qs.filter(theme=theme)
     if level:
@@ -47,7 +47,7 @@ def load_products(theme: str | None = None, level: str | None = None) -> list[Tr
 
 def select_product(product_id: int) -> TravelProduct:
     try:
-        return TravelProduct.objects.select_related("souvenir").get(pk=product_id)
+        return TravelProduct.objects.get(pk=product_id)
     except TravelProduct.DoesNotExist as e:
         raise ProductNotFound(product_id) from e
 
@@ -61,10 +61,10 @@ def load_default_configuration(theme: str, level: str) -> dict:
     if theme not in Theme.values or level not in TourLevel.values:
         raise ValueError("유효하지 않은 테마 또는 등급입니다.")
     t, lv = THEME_DEFAULTS[Theme(theme)], LEVEL_DEFAULTS[TourLevel(level)]
-    souvenir = souvenir_services.find_souvenir_for_theme(theme)
+    souvenirs = souvenir_services.souvenir_names_for_theme(theme)
     return {
         "theme_service": t["service"],
-        "souvenir": souvenir.name if souvenir else "(등록된 기념품 없음)",
+        "souvenir": ", ".join(souvenirs) if souvenirs else "(등록된 기념품 없음)",
         "transport": TransportOption(t["transport"]).label,
         "hotel_level": HotelLevel(lv["hotel"]).label,
         "meal": MealOption(lv["meal"]).label,
@@ -77,7 +77,6 @@ def _fill(product: TravelProduct, data: dict) -> None:
     for field in PRODUCT_INPUT_FIELDS:
         if field in data:
             setattr(product, field, data[field])
-    product.souvenir = souvenir_services.find_souvenir_for_theme(product.theme)
     product.departure_status = None  # 신청이 없는 상품만 저장되므로 출발 상태는 처음부터 다시 결정
     product.apply_default_configuration()
     product.full_clean()

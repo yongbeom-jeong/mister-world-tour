@@ -56,10 +56,7 @@ class TravelProduct(ConfigurationFields):
     travel_days = models.PositiveSmallIntegerField("여행 기간(일)")  # 기간 표현 방식은 후속 확정
     departure_date = models.DateField("출발일")
     theme_service = models.CharField("기본 테마 서비스", max_length=100)
-    souvenir = models.ForeignKey(
-        "souvenir.Souvenir", on_delete=models.PROTECT, null=True, blank=True,
-        related_name="products", verbose_name="기본 기념품",
-    )
+    # 기념품은 상품이 아니라 테마에 연결된다 (Souvenir.theme). 그 테마의 기념품 전부를 여행자 1인당 1개씩.
     # 허니문 외 테마의 상품 공동 출발 상태. 허니문은 None 이고 신청별 상태를 쓴다.
     departure_status = models.CharField(
         "출발 상태", max_length=10, choices=DepartureStatus.choices, null=True, blank=True

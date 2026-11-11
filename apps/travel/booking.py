@@ -5,6 +5,7 @@
 2. review_application      : 여행자·정원·기념품 재고·단골 할인을 검사하고 금액을 계산한다. 저장하지 않는다.
                              성공하면 요청 키와 검토 내용을 돌려주며, 뷰가 사용자 세션에 보관한다.
 3. submit_travel_application: 상품을 잠근 트랜잭션 안에서 모든 조건을 다시 검사해 저장하고 출발 상태를 판정한다.
+                             출발이 확정된 신청의 테마 기념품(품목마다 여행자 1인당 1개)을 같은 트랜잭션에서 차감한다.
                              저장이 끝난 뒤 문자 대상에게 출발 확정 문자를 요청한다.
 """
 
@@ -21,7 +22,7 @@ from apps.sms import services as sms_service
 from apps.souvenir import services as souvenir_services
 
 from . import configuration as cfg
-from .choices import GROUP_CAPACITY, HONEYMOON_PARTY_SIZE, DepartureStatus
+from .choices import GROUP_CAPACITY, GROUP_MIN_DEPARTURE, HONEYMOON_PARTY_SIZE, DepartureStatus
 from .models import Traveler, TravelApplication, TravelHistory, TravelProduct
 from .pricing import PriceBreakdown, calculate_application_price, calculate_unit_price
 
@@ -51,7 +52,7 @@ def bookable_products(theme: str | None, level: str | None) -> list[TravelProduc
 
 
 def get_bookable_product(product_id: int) -> TravelProduct:
-    product = TravelProduct.objects.select_related("souvenir").filter(pk=product_id).first()
+    product = TravelProduct.objects.filter(pk=product_id).first()
     if product is None:
         raise BookingError("상품을 찾을 수 없습니다. 삭제되었을 수 있습니다.")
     if product.departure_date <= timezone.localdate():
@@ -137,18 +138,44 @@ def clean_travelers(product: TravelProduct, member, rows: list[dict]) -> list[di
     return cleaned
 
 
+def theme_souvenir_names(product: TravelProduct) -> list[str]:
+    """상품 테마에 연결된 기념품 이름 (상세 화면 표시용)."""
+    return souvenir_services.souvenir_names_for_theme(product.theme)
+
+
+def souvenirs_needed(product: TravelProduct, traveler_count: int, current_count: int) -> int:
+    """이 신청에 필요한 기념품 수.
+
+    - 허니문, 이미 확정된 상품: 이 신청의 여행자 수 (확정과 함께 차감)
+    - 이 신청으로 새로 확정되는 상품: 그때까지의 모든 신청 + 이 신청 (확정 순간 전부 차감)
+    - 아직 확정 전: 이 신청의 여행자 수만큼 있는지만 확인 (차감은 확정 때)
+    """
+    if product.is_honeymoon or product.departure_status == DepartureStatus.CONFIRMED:
+        return traveler_count
+    if current_count + traveler_count >= GROUP_MIN_DEPARTURE:
+        return current_count + traveler_count
+    return traveler_count
+
+
+def _souvenir_shortage_message(traveler_count: int, name: str, needed: int, stock: int) -> str:
+    if needed > traveler_count:
+        return (f"이 신청으로 출발이 확정되면 기념품 '{name}' {needed}개가 필요하지만 재고가 {stock}개뿐이라 "
+                "지금은 신청을 받을 수 없습니다.")
+    return f"기념품 '{name}' 재고가 부족해 지금은 {traveler_count}명 신청을 받을 수 없습니다. (남은 재고 {stock}개)"
+
+
 def _check_business_rules(product: TravelProduct, traveler_count: int, current_count: int) -> None:
     """정원과 기념품 재고. 검토와 등록에서 같은 규칙을 쓴다."""
     problem = product.validate_application_capacity(current_count, traveler_count)
     if problem:
         raise BookingError(problem, {"travelers": problem})
-    if product.souvenir_id is None:
-        raise BookingError("이 상품의 기념품 정보가 없어 신청할 수 없습니다. 고객센터에 문의해 주세요.")
-    stock = souvenir_services.get_stock_quantity(product.souvenir_id)
-    if stock is None:
-        raise BookingError("이 상품의 기념품을 찾을 수 없어 신청할 수 없습니다.")
-    if stock < traveler_count:  # 여행자 1인당 기념품 1개 (예약·차감은 하지 않음)
-        raise BookingError(f"기념품 재고가 부족해 지금은 {traveler_count}명 신청을 받을 수 없습니다. (남은 재고 {stock}개)")
+    souvenirs = souvenir_services.souvenirs_for_theme(product.theme)
+    if not souvenirs:
+        raise BookingError("이 테마의 기념품 정보가 없어 신청할 수 없습니다. 고객센터에 문의해 주세요.")
+    needed = souvenirs_needed(product, traveler_count, current_count)  # 테마 기념품마다 여행자 1인당 1개
+    for s in souvenirs:
+        if s.stock_quantity < needed:
+            raise BookingError(_souvenir_shortage_message(traveler_count, s.name, needed, s.stock_quantity))
 
 
 def _price(product: TravelProduct, member_id: int, config: dict, traveler_count: int) -> PriceBreakdown:
@@ -176,6 +203,7 @@ class ApplicationResult:
     departure_status: str | None
     newly_confirmed: bool = False
     duplicate: bool = False
+    souvenirs_issued: int = 0  # 이번 신청으로 차감한 기념품 수 (모든 품목 합계)
     sms: sms_service.SMSBatchResult | None = None
     recipients: list = field(default_factory=list)
 
@@ -228,6 +256,7 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
         newly_confirmed = False
         if product.is_honeymoon:
             recipient_ids = [member.pk]  # 허니문: 이 신청 고객만
+            to_issue = [(app.pk, count)]
         else:
             was_confirmed = product.departure_status == DepartureStatus.CONFIRMED
             total = current_traveler_count(product.pk)
@@ -236,13 +265,23 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
             newly_confirmed = not was_confirmed and product.departure_status == DepartureStatus.CONFIRMED
             if newly_confirmed:  # 새로 확정: 이 상품의 모든 신청 고객 (중복 제거)
                 recipient_ids = list(product.applications.values_list("member_id", flat=True).distinct())
+                to_issue = list(product.applications.annotate(n=Count("travelers")).values_list("pk", "n"))
             elif was_confirmed:  # 이미 확정된 상품의 추가 신청: 새 신청 고객만
                 recipient_ids = [member.pk]
+                to_issue = [(app.pk, count)]
             else:
                 recipient_ids = []
+                to_issue = []
+
+        # 출발 확정된 신청의 기념품 차감. 모자라면 신청 저장까지 모두 취소된다.
+        try:
+            issued = souvenir_services.issue_for_departure(product.theme, to_issue) if to_issue else 0
+        except souvenir_services.SouvenirShortage as e:
+            raise BookingError(_souvenir_shortage_message(count, e.name, e.needed, e.stock))
 
     # 저장이 끝난 뒤 문자 요청. 문자 실패는 신청·출발 상태를 되돌리지 않는다.
-    result = ApplicationResult(app, app.current_departure_status(), newly_confirmed=newly_confirmed)
+    result = ApplicationResult(app, app.current_departure_status(), newly_confirmed=newly_confirmed,
+                               souvenirs_issued=issued)
     if recipient_ids:
         recipients = []
         for mid in sorted(set(recipient_ids)):
@@ -257,6 +296,13 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
             result.sms = sms_service.SMSBatchResult(invalid=recipients)
         result.recipients = recipients
     return result
+
+
+def find_submitted_application(member_id: int, request_key: str) -> TravelApplication | None:
+    """같은 요청 키로 이미 저장된 이 고객의 신청 (재제출 안내용)."""
+    if not request_key:
+        return None
+    return TravelApplication.objects.filter(member_id=member_id, request_key=request_key).first()
 
 
 def my_applications(member_id: int) -> list[TravelApplication]:
