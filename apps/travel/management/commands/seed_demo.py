@@ -17,7 +17,6 @@ from django.utils import timezone
 
 from apps.members.models import Member
 from apps.souvenir.models import Souvenir, StockReceipt
-from apps.souvenir.services import find_souvenir_for_theme
 from apps.travel import booking
 from apps.travel import configuration as cfg
 from apps.travel.choices import Theme, TourLevel
@@ -153,7 +152,6 @@ class Command(BaseCommand):
             p = TravelProduct(
                 name=name, destination=dest, description=desc, theme=theme, tour_level=level,
                 base_price=price, travel_days=days, departure_date=today + timedelta(days=offset),
-                souvenir=find_souvenir_for_theme(theme),
             )
             p.apply_default_configuration()
             p.full_clean()

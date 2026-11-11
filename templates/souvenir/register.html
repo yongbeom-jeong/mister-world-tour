@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}기념품 등록 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+      <div>
+        <h1>기념품 등록</h1>
+        <p>새 기념품 품목을 테마에 연결합니다. 그 테마 상품의 출발이 확정되면 여행자 1인당 1개씩 재고에서 차감됩니다.</p>
+      </div>
+      <a class="btn btn-outline-light btn-sm" href="{% url 'souvenir:stock' %}"><i class="bi bi-box-arrow-in-down me-1"></i>기념품 입고로</a>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <form method="post" novalidate class="mwt-card">
+      {% csrf_token %}
+      <div class="mwt-card-head"><span><i class="bi bi-plus-lg me-1"></i>새 품목</span></div>
+      <div class="mwt-card-body">
+        <div class="mb-3">
+          <label class="form-label" for="id_name">품목 이름</label>
+          <input type="text" name="name" id="id_name" maxlength="50" value="{{ values.name }}" autofocus
+                 class="form-control {% if errors.name %}is-invalid{% endif %}" placeholder="예: 골프 장갑">
+          {% if errors.name %}<div class="invalid-feedback">{{ errors.name }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <div class="form-label">연결할 테마</div>
+          <div class="chip-group {% if errors.theme %}is-invalid{% endif %}">
+            {% for value, label, items in themes %}
+              <input type="radio" class="btn-check" name="theme" id="theme_{{ value }}" value="{{ value }}"
+                     {% if values.theme == value %}checked{% endif %}>
+              <label class="btn btn-outline-primary" for="theme_{{ value }}">{{ label }}</label>
+            {% endfor %}
+          </div>
+          {% if errors.theme %}<div class="invalid-feedback d-block">{{ errors.theme }}</div>{% endif %}
+        </div>
+        <p class="small text-muted mb-0">재고 0개로 등록됩니다. 등록한 뒤 입고 화면에서 수량을 넣으세요.
+          같은 테마에 품목이 여러 개면 여행자마다 품목별로 1개씩 필요합니다.</p>
+      </div>
+      <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
+        <button class="btn btn-gold"><i class="bi bi-plus-lg me-1"></i>등록</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="mwt-card">
+      <div class="mwt-card-head"><span>테마별 기념품</span></div>
+      <div class="mwt-card-body">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>테마</th><th>품목</th><th class="text-end">현재 재고</th></tr></thead>
+          <tbody>
+            {% for value, label, items in themes %}
+              {% for s in items %}
+                <tr>
+                  {% if forloop.first %}<td rowspan="{{ items|length }}" class="fw-semibold">{{ label }}</td>{% endif %}
+                  <td>{{ s.name }}</td>
+                  <td class="text-end">{{ s.stock_quantity }}개</td>
+                </tr>
+              {% empty %}
+                <tr><td class="fw-semibold">{{ label }}</td><td colspan="2" class="text-danger small">등록된 기념품 없음 (이 테마 상품은 신청할 수 없음)</td></tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

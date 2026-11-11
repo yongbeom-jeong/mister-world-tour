@@ -4,7 +4,7 @@
   <section class="mwt-page-head">
     <div class="container">
       <h1>기념품 입고</h1>
-      <p>입고할 품목을 고르고 수량을 입력하세요. 등록하면 재고가 바로 늘어납니다. 여행자 1인당 1개씩 필요합니다.</p>
+      <p>입고할 품목을 고르고 수량을 입력하세요. 등록하면 재고가 바로 늘어납니다. 테마 상품의 출발이 확정되면 여행자 1인당 1개씩 자동으로 차감됩니다.</p>
     </div>
   </section>
 {% endblock %}
@@ -13,7 +13,10 @@
   <div class="col-lg-8">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <span class="fw-bold">기념품 재고</span>
-      <button class="btn btn-sm btn-outline-primary" id="reload"><i class="bi bi-arrow-clockwise me-1"></i>새로고침</button>
+      <span class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'souvenir:register' %}"><i class="bi bi-plus-lg me-1"></i>새 품목 등록</a>
+        <button class="btn btn-sm btn-outline-primary" id="reload"><i class="bi bi-arrow-clockwise me-1"></i>새로고침</button>
+      </span>
     </div>
     <div id="list-error" class="alert alert-danger" hidden></div>
     <div class="row g-3" id="souvenir-rows">
@@ -113,6 +116,7 @@
       if (!data.ok) throw new Error(data.message);
       souvenirs = data.souvenirs;
       render();
+      showSelected();
     } catch (e) {
       // 조회 실패를 재고 0으로 보이지 않게 목록을 비우고 오류를 표시
       souvenirs = [];
@@ -122,13 +126,19 @@
     }
   }
 
-  function select(id) {
-    if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
-    if (id !== selectedId) { qty.value = ""; result.hidden = true; }
-    selectedId = id;
-    const s = souvenirs.find(x => x.id === id);
+  function showSelected() {   // 선택 품목 이름 옆 현재 재고를 목록 값과 맞춘다
+    const s = souvenirs.find(x => x.id === selectedId);
+    if (!s) return;
     selectedName.textContent = `${s.name} (현재 ${s.stock_quantity.toLocaleString()}개)`;
     selectedName.classList.remove("text-muted");
+  }
+
+  function select(id) {
+    if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
+    if (!souvenirs.some(x => x.id === id)) return;
+    if (id !== selectedId) { qty.value = ""; result.hidden = true; }
+    selectedId = id;
+    showSelected();
     qty.disabled = false;
     submit.disabled = false;
     qty.focus();
@@ -166,8 +176,7 @@
           const i = souvenirs.findIndex(s => s.id === data.current_souvenir.id);
           if (i >= 0) souvenirs[i] = data.current_souvenir;
           render();
-          select(data.current_souvenir.id);
-          show("success", data.message + ` (입고 ${data.receipt.quantity}개)`);
+          showSelected();   // 처리 중이라 select() 는 건너뛰므로 직접 갱신
         } else {
           loadList();
         }
@@ -208,7 +217,9 @@
 
   retry.addEventListener("click", () => { if (pending && !busy) record(); });
   document.getElementById("reload").addEventListener("click", () => { if (!busy) loadList(); });
-  loadList();
+  // 품목 등록 직후(?selected=id)에는 그 품목을 선택한 상태로 연다
+  const preselect = Number(new URLSearchParams(location.search).get("selected"));
+  loadList().then(() => { if (preselect) select(preselect); });
 })();
 </script>
 {% endblock %}

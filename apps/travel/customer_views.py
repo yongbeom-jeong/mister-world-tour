@@ -97,6 +97,7 @@ def product_detail(request, product_id: int):
         "no_drink_meals": json.dumps(sorted(NO_DRINK_MEALS)),
         "included_drinks": json.dumps({k: sorted(v) for k, v in INCLUDED_DRINKS.items()}),
         "remaining": booking.remaining_seats(product),
+        "souvenirs": booking.theme_souvenir_names(product),
     })
 
 
@@ -155,6 +156,13 @@ def _save_review(request, review: booking.Review) -> None:
 
 @customer_required
 def apply(request):
+    if request.method == "POST" and request.POST.get("action") == "submit":
+        key = request.POST.get("request_key", "")
+        if key not in request.session.get(REVIEWS_KEY, {}):
+            done = booking.find_submitted_application(request.user.pk, key)
+            if done:  # 이미 처리된 신청을 다시 제출 (뒤로 가기 후 재제출 등): 새로 저장하지 않고 기존 신청 안내
+                messages.info(request, "이미 처리된 신청입니다. 신청 내용을 확인해 주세요.")
+                return redirect("travel:application_detail", application_id=done.pk)
     draft = request.session.get(DRAFT_KEY)
     if not draft:
         messages.info(request, "먼저 신청할 여행 상품과 구성을 선택해 주세요.")
