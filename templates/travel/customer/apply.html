@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load mwt %}
 {% block title %}여행 신청 | 미스터 월드 투어{% endblock %}
+{% block page_class %}application-page{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-page-head">
+  <section class="mwt-page-head application-head">
     <div class="container">
       <a href="{% url 'travel:product_detail' product.pk %}" class="small"><i class="bi bi-arrow-left"></i> 구성 다시 고르기</a>
       <h1 class="mt-2">여행 신청</h1>
@@ -23,6 +24,7 @@
 <div class="row g-4">
   {# ---------------------------------------------------------------- 요약 #}
   <div class="col-lg-5 order-2">
+    <div class="application-summary">
     {% if review %}
       <div class="mwt-card border-0" id="review-panel" style="margin-bottom:1rem;box-shadow:0 0 0 2px var(--mwt-navy), var(--mwt-shadow-lg)">
         <div class="mwt-card-head bg-navy text-white rounded-top" style="border-radius:var(--mwt-radius) var(--mwt-radius) 0 0"><span><i class="bi bi-receipt me-1"></i>신청 금액 확인</span></div>
@@ -45,14 +47,18 @@
         </div>
       </div>
     {% endif %}
-    <div class="mwt-card overflow-hidden mb-3">
-      <img src="{{ product|product_photo:'sm' }}" alt="" class="w-100" style="aspect-ratio:16/8;object-fit:cover">
+    <div class="mwt-card mb-3">
       <div class="mwt-card-body">
-        <div class="d-flex gap-2 mb-2">
-          <span class="tag tag-navy">{{ product.get_theme_display|cut:" 투어" }}</span>
-          <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
+        <div class="application-summary-heading">
+          <img src="{{ product|product_photo:'sm' }}" alt="" class="application-summary-photo">
+          <div>
+            <div class="d-flex gap-2 mb-2">
+              <span class="tag tag-navy">{{ product.get_theme_display|cut:" 투어" }}</span>
+              <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
+            </div>
+            <h2 class="h5 mb-0">{{ product.name }}</h2>
+          </div>
         </div>
-        <h2 class="h5 mb-3">{{ product.name }}</h2>
         <dl class="info-list small">
           <dt>출발일</dt><dd>{{ product.departure_date|date:"Y년 n월 j일" }} · {{ product.travel_days }}일</dd>
           <dt>호텔</dt><dd>{{ described.hotel_level }}</dd>
@@ -64,6 +70,7 @@
       </div>
     </div>
 
+    </div>
   </div>
 
   {# ---------------------------------------------------------------- 여행자 입력 #}
