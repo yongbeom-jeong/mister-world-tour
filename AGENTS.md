@@ -3,6 +3,7 @@
 AI 코딩 도구(Claude Code, Codex 등) 공용 프로젝트 안내. 도구별 파일(CLAUDE.md 등)은 이 파일만 불러온다.
 
 미스터 월드 투어: 테마 여행 상품 판매·기념품 재고 관리 웹 시스템 (소프트웨어공학 팀 프로젝트, 3인).
+작업 인계·남은 일은 `HANDOFF.md` 를 먼저 확인한다.
 Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발표 2026-11-24.
 
 ## 명령 (Windows, 저장소 루트에서)
