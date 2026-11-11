@@ -3,7 +3,8 @@
 - 수신 대상 선정과 출발 확정 판정은 Travel Management 가 한다. 여기서는 받은 대상에게 보내기만 한다.
 - 최초 발송 1회 + 명확한 실패 시 최대 3회 재시도 (전체 최대 4회 외부 호출).
 - 결과 불명(응답 시간 초과 등)은 실패로 바꿔 즉시 재발송하지 않는다 (중복 문자 방지).
-- 실제 문자 업체는 미정 → settings.SMS_CLIENT 로 교체한다. 기본은 콘솔(로그)로 보내는 가짜 클라이언트.
+- settings.SMS_CLIENT 로 교체한다. 기본은 콘솔(로그)로 보내는 가짜 클라이언트,
+  실제 발송은 솔라피 (apps/sms/solapi.py 의 SolapiSMSClient).
 """
 
 import logging
@@ -39,8 +40,31 @@ class DepartureNotice:
     departure_date: object  # date
 
     def message(self, recipient: SMSRecipient) -> str:
-        return (f"[미스터 월드 투어] {recipient.name}님, '{self.product_name}' 여행이 "
-                f"{self.departure_date:%Y-%m-%d} 출발로 확정되었습니다. 즐거운 여행 되세요!")
+        """단문(SMS, 90byte) 안에 들어가도록 만든다. 길면 이름 → 상품 이름 순으로 줄인다."""
+        d = self.departure_date
+        when = f"{d.month}월 {d.day}일"
+        full = f"{SMS_PREFIX} {recipient.name}님, {self.product_name} {when} 출발 확정되었습니다."
+        if sms_bytes(full) <= SMS_MAX_BYTES:
+            return full
+        tail = f" {when} 출발 확정"
+        short = f"{SMS_PREFIX} {self.product_name}{tail}"
+        if sms_bytes(short) <= SMS_MAX_BYTES:
+            return short
+        budget = SMS_MAX_BYTES - sms_bytes(f"{SMS_PREFIX} ..{tail}")
+        product = ""
+        for ch in self.product_name:
+            if sms_bytes(product + ch) > budget:
+                break
+            product += ch
+        return f"{SMS_PREFIX} {product}..{tail}"
+
+
+SMS_PREFIX = "[미스터월드투어]"
+SMS_MAX_BYTES = 90  # 단문 한도 (영문·숫자·공백 1byte, 한글 2byte)
+
+
+def sms_bytes(text: str) -> int:
+    return sum(1 if ord(ch) < 128 else 2 for ch in text)
 
 
 @dataclass
@@ -105,6 +129,10 @@ class SMSUnknownResult(Exception):
     """보냈는지 알 수 없음 (재시도하지 않음)."""
 
 
+class SMSRejected(SMSSendError):
+    """보내기 전에 거부됨 (허용 목록 밖 번호 등). 다시 보내도 같으므로 재시도하지 않음."""
+
+
 class ConsoleSMSClient:
     """개발용: 실제로 보내지 않고 로그에 남긴다. 항상 성공."""
 
@@ -148,6 +176,7 @@ def send_departure_confirmation(recipients: list[SMSRecipient], notice: Departur
             continue
         msg = SMSMessage(r, notice.message(r))
         while True:
+            rejected = False
             try:
                 client.send_sms(r.contact, msg.message)
                 msg.record_result(SMSDeliveryStatus.SUCCESS)
@@ -155,10 +184,11 @@ def send_departure_confirmation(recipients: list[SMSRecipient], notice: Departur
                 msg.record_result(SMSDeliveryStatus.UNKNOWN, str(e))
             except Exception as e:  # SMSSendError 및 연결 오류 등 명확한 실패
                 msg.record_result(SMSDeliveryStatus.FAILED, str(e))
+                rejected = isinstance(e, SMSRejected)  # 보내기 전 거부: 다시 해도 같으므로 재시도 안 함
             if msg.status != SMSDeliveryStatus.SUCCESS:
                 logger.warning("문자 발송 %s product=%s member=%s attempt=%s error=%s", msg.status.value,
                                notice.product_id, r.member_id, msg.attempt_count, msg.last_error)
-            if not msg.can_retry():
+            if rejected or not msg.can_retry():
                 break
         result.messages.append(msg)
     logger.info("문자 발송 결과 product=%s %s", notice.product_id, result.summary())
