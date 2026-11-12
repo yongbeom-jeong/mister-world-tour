@@ -6,12 +6,14 @@
 import logging
 from datetime import date, timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, F, Q
 from django.utils import timezone
 
 from apps.souvenir import services as souvenir_services
 
+from . import configuration as cfg
 from . import images
 from .choices import (
     LEVEL_DEFAULTS,
@@ -31,6 +33,8 @@ logger = logging.getLogger(__name__)
 PRODUCT_INPUT_FIELDS = (
     "name", "destination", "description", "theme", "tour_level", "base_price", "travel_days", "departure_date",
 )
+# 직원이 테마·등급 기본값을 확인한 뒤 바꿀 수 있는 기본 구성 (비우면 기본값, UC6 (3))
+BASE_CONFIG_FIELDS = ("hotel_level", "meal", "transport")
 
 
 class ProductNotFound(Exception):
@@ -137,17 +141,23 @@ def has_applications(product_id: int) -> bool:
 
 
 def load_default_configuration(theme: str, level: str) -> dict:
-    """테마·등급으로 자동 결정되는 기본 구성 (등록·수정 화면 확인용)."""
+    """테마·등급의 기본 구성과 직원이 고를 수 있는 값 (등록·수정 화면용).
+
+    hotel_level·meal·transport 는 기본값 이름, choices 는 [값, 이름] 목록(첫 항목이 기본값).
+    """
     if theme not in Theme.values or level not in TourLevel.values:
         raise ValueError("유효하지 않은 테마 또는 등급입니다.")
     t, lv = THEME_DEFAULTS[Theme(theme)], LEVEL_DEFAULTS[TourLevel(level)]
     souvenirs = souvenir_services.souvenir_names_for_theme(theme)
+    labels = {"hotel_level": HotelLevel, "meal": MealOption, "transport": TransportOption}
+    allowed = cfg.base_option_choices(theme, level)
     return {
         "theme_service": t["service"],
         "souvenir": ", ".join(souvenirs) if souvenirs else "(등록된 기념품 없음)",
         "transport": TransportOption(t["transport"]).label,
         "hotel_level": HotelLevel(lv["hotel"]).label,
         "meal": MealOption(lv["meal"]).label,
+        "choices": {k: [[v, labels[k](v).label] for v in allowed[k]] for k in BASE_CONFIG_FIELDS},
     }
 
 
@@ -159,6 +169,13 @@ def _fill(product: TravelProduct, data: dict) -> None:
             setattr(product, field, data[field])
     product.departure_status = None  # 신청이 없는 상품만 저장되므로 출발 상태는 처음부터 다시 결정
     product.apply_default_configuration()
+    # 직원이 고른 기본 구성 (비어 있으면 테마·등급 기본값 그대로)
+    errors = cfg.base_configuration_errors(product.theme, product.tour_level, data)
+    if errors:
+        raise ValidationError(errors)
+    for field in BASE_CONFIG_FIELDS:
+        if data.get(field):
+            setattr(product, field, data[field])
     product.full_clean()
 
 

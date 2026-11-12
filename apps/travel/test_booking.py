@@ -663,3 +663,29 @@ class SMSLogBeforeSendTests(BookingTestBase):
         with self.assertRaises(booking.BookingError):
             booking.submit_travel_application(self.alice, review)
         self.assertFalse(SMSLog.objects.exists())
+
+
+class RestrictedThemeOptionTests(BookingTestBase):
+    """계획서 1.다: 허니문·효도는 그랜드 이상만 → 고객 옵션도 4등급 호텔·현지식 아래로는 못 고른다."""
+
+    def test_restricted_themes_cannot_choose_below_grand(self):
+        for theme in (Theme.HONEYMOON, Theme.FILIAL):
+            p = make_product(theme, TourLevel.GRAND)
+            current = cfg.default_configuration(p)
+            for change in ({"hotel_level": "STAR3"}, {"meal": "LUNCHBOX"}):
+                with self.subTest(theme=theme, change=change):
+                    with self.assertRaises(cfg.ConfigurationError):
+                        booking.configure_travel_product(p, current, change)
+
+    def test_other_themes_still_free(self):
+        p = make_product(Theme.GOLF, TourLevel.PREMIUM)
+        new, _ = booking.configure_travel_product(p, cfg.default_configuration(p), {"hotel_level": "STAR3"})
+        self.assertEqual(new["hotel_level"], "STAR3")
+
+    def test_detail_page_hides_unavailable_options(self):
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        self.client.force_login(self.alice)
+        res = self.client.get(reverse("travel:product_detail", args=[p.pk]))
+        self.assertNotContains(res, 'value="STAR3"')
+        self.assertNotContains(res, 'value="LUNCHBOX"')
+        self.assertContains(res, 'value="STAR4"')

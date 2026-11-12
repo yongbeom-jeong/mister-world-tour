@@ -214,3 +214,44 @@ class StaffProductDBErrorTests(TestCase):
             with self.assertLogs("apps.travel.views", "ERROR"):
                 res = self.client.post(reverse("travel:product_delete", args=[p.pk]), follow=True)
         self.assertContains(res, "삭제 여부를 확인하지 못했습니다")
+
+
+class BaseConfigurationChoiceTests(TestCase):
+    """UC6 (3): 직원이 테마·등급 기본 구성을 확인한 뒤 등급 기본값 이상으로 바꿀 수 있다."""
+
+    setUp = StaffProductTests.setUp
+    data = StaffProductTests.data
+
+    def test_blank_uses_theme_level_defaults(self):
+        self.client.post(reverse("travel:product_register"), self.data(tour_level="GRAND"))
+        p = TravelProduct.objects.get()
+        self.assertEqual((p.hotel_level, p.meal, p.transport), (HotelLevel.STAR4, MealOption.LOCAL, "LUXURY_VAN_10"))
+
+    def test_staff_can_upgrade_base_configuration(self):
+        self.client.post(reverse("travel:product_register"),
+                         self.data(tour_level="GRAND", hotel_level="STAR5", meal="FINE", transport="LIMOUSINE"))
+        p = TravelProduct.objects.get()
+        self.assertEqual((p.hotel_level, p.meal, p.transport), ("STAR5", "FINE", "LIMOUSINE"))
+
+    def test_below_level_default_or_wrong_transport_rejected(self):
+        for field, value in (("hotel_level", "STAR3"), ("meal", "LUNCHBOX"), ("transport", "LUXURY_CAR_2")):
+            with self.subTest(field=field):
+                res = self.client.post(reverse("travel:product_register"),
+                                       self.data(tour_level="GRAND", **{field: value}))
+                self.assertEqual(res.status_code, 200)
+                self.assertTrue(res.context["form"].errors.get(field))
+        self.assertFalse(TravelProduct.objects.exists())
+
+    def test_service_also_rejects_invalid_base_configuration(self):
+        from django.core.exceptions import ValidationError
+        data = {k: v for k, v in self.data(tour_level="PREMIUM").items()}
+        data.update(base_price=1_000_000, travel_days=4, departure_date=self.tomorrow, meal="LOCAL")
+        with self.assertRaises(ValidationError):
+            services.register_tour_product(data)
+
+    def test_default_configuration_endpoint_lists_choices(self):
+        res = self.client.get(reverse("travel:default_configuration"), {"theme": "HONEYMOON", "tour_level": "GRAND"})
+        choices = res.json()["configuration"]["choices"]
+        self.assertEqual([v for v, _ in choices["hotel_level"]], ["STAR4", "STAR5"])
+        self.assertEqual([v for v, _ in choices["meal"]], ["LOCAL", "FINE"])
+        self.assertEqual(choices["transport"][0][0], "LUXURY_CAR_2")  # 첫 항목이 기본값

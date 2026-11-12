@@ -3,9 +3,10 @@ from django.utils import timezone
 
 from config.forms import BootstrapFormMixin
 
+from . import configuration as cfg
 from .choices import Theme, TourLevel
 from .models import TravelProduct
-from .services import PRODUCT_INPUT_FIELDS
+from .services import BASE_CONFIG_FIELDS, PRODUCT_INPUT_FIELDS
 
 # 임시 정책: 입력 범위 (설계 미정)
 MIN_PRICE, MAX_PRICE = 10_000, 50_000_000
@@ -13,11 +14,11 @@ MIN_DAYS, MAX_DAYS = 1, 30
 
 
 class ProductForm(BootstrapFormMixin, forms.ModelForm):
-    """UC6·UC7 상품 입력. 기본 구성은 입력받지 않고 테마·등급으로 자동 결정한다."""
+    """UC6·UC7 상품 입력. 기본 구성은 테마·등급 기본값을 보여 주고 직원이 확인한 뒤 바꿀 수 있다 (UC6 (3))."""
 
     class Meta:
         model = TravelProduct
-        fields = (*PRODUCT_INPUT_FIELDS, "image")
+        fields = (*PRODUCT_INPUT_FIELDS, *BASE_CONFIG_FIELDS, "image")
         widgets = {
             "image": forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
             "departure_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -34,6 +35,11 @@ class ProductForm(BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["destination"].required = True  # 고객 화면 표시에 쓰므로 필수 (임시 정책)
+        for f in BASE_CONFIG_FIELDS:  # 비우면 테마·등급 기본값
+            self.fields[f].required = False
+        self.fields["hotel_level"].label = "기본 호텔"
+        self.fields["meal"].label = "기본 식사"
+        self.fields["transport"].label = "기본 교통"
 
     def clean_base_price(self):
         v = self.cleaned_data["base_price"]
@@ -53,8 +59,25 @@ class ProductForm(BootstrapFormMixin, forms.ModelForm):
             raise forms.ValidationError("출발일은 내일 이후로 지정해 주세요.")
         return v
 
+    @property
+    def base_config_fields(self):
+        """화면의 기본 구성 선택 상자 (호텔·식사·교통 순)."""
+        return [self[f] for f in BASE_CONFIG_FIELDS]
+
+    def clean(self):
+        data = super().clean()
+        theme, level = data.get("theme"), data.get("tour_level")
+        if theme and level:
+            for field, message in cfg.base_configuration_errors(theme, level, data).items():
+                self.add_error(field, message)
+            defaults = cfg.base_option_choices(theme, level)
+            for f in BASE_CONFIG_FIELDS:  # 비운 항목은 테마·등급 기본값
+                if f in data and not data[f]:
+                    data[f] = defaults[f][0]
+        return data
+
     def input_data(self) -> dict:
-        return {f: self.cleaned_data[f] for f in PRODUCT_INPUT_FIELDS}
+        return {f: self.cleaned_data.get(f) for f in (*PRODUCT_INPUT_FIELDS, *BASE_CONFIG_FIELDS)}
 
     def image_change(self):
         """사진 변경 요청: None=그대로, False=삭제, 업로드 파일=교체."""

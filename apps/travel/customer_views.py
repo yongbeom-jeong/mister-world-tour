@@ -74,10 +74,11 @@ def _option_choices(product) -> dict:
         return "추가금 없음" if d == 0 else f"{'+' if d > 0 else '−'}{abs(d):,}원"
 
     return {
-        "hotel_level": [(v, label, diff("hotel_level", v)) for v, label in HotelLevel.choices],
+        "hotel_level": [(v, HotelLevel(v).label, diff("hotel_level", v))
+                        for v in cfg.customer_hotel_choices(product.theme)],
         "transport": [(v, TransportOption(v).label, diff("transport", v))
                       for v in TransportOption.values if v in ALLOWED_TRANSPORTS[Theme(product.theme)]],
-        "meal": [(v, label, diff("meal", v)) for v, label in MealOption.choices],
+        "meal": [(v, MealOption(v).label, diff("meal", v)) for v in cfg.customer_meal_choices(product.theme)],
         "drinks": [(v, label, DRINK_PRICES[v]) for v, label in DrinkOption.choices],
     }
 

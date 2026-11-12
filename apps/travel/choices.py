@@ -82,6 +82,13 @@ INCLUDED_DRINKS = {MealOption.FINE: {DrinkOption.CHAMPAGNE}}
 RESTRICTED_LEVEL_THEMES = {Theme.HONEYMOON, Theme.FILIAL}
 ALLOWED_LEVELS_FOR_RESTRICTED = {TourLevel.GRAND, TourLevel.PREMIUM}
 
+# 낮은 것부터 높은 순서 (등급 비교용)
+HOTEL_ORDER = [HotelLevel.STAR3, HotelLevel.STAR4, HotelLevel.STAR5]
+MEAL_ORDER = [MealOption.LUNCHBOX, MealOption.LOCAL, MealOption.FINE]
+# 허니문·효도는 그랜드 등급 이상만 (계획서 1.다): 고객 옵션도 그랜드 기본(4등급 호텔·현지식) 아래로는 고를 수 없다
+RESTRICTED_MIN_HOTEL = HotelLevel.STAR4
+RESTRICTED_MIN_MEAL = MealOption.LOCAL
+
 # 정원·출발 규칙
 HONEYMOON_PARTY_SIZE = 2      # 허니문: 신청마다 정확히 2명
 GROUP_CAPACITY = 10           # 그 외: 상품 전체 정원
