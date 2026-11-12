@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.functions import Lower
 
 
 class Member(AbstractUser):
@@ -23,6 +24,8 @@ class Member(AbstractUser):
     class Meta:
         verbose_name = "회원"
         verbose_name_plural = "회원"
+        # 아이디는 대소문자를 무시하고 중복 금지. 폼 검사 이후 동시 가입도 DB 에서 막는다.
+        constraints = [models.UniqueConstraint(Lower("username"), name="unique_member_username_ci")]
 
     def __str__(self) -> str:
         return f"{self.name}({self.username})"

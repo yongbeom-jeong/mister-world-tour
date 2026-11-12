@@ -4,11 +4,11 @@ import io
 import json
 import socket
 import urllib.error
-from datetime import date
+from datetime import date, timedelta
 from unittest import mock
 
 from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from . import services as sms
 from . import solapi
@@ -40,7 +40,7 @@ NOTICE = sms.DepartureNotice(1, "다낭 골프 챌린지", date(2026, 12, 1))
 ALICE = sms.SMSRecipient(1, "앨리스", "010-1000-0001")
 
 
-class SendDepartureConfirmationTests(SimpleTestCase):
+class SendDepartureConfirmationTests(TestCase):
     def test_message_contains_product_and_date(self):
         text = NOTICE.message(ALICE)
         self.assertEqual(text, "[미스터월드투어] 앨리스님, 다낭 골프 챌린지 12월 1일 출발 확정되었습니다.")
@@ -122,7 +122,7 @@ class SlowClient:
 
 
 @override_settings(SMS_BATCH_TIME_LIMIT=40)
-class BatchTimeLimitTests(SimpleTestCase):
+class BatchTimeLimitTests(TestCase):
     def recipients(self, n):
         return [sms.SMSRecipient(i, f"고객{i}", f"010-1000-{i:04d}") for i in range(n)]
 
@@ -233,3 +233,94 @@ class SolapiClientTests(SimpleTestCase):
     def test_missing_settings(self):
         with self.assertRaisesMessage(ImproperlyConfigured, "SOLAPI_API_SECRET"):
             solapi.SolapiSMSClient()
+
+
+# ---------------------------------------------------------------- 발송 기록·직원 재발송
+
+from django.urls import reverse  # noqa: E402
+
+from apps.members.models import Member  # noqa: E402
+
+from .models import SMSLog  # noqa: E402
+
+
+class SMSLogTests(TestCase):
+    def setUp(self):
+        self.staff = Member.objects.create_user(username="staff", password="x", name="직원", contact="010-9000-0000",
+                                                role=Member.Role.STAFF)
+
+    def send(self, client, recipients=(ALICE,)):
+        return sms.send_departure_confirmation(list(recipients), NOTICE, client=client)
+
+    def test_each_recipient_logged_with_result(self):
+        bob = sms.SMSRecipient(2, "밥", "")
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            self.send(FlakyClient(failures=1), [ALICE, bob])
+        ok = SMSLog.objects.get(recipient_name="앨리스")
+        self.assertEqual((ok.status, ok.attempt_count, ok.product_name), ("SUCCESS", 2, NOTICE.product_name))
+        self.assertIn("다낭 골프 챌린지", ok.message)
+        self.assertEqual(SMSLog.objects.get(recipient_name="밥").status, "INVALID")
+
+    def test_provider_ref_saved(self):
+        class RefClient:
+            def send_sms(self, contact, message):
+                return "G4V20261112"
+
+        self.send(RefClient())
+        self.assertEqual(SMSLog.objects.get().provider_ref, "G4V20261112")
+
+    def test_log_failure_does_not_stop_sending(self):
+        client = FlakyClient(failures=0)
+        with mock.patch.object(SMSLog.objects, "create", side_effect=RuntimeError("db")):
+            with self.assertLogs("apps.sms.services", "ERROR"):
+                result = self.send(client)
+        self.assertEqual(result.success, 1)
+
+    def test_resend_failed(self):
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            self.send(FlakyClient(failures=10))
+        log = SMSLog.objects.get()
+        self.assertEqual((log.status, log.attempt_count), ("FAILED", 4))
+        log = sms.resend_logged_sms(log.pk, self.staff.pk, client=FlakyClient(failures=0))
+        self.assertEqual((log.status, log.attempt_count, log.resend_count, log.resent_by_id),
+                         ("SUCCESS", 5, 1, self.staff.pk))
+        with self.assertRaises(sms.SMSResendError):  # 성공한 문자는 다시 보내지 않음
+            sms.resend_logged_sms(log.pk, self.staff.pk, client=FlakyClient(failures=0))
+
+    def test_unknown_needs_duplicate_confirmation(self):
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            self.send(UnknownClient())
+        log = SMSLog.objects.get()
+        client = FlakyClient(failures=0)
+        with self.assertRaises(sms.SMSResendError):
+            sms.resend_logged_sms(log.pk, self.staff.pk, client=client)
+        self.assertEqual(client.calls, 0)
+        log = sms.resend_logged_sms(log.pk, self.staff.pk, confirm_duplicate=True, client=client)
+        self.assertEqual(log.status, "SUCCESS")
+
+    def test_stale_pending_is_resendable(self):
+        log = SMSLog.objects.create(recipient_name="앨리스", contact="010-1000-0001", message="m", status="PENDING")
+        self.assertFalse(log.needs_attention)
+        SMSLog.objects.filter(pk=log.pk).update(updated_at=log.updated_at - timedelta(minutes=10))
+        log.refresh_from_db()
+        self.assertTrue(log.needs_attention and log.may_be_delivered)
+        self.assertIn(log, sms.load_logs(problems_only=True))
+
+    def test_staff_page_and_resend(self):
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            self.send(FlakyClient(failures=10))
+        log = SMSLog.objects.get()
+        self.client.force_login(self.staff)
+        res = self.client.get(reverse("sms:logs") + "?filter=problems")
+        self.assertContains(res, "다시 보내기")
+        self.assertContains(res, "앨리스")
+        with override_settings(SMS_CLIENT="apps.sms.services.ConsoleSMSClient"):
+            res = self.client.post(reverse("sms:resend", args=[log.pk]), follow=True)
+        self.assertContains(res, "다시 보냈습니다: 성공")
+        log.refresh_from_db()
+        self.assertEqual(log.status, "SUCCESS")
+
+    def test_customer_cannot_see_logs(self):
+        customer = Member.objects.create_user(username="cus", password="x", name="고객", contact="010-1")
+        self.client.force_login(customer)
+        self.assertNotEqual(self.client.get(reverse("sms:logs")).status_code, 200)

@@ -37,17 +37,27 @@
       <div class="form-text">{{ form.image.help_text }}</div>
     </div>
 
-    {# 기본 구성 (자동) #}
+    {# 기본 구성: 테마·등급 기본값을 보여 주고 직원이 확인한 뒤 바꿀 수 있다 (UC6 (3)) #}
     <div class="mwt-card bg-gold-soft border-0">
       <div class="mwt-card-body">
-        <div class="small fw-bold mb-2"><i class="bi bi-magic me-1"></i>기본 서비스 구성 <span class="text-muted fw-normal">테마·등급에 따라 자동 결정</span></div>
-        <dl class="info-list small mb-0" id="config-preview">
+        <div class="small fw-bold mb-2"><i class="bi bi-magic me-1"></i>기본 서비스 구성 <span class="text-muted fw-normal">테마·등급 기본값을 확인한 뒤 필요하면 바꾸세요</span></div>
+        <dl class="info-list small mb-2" id="config-preview">
           <dt>테마 서비스</dt><dd data-k="theme_service">-</dd>
           <dt>기념품</dt><dd data-k="souvenir">-</dd>
-          <dt>호텔</dt><dd data-k="hotel_level">-</dd>
-          <dt>식사</dt><dd data-k="meal">-</dd>
-          <dt>교통</dt><dd data-k="transport">-</dd>
         </dl>
+        <div class="row g-2" id="base-config">
+          {% for field in form.base_config_fields %}
+            <div class="col-12">
+              <label class="form-label small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" data-current="{{ field.value|default:'' }}"
+                      class="form-select form-select-sm {% if field.errors %}is-invalid{% endif %}" disabled>
+                <option value="">테마·등급을 먼저 고르세요</option>
+              </select>
+              {% for e in field.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-text">호텔·식사는 등급 기본값 이상, 교통은 테마에서 쓸 수 있는 것만 고를 수 있습니다.</div>
         <div class="small text-danger mt-2" id="config-error" hidden></div>
       </div>
     </div>
@@ -60,6 +70,23 @@
   const level = document.getElementById("id_tour_level");
   const cells = document.querySelectorAll("#config-preview [data-k]");
   const err = document.getElementById("config-error");
+  const selects = ["hotel_level", "meal", "transport"].map(k => document.getElementById("id_" + k));
+  let firstLoad = true;   // 처음에는 저장된 값·입력했던 값을 유지하고, 테마·등급을 바꾸면 기본값으로 돌린다
+
+  function resetSelects(text) {
+    selects.forEach(s => { s.innerHTML = ""; s.add(new Option(text, "")); s.disabled = true; });
+  }
+
+  function fillSelects(choices) {
+    selects.forEach(s => {
+      const key = s.id.replace("id_", "");
+      const keep = firstLoad ? s.dataset.current : "";
+      s.innerHTML = "";
+      choices[key].forEach(([value, label], i) => s.add(new Option(i === 0 ? label + " (기본)" : label, value)));
+      s.value = choices[key].some(([v]) => v === keep) ? keep : choices[key][0][0];
+      s.disabled = false;
+    });
+  }
   const RESTRICTED = ["HONEYMOON", "FILIAL"];   // 초기 등급 그랜드·프리미엄만
   let seq = 0;
 
@@ -75,7 +102,8 @@
     const my = ++seq;
     cells.forEach(c => c.textContent = "-");   // 이전 조합의 구성이 남지 않게 먼저 비운다
     err.hidden = true;
-    if (!theme.value || !level.value) return;
+    if (!theme.value || !level.value) { resetSelects("테마·등급을 먼저 고르세요"); return; }
+    resetSelects("불러오는 중…");
     try {
       const q = new URLSearchParams({ theme: theme.value, tour_level: level.value });
       const res = await fetch("{% url 'travel:default_configuration' %}?" + q);
@@ -83,9 +111,13 @@
       if (my !== seq) return;                    // 더 최근 요청이 있으면 버림
       if (!data.ok) throw new Error(data.message);
       cells.forEach(c => c.textContent = data.configuration[c.dataset.k]);
+      fillSelects(data.configuration.choices);
+      firstLoad = false;
     } catch (e) {
       if (my !== seq) return;
-      err.textContent = "기본 구성을 불러오지 못했습니다. 테마·등급을 다시 선택해 주세요.";
+      // 선택 상자를 비운 채(=서버가 기본값 적용) 두고 안내한다
+      resetSelects("기본값 사용");
+      err.textContent = "기본 구성을 불러오지 못했습니다. 이대로 저장하면 테마·등급 기본값으로 저장됩니다.";
       err.hidden = false;
     }
   }

@@ -162,3 +162,96 @@ class StaffProductTests(TestCase):
         self.product(name="트레킹1", theme="TREKKING")
         res = self.client.get(reverse("travel:product_manage"), {"theme": "TREKKING"})
         self.assertEqual([p.name for p in res.context["products"]], ["트레킹1"])
+
+
+class StaffProductDBErrorTests(TestCase):
+    """UC6 5a, UC7 7a·9a: 저장 중 DB 오류는 오류 화면 대신 저장 결과를 확인해 안내한다."""
+
+    setUp = StaffProductTests.setUp
+    data = StaffProductTests.data
+
+    def test_register_error_not_saved_keeps_form(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+        with mock.patch.object(services, "register_tour_product", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.views", "ERROR"):
+                res = self.client.post(reverse("travel:product_register"), self.data())
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "상품이 등록되지 않았습니다")
+        self.assertContains(res, "새 상품")  # 입력 유지
+        self.assertFalse(TravelProduct.objects.exists())
+
+    def test_register_error_after_save_shows_saved_product(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+        original = services.register_tour_product
+
+        def saved_then_error(*a, **kw):
+            original(*a, **kw)
+            raise DatabaseError("응답 전 끊김")
+
+        with mock.patch.object(services, "register_tour_product", side_effect=saved_then_error):
+            with self.assertLogs("apps.travel.views", "ERROR"):
+                res = self.client.post(reverse("travel:product_register"), self.data())
+        p = TravelProduct.objects.get()
+        self.assertRedirects(res, reverse("travel:product_manage_detail", args=[p.pk]), fetch_redirect_response=False)
+
+    def test_modify_and_delete_errors_are_reported(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+        self.client.post(reverse("travel:product_register"), self.data())
+        p = TravelProduct.objects.get()
+        detail = reverse("travel:product_manage_detail", args=[p.pk])
+        with mock.patch.object(services, "modify_tour_product", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.views", "ERROR"):
+                res = self.client.post(detail, self.data(name="바꾼 이름"), follow=True)
+        self.assertRedirects(res, detail)
+        self.assertContains(res, "수정이 반영되지 않았을 수 있습니다")
+        with mock.patch.object(services, "delete_tour_product", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.views", "ERROR"):
+                res = self.client.post(reverse("travel:product_delete", args=[p.pk]), follow=True)
+        self.assertContains(res, "삭제 여부를 확인하지 못했습니다")
+
+
+class BaseConfigurationChoiceTests(TestCase):
+    """UC6 (3): 직원이 테마·등급 기본 구성을 확인한 뒤 등급 기본값 이상으로 바꿀 수 있다."""
+
+    setUp = StaffProductTests.setUp
+    data = StaffProductTests.data
+
+    def test_blank_uses_theme_level_defaults(self):
+        self.client.post(reverse("travel:product_register"), self.data(tour_level="GRAND"))
+        p = TravelProduct.objects.get()
+        self.assertEqual((p.hotel_level, p.meal, p.transport), (HotelLevel.STAR4, MealOption.LOCAL, "LUXURY_VAN_10"))
+
+    def test_staff_can_upgrade_base_configuration(self):
+        self.client.post(reverse("travel:product_register"),
+                         self.data(tour_level="GRAND", hotel_level="STAR5", meal="FINE", transport="LIMOUSINE"))
+        p = TravelProduct.objects.get()
+        self.assertEqual((p.hotel_level, p.meal, p.transport), ("STAR5", "FINE", "LIMOUSINE"))
+
+    def test_below_level_default_or_wrong_transport_rejected(self):
+        for field, value in (("hotel_level", "STAR3"), ("meal", "LUNCHBOX"), ("transport", "LUXURY_CAR_2")):
+            with self.subTest(field=field):
+                res = self.client.post(reverse("travel:product_register"),
+                                       self.data(tour_level="GRAND", **{field: value}))
+                self.assertEqual(res.status_code, 200)
+                self.assertTrue(res.context["form"].errors.get(field))
+        self.assertFalse(TravelProduct.objects.exists())
+
+    def test_service_also_rejects_invalid_base_configuration(self):
+        from django.core.exceptions import ValidationError
+        data = {k: v for k, v in self.data(tour_level="PREMIUM").items()}
+        data.update(base_price=1_000_000, travel_days=4, departure_date=self.tomorrow, meal="LOCAL")
+        with self.assertRaises(ValidationError):
+            services.register_tour_product(data)
+
+    def test_default_configuration_endpoint_lists_choices(self):
+        res = self.client.get(reverse("travel:default_configuration"), {"theme": "HONEYMOON", "tour_level": "GRAND"})
+        choices = res.json()["configuration"]["choices"]
+        self.assertEqual([v for v, _ in choices["hotel_level"]], ["STAR4", "STAR5"])
+        self.assertEqual([v for v, _ in choices["meal"]], ["LOCAL", "FINE"])
+        self.assertEqual(choices["transport"][0][0], "LUXURY_CAR_2")  # 첫 항목이 기본값

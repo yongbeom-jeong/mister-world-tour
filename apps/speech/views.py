@@ -1,6 +1,6 @@
 import json
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 
 from apps.members.decorators import customer_required
@@ -26,3 +26,15 @@ def recognize(request):
     context = services.VoiceSelectionContext(theme, level, products)
     result = services.recognize_selection(services.VoiceInput(transcript=str(body.get("transcript", ""))), context)
     return JsonResponse(result.to_dict())
+
+
+@customer_required
+@require_POST
+def browser_failure(request):
+    """브라우저 음성 인식 실패 기록 (UC4 4a·7a). 화면 안내는 브라우저가 이미 했으므로 본문 없이 응답."""
+    try:
+        body = json.loads(request.body or b"{}")
+    except ValueError:
+        body = {}
+    services.record_browser_failure(str(body.get("error", ""))[:40], request.user.pk)
+    return HttpResponse(status=204)

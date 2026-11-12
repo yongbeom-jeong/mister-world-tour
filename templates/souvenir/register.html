@@ -7,7 +7,10 @@
         <h1>기념품 등록</h1>
         <p>새 기념품 품목을 테마에 연결합니다. 그 테마 상품의 출발이 확정되면 여행자 1인당 1개씩 재고에서 차감됩니다.</p>
       </div>
-      <a class="btn btn-outline-light btn-sm" href="{% url 'souvenir:stock' %}"><i class="bi bi-box-arrow-in-down me-1"></i>기념품 입고로</a>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-light btn-sm" href="{% url 'souvenir:manage' %}"><i class="bi bi-arrow-left me-1"></i>기념품 관리</a>
+        <a class="btn btn-outline-light btn-sm" href="{% url 'souvenir:stock' %}"><i class="bi bi-box-arrow-in-down me-1"></i>기념품 입고로</a>
+      </div>
     </div>
   </section>
 {% endblock %}

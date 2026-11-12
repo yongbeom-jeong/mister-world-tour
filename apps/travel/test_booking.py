@@ -243,7 +243,7 @@ class SubmitTests(BookingTestBase):
 
     def test_sms_failure_keeps_application(self):
         p = make_product(Theme.HONEYMOON)
-        with mock.patch("apps.sms.services.send_departure_confirmation", side_effect=RuntimeError("boom")):
+        with mock.patch("apps.sms.services.deliver_departure_confirmation", side_effect=RuntimeError("boom")):
             with self.assertLogs("apps.travel.booking", "ERROR"):
                 result = self.book(self.alice, p, "배우자")
         self.assertEqual(result.departure_status, DepartureStatus.CONFIRMED)
@@ -428,3 +428,264 @@ class SeedWithApplicationsTests(TestCase):
         self.assertEqual(golf.departure_status, DepartureStatus.PENDING)
         self.assertEqual(booking.remaining_seats(filial), 2)
         self.assertEqual(filial.departure_status, DepartureStatus.CONFIRMED)
+
+
+class CancelTests(BookingTestBase):
+    def test_cancel_before_confirmation_frees_seats(self):
+        p = make_product()
+        r = self.book(self.alice, p, "동반")
+        booking.cancel_application(self.alice, r.application.pk)
+        r.application.refresh_from_db()
+        self.assertTrue(r.application.is_cancelled)
+        self.assertEqual(booking.current_traveler_count(p.pk), 0)
+        self.assertEqual(booking.remaining_seats(p), 10)
+
+    def test_cancelled_applicant_not_counted_or_notified_at_confirmation(self):
+        p = make_product()
+        first = self.book(self.alice, p, "동반")  # 2명
+        booking.cancel_application(self.alice, first.application.pk)
+        bob = customer("bob", contact="010-2000-0002")
+        r = self.book(bob, p, "a")  # 2명: 취소분을 빼면 확정 안 됨
+        self.assertFalse(r.newly_confirmed)
+        r = self.book(customer("carol", contact="010-3000-0003"), p)  # 3명째 → 확정
+        self.assertTrue(r.newly_confirmed)
+        self.assertNotIn(self.alice.pk, [x.member_id for x in r.recipients])
+        self.assertFalse(StockIssue.objects.filter(application=first.application).exists())
+
+    def test_confirmed_cannot_be_cancelled(self):
+        p = make_product()
+        r = self.book(self.alice, p, "a", "b")  # 3명 → 확정
+        with self.assertRaises(booking.BookingError) as cm:
+            booking.cancel_application(self.alice, r.application.pk)
+        self.assertIn("확정", cm.exception.message)
+        honeymoon = self.book(customer("bob"), make_product(Theme.HONEYMOON), "배우자")
+        self.assertIsNotNone(booking.cancel_block_reason(honeymoon.application))
+
+    def test_cannot_cancel_twice_or_others(self):
+        p = make_product()
+        r = self.book(self.alice, p)
+        with self.assertRaises(booking.BookingError):
+            booking.cancel_application(customer("mallory"), r.application.pk)
+        booking.cancel_application(self.alice, r.application.pk)
+        with self.assertRaises(booking.BookingError):
+            booking.cancel_application(self.alice, r.application.pk)
+
+    def test_cancel_http_flow(self):
+        p = make_product()
+        r = self.book(self.alice, p)
+        self.client.force_login(self.alice)
+        detail = reverse("travel:application_detail", args=[r.application.pk])
+        self.assertContains(self.client.get(detail), "출발이 확정되면 신청을 취소할 수 없어요")
+        res = self.client.post(reverse("travel:cancel_application", args=[r.application.pk]), follow=True)
+        self.assertRedirects(res, detail)
+        self.assertContains(res, "신청을 취소했습니다")
+        self.assertContains(res, "취소한 신청")
+        self.assertContains(self.client.get(reverse("travel:my_applications")), "취소함")
+
+    def test_cancel_others_application_404(self):
+        r = self.book(customer("bob"), make_product())
+        self.client.force_login(self.alice)
+        res = self.client.post(reverse("travel:cancel_application", args=[r.application.pk]))
+        self.assertEqual(res.status_code, 404)
+
+    def test_apply_review_shows_cancel_rule(self):
+        p = make_product()
+        self.client.force_login(self.alice)
+        self.client.post(reverse("travel:start_application", args=[p.pk]),
+                         {"config": json.dumps(cfg.default_configuration(p))})
+        res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["x"],
+                                                         "traveler_contact": [""]})
+        self.assertContains(res, "출발이 확정되면 신청을 취소할 수 없어요")
+
+
+class TripCompletionTests(BookingTestBase):
+    """다녀온 여행(출발 확정 + 마지막 날 지남)만 완료 이력이 된다."""
+
+    def travel(self, product, days_ago):
+        """신청 뒤 출발일을 과거로 옮긴다 (여행 기간 4일)."""
+        TravelProduct.objects.filter(pk=product.pk).update(
+            departure_date=timezone.localdate() - timedelta(days=days_ago))
+
+    def histories(self, member):
+        return list(TravelHistory.objects.filter(member=member))
+
+    def test_confirmed_trip_becomes_history_after_last_day(self):
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        r = self.book(self.alice, p, "배우자")
+        self.travel(p, 3)  # 4일 여행의 마지막 날이 오늘 → 아직 여행 중
+        from . import services
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)
+        self.travel(p, 4)  # 어제 끝남
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 1)
+        h = self.histories(self.alice)[0]
+        self.assertTrue(h.completed)
+        self.assertEqual(h.completed_at, timezone.localdate() - timedelta(days=1))
+        self.assertEqual((h.product_name, h.price), (p.name, r.application.final_amount))
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)  # 중복 없음
+
+    def test_unconfirmed_or_cancelled_trip_is_not_history(self):
+        from . import services
+        pending = make_product(name="미확정")
+        self.book(self.alice, pending)  # 1명 → 미확정
+        cancelled = make_product(name="취소")
+        r = self.book(self.alice, cancelled)
+        booking.cancel_application(self.alice, r.application.pk)
+        for p in (pending, cancelled):
+            self.travel(p, 30)
+        self.assertEqual(services.complete_finished_trips(), 0)
+
+    def test_every_applicant_of_group_gets_history(self):
+        from . import services
+        p = make_product()
+        bob = customer("bob", contact="010-2000-0002")
+        self.book(self.alice, p, "a")
+        self.book(bob, p)  # 3명 → 확정
+        self.travel(p, 10)
+        self.assertEqual(services.complete_finished_trips(), 2)
+        self.assertEqual(len(self.histories(self.alice)), 1)
+        self.assertEqual(len(self.histories(bob)), 1)
+
+    def test_history_popup_and_discount_reflect_finished_trips(self):
+        trips = []
+        for i in range(3):  # 다녀온 허니문 3번 → 단골
+            p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM, name=f"다녀온 여행 {i}")
+            self.book(self.alice, p, "배우자")
+            trips.append(p)
+        for p in trips:
+            self.travel(p, 20)
+        self.client.force_login(self.alice)
+        res = self.client.get(reverse("travel:history"))
+        self.assertContains(res, "다녀온 여행 0")
+        review = booking.review_application(self.alice, make_product().pk, cfg.default_configuration(make_product()),
+                                            self.rows(self.alice))
+        self.assertTrue(review.breakdown.is_regular)
+
+    def test_complete_trips_command(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        self.book(self.alice, p, "배우자")
+        self.travel(p, 10)
+        out = StringIO()
+        call_command("complete_trips", stdout=out)
+        self.assertIn("1건", out.getvalue())
+
+
+class DepartureSMSLogTests(BookingTestBase):
+    def test_confirmation_sms_is_logged_per_recipient(self):
+        from apps.sms.models import SMSLog
+        p = make_product()
+        self.book(self.alice, p, "a")
+        self.book(customer("bob", contact="010-2000-0002"), p)  # 3명 → 확정, 2명에게 문자
+        logs = SMSLog.objects.filter(product_id=p.pk)
+        self.assertEqual(sorted(logs.values_list("recipient_name", flat=True)), ["bob", "앨리스"])
+        self.assertTrue(all(s == "SUCCESS" for s in logs.values_list("status", flat=True)))
+
+
+class TripCountTests(BookingTestBase):
+    def test_several_applications_to_same_trip_count_once(self):
+        from . import services
+        p = make_product()
+        first = self.book(self.alice, p, "a", "b")  # 3명 → 확정
+        second = self.book(self.alice, p, "c")      # 같은 여행에 1명 추가 신청
+        TravelProduct.objects.filter(pk=p.pk).update(departure_date=timezone.localdate() - timedelta(days=10))
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 1)
+        h = TravelHistory.objects.get(member=self.alice)
+        self.assertEqual(h.price, first.application.final_amount + second.application.final_amount)
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)
+
+    def test_three_applications_to_one_trip_do_not_make_regular(self):
+        p = make_product()
+        for i in range(3):
+            self.book(self.alice, p, *([f"x{i}a", f"x{i}b"] if i == 0 else []))
+        TravelProduct.objects.filter(pk=p.pk).update(departure_date=timezone.localdate() - timedelta(days=10))
+        q = make_product(name="다음 여행")
+        review = booking.review_application(self.alice, q.pk, cfg.default_configuration(q), self.rows(self.alice))
+        self.assertFalse(review.breakdown.is_regular)
+
+
+class ProductListLoadTests(BookingTestBase):
+    def test_load_failure_is_not_shown_as_empty(self):
+        from django.db import DatabaseError
+        self.client.force_login(self.alice)
+        with mock.patch.object(booking, "bookable_products", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.client.get(reverse("travel:products"))
+        self.assertEqual(res.status_code, 503)
+        self.assertContains(res, "상품 목록을 불러오지 못했습니다", status_code=503)
+        self.assertContains(res, "다시 조회", status_code=503)
+        self.assertNotContains(res, "상품이 없습니다", status_code=503)
+
+    def test_no_products_vs_no_match(self):
+        self.client.force_login(self.alice)
+        self.assertContains(self.client.get(reverse("travel:products")), "지금 신청할 수 있는 여행 상품이 없습니다")
+        make_product(Theme.GOLF)
+        res = self.client.get(reverse("travel:products") + "?theme=TREKKING")
+        self.assertContains(res, "조건에 맞는 상품이 없습니다")
+
+
+class ReviewDBErrorTests(BookingTestBase):
+    def test_price_calculation_failure_is_reported(self):
+        from django.db import DatabaseError
+        p = make_product()
+        self.client.force_login(self.alice)
+        self.client.post(reverse("travel:start_application", args=[p.pk]),
+                         {"config": json.dumps(cfg.default_configuration(p))})
+        with mock.patch.object(booking, "review_application", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["x", "동반"],
+                                                                 "traveler_contact": ["", ""]})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "신청 금액을 계산하지 못했습니다")
+        self.assertContains(res, "동반")  # 입력 유지
+        self.assertIsNone(res.context["review"])
+
+
+class SMSLogBeforeSendTests(BookingTestBase):
+    """설계 05장 §2.2: 신청 저장과 함께 문자 기록을 먼저 만들어, 보내기 전에 멈춰도 기록이 남는다."""
+
+    def test_log_exists_even_if_sending_never_happens(self):
+        from apps.sms.models import SMSLog
+        p = make_product(Theme.HONEYMOON)
+        with mock.patch("apps.sms.services.deliver_departure_confirmation", side_effect=RuntimeError("서버 중단")):
+            with self.assertLogs("apps.travel.booking", "ERROR"):
+                self.book(self.alice, p, "배우자")
+        log = SMSLog.objects.get(product_id=p.pk)
+        self.assertEqual((log.status, log.attempt_count, log.recipient_name), ("PENDING", 0, "앨리스"))
+
+    def test_rolled_back_application_leaves_no_log(self):
+        from apps.sms.models import SMSLog
+        p = make_product(Theme.GOLF)
+        review = booking.review_application(self.alice, p.pk, cfg.default_configuration(p),
+                                            self.rows(self.alice, "a", "b"))  # 3명 → 확정 예정
+        Souvenir.objects.filter(theme=Theme.GOLF).update(stock_quantity=1)  # 검토 뒤 재고 부족
+        with self.assertRaises(booking.BookingError):
+            booking.submit_travel_application(self.alice, review)
+        self.assertFalse(SMSLog.objects.exists())
+
+
+class RestrictedThemeOptionTests(BookingTestBase):
+    """계획서 1.다: 허니문·효도는 그랜드 이상만 → 고객 옵션도 4등급 호텔·현지식 아래로는 못 고른다."""
+
+    def test_restricted_themes_cannot_choose_below_grand(self):
+        for theme in (Theme.HONEYMOON, Theme.FILIAL):
+            p = make_product(theme, TourLevel.GRAND)
+            current = cfg.default_configuration(p)
+            for change in ({"hotel_level": "STAR3"}, {"meal": "LUNCHBOX"}):
+                with self.subTest(theme=theme, change=change):
+                    with self.assertRaises(cfg.ConfigurationError):
+                        booking.configure_travel_product(p, current, change)
+
+    def test_other_themes_still_free(self):
+        p = make_product(Theme.GOLF, TourLevel.PREMIUM)
+        new, _ = booking.configure_travel_product(p, cfg.default_configuration(p), {"hotel_level": "STAR3"})
+        self.assertEqual(new["hotel_level"], "STAR3")
+
+    def test_detail_page_hides_unavailable_options(self):
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        self.client.force_login(self.alice)
+        res = self.client.get(reverse("travel:product_detail", args=[p.pk]))
+        self.assertNotContains(res, 'value="STAR3"')
+        self.assertNotContains(res, 'value="LUNCHBOX"')
+        self.assertContains(res, 'value="STAR4"')

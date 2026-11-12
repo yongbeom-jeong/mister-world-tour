@@ -1,12 +1,13 @@
 import logging
 
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
-from apps.members.decorators import staff_role_required
+from apps.members.decorators import staff_role_required, staff_role_required_json
 from apps.travel.choices import Theme
 
 from . import services
@@ -48,7 +49,7 @@ def register_page(request):
     })
 
 
-@staff_role_required
+@staff_role_required_json
 @require_GET
 def souvenir_list(request):
     """LoadSouvenirs: 조회 실패는 빈 목록·재고 0과 구분해 오류로 응답."""
@@ -60,7 +61,7 @@ def souvenir_list(request):
     return JsonResponse({"ok": True, "souvenirs": [_souvenir_json(s) for s in souvenirs]})
 
 
-@staff_role_required
+@staff_role_required_json
 @require_POST
 def prepare_receipt(request):
     pending = request.session.get(PENDING_SESSION_KEY, {})
@@ -74,7 +75,7 @@ def prepare_receipt(request):
     return JsonResponse({"ok": True, **result})
 
 
-@staff_role_required
+@staff_role_required_json
 @require_POST
 def record_receipt(request):
     pending = request.session.get(PENDING_SESSION_KEY, {})
@@ -94,5 +95,82 @@ def record_receipt(request):
     if res.receipt:
         body["receipt"] = {"id": res.receipt.pk, "quantity": res.receipt.quantity,
                            "stock_after": res.receipt.stock_after}
-    status = {"SUCCESS": 200, "INVALID_INPUT": 400, "NOT_FOUND": 404, "CONFLICT": 409}.get(res.status.value, 500)
+    status = {"SUCCESS": 200, "INVALID_INPUT": 400, "PERMISSION_DENIED": 403, "NOT_FOUND": 404,
+              "CONFLICT": 409}.get(res.status.value, 500)
     return JsonResponse(body, status=status)
+
+
+# ---------------------------------------------------------------- 품목 관리 (수정·삭제)·차감 내역
+
+def _by_theme(souvenirs) -> list:
+    by_theme = {t: [] for t in Theme.values}
+    for s in souvenirs:
+        by_theme[s.theme].append(s)
+    return [(value, label, by_theme[value]) for value, label in Theme.choices]
+
+
+def _warn_if_theme_empty(request, theme: str) -> None:
+    if not services.theme_has_souvenir(theme):
+        messages.warning(request, f"{Theme(theme).label}에 연결된 기념품이 없어 이 테마 상품은 신청할 수 없습니다. "
+                                  "기념품을 등록하고 입고해 주세요.")
+
+
+@staff_role_required
+def manage_page(request):
+    return render(request, "souvenir/manage.html", {"themes": _by_theme(services.load_souvenirs())})
+
+
+@staff_role_required
+def edit_page(request, souvenir_id: int):
+    try:
+        souvenir = services.get_souvenir(souvenir_id)
+    except services.SouvenirNotFound:
+        messages.error(request, "기념품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.")
+        return redirect("souvenir:manage")
+    values, errors = {"name": souvenir.name, "theme": souvenir.theme}, {}
+    if request.method == "POST":
+        values = {"name": request.POST.get("name", "").strip(), "theme": request.POST.get("theme", "")}
+        old_theme = souvenir.theme
+        try:
+            updated = services.update_souvenir(souvenir_id, values["name"], values["theme"])
+        except services.SouvenirRegistrationError as e:
+            errors = e.errors
+        except services.SouvenirNotFound:
+            messages.error(request, "기념품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.")
+            return redirect("souvenir:manage")
+        else:
+            messages.success(request, f"'{updated.name}' 정보를 수정했습니다.")
+            if old_theme != updated.theme:
+                _warn_if_theme_empty(request, old_theme)
+            return redirect("souvenir:manage")
+    return render(request, "souvenir/edit.html", {
+        "souvenir": souvenir, "values": values, "errors": errors, "themes": Theme.choices,
+        "issue_count": souvenir.issues.count(), "receipt_count": souvenir.receipts.count(),
+    })
+
+
+@staff_role_required
+@require_POST
+def delete_souvenir(request, souvenir_id: int):
+    try:
+        souvenir = services.get_souvenir(souvenir_id)
+        removed = services.delete_souvenir(souvenir_id)
+    except services.SouvenirNotFound:
+        messages.error(request, "기념품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.")
+        return redirect("souvenir:manage")
+    if removed:
+        messages.success(request, f"'{souvenir.name}'을(를) 삭제했습니다.")
+    else:
+        messages.success(request, f"'{souvenir.name}'을(를) 삭제했습니다. 입고·차감 내역은 기록으로 남겨 둡니다.")
+    _warn_if_theme_empty(request, souvenir.theme)
+    return redirect("souvenir:manage")
+
+
+@staff_role_required
+def issue_list(request):
+    selected = request.GET.get("souvenir")
+    selected = int(selected) if selected and selected.isdigit() else None
+    page = Paginator(services.load_issues(selected), 30).get_page(request.GET.get("page"))
+    return render(request, "souvenir/issues.html", {
+        "page": page, "selected": selected, "souvenirs": services.load_all_souvenirs(),
+    })

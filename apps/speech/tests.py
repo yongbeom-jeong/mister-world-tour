@@ -111,3 +111,26 @@ class RecognizeViewTests(TestCase):
                                            role=Member.Role.STAFF)
         self.client.force_login(staff)
         self.assertEqual(self.post("골프").status_code, 403)
+
+
+class BrowserFailureTests(TestCase):
+    """UC4 4a·7a: 브라우저에서 끝난 인식 실패도 서버에 기록한다."""
+
+    def test_failure_is_logged(self):
+        customer = Member.objects.create_user(username="v1", password="x", name="고객", contact="010")
+        self.client.force_login(customer)
+        url = reverse("speech:failure")
+        with self.assertLogs("apps.speech.services", "WARNING") as cm:
+            res = self.client.post(url, {"error": "not-allowed"}, content_type="application/json")
+        self.assertEqual(res.status_code, 204)
+        self.assertIn("마이크 권한 거부", cm.output[0])
+        with self.assertLogs("apps.speech.services", "WARNING") as cm:
+            self.client.post(url, {"error": "<script>"}, content_type="application/json")
+        self.assertIn("오류=other", cm.output[0])
+
+    def test_staff_cannot_post(self):
+        staff = Member.objects.create_user(username="v2", password="x", name="직원", contact="010",
+                                           role=Member.Role.STAFF)
+        self.client.force_login(staff)
+        self.assertEqual(self.client.post(reverse("speech:failure"), {}, content_type="application/json").status_code,
+                         403)

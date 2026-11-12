@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}기념품 관리 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+      <div>
+        <h1>기념품 관리</h1>
+        <p>테마에 연결된 기념품입니다. 그 테마 상품의 출발이 확정되면 품목마다 여행자 1인당 1개씩 차감됩니다.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-light btn-sm" href="{% url 'souvenir:issues' %}"><i class="bi bi-list-check me-1"></i>차감 내역</a>
+        <a class="btn btn-gold btn-sm" href="{% url 'souvenir:register' %}"><i class="bi bi-plus-lg me-1"></i>새 품목 등록</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+<div class="mwt-card">
+  <div class="mwt-card-body p-0">
+    <table class="table align-middle mb-0" id="souvenir-manage-table">
+      <thead><tr><th>테마</th><th>품목</th><th class="text-end">현재 재고</th><th class="text-end">관리</th></tr></thead>
+      <tbody>
+        {% for value, label, items in themes %}
+          {% for s in items %}
+            <tr>
+              {% if forloop.first %}<td rowspan="{{ items|length }}" class="fw-semibold">{{ label }}</td>{% endif %}
+              <td>{{ s.name }}</td>
+              <td class="text-end">{{ s.stock_quantity }}개</td>
+              <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'souvenir:issues' %}?souvenir={{ s.pk }}">차감 내역</a>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'souvenir:edit' s.pk %}">수정·삭제</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td class="fw-semibold">{{ label }}</td><td colspan="3" class="text-danger small">등록된 기념품 없음 (이 테마 상품은 신청할 수 없음)</td></tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="small text-muted mt-3">재고 수량은 <a href="{% url 'souvenir:stock' %}">기념품 입고</a>와 출발 확정 차감으로만 바뀝니다.</p>
+{% endblock %}

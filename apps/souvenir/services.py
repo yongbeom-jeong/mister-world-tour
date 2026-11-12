@@ -5,7 +5,8 @@
 - 등록: 같은 키로 이미 저장된 입고가 있으면 그 결과를 돌려주고 재고를 다시 늘리지 않는다.
   없으면 준비한 내용과 일치하는지 확인하고, 입고 내역 저장과 재고 증가를 한 트랜잭션으로 반영한다.
 
-품목 등록(직원이 이름·테마 지정)과 출발 확정 시 재고 차감(issue_for_departure)도 여기서 한다.
+품목 등록·수정·삭제(직원), 차감 내역 조회, 출발 확정 시 재고 차감(issue_for_departure)도 여기서 한다.
+삭제한 품목 중 입고·차감 내역이 있는 것은 숨김(is_active=False) 처리해 내역을 보존한다.
 """
 
 import uuid
@@ -26,11 +27,15 @@ MAX_PENDING_KEYS = 20  # 세션에 보관할 준비 문맥 수 (여러 탭 대�
 
 
 class StockReceiptStatus(str, Enum):
+    """입고 결과 (설계 06장 §5, 7가지)."""
+
     SUCCESS = "SUCCESS"
     INVALID_INPUT = "INVALID_INPUT"
+    PERMISSION_DENIED = "PERMISSION_DENIED"  # 직원 아님·로그인 만료 (staff_role_required_json 이 응답)
     NOT_FOUND = "NOT_FOUND"
     CONFLICT = "CONFLICT"
     SAVE_FAILED = "SAVE_FAILED"
+    RESULT_UNKNOWN = "RESULT_UNKNOWN"  # 응답을 받지 못함. 서버가 아니라 화면 스크립트가 판정하고 같은 키로만 재확인
 
 
 @dataclass
@@ -52,13 +57,17 @@ class StockReceiptError(Exception):
 
 # ---------------------------------------------------------------- 조회
 
+def active_souvenirs():
+    return Souvenir.objects.filter(is_active=True)
+
+
 def load_souvenirs() -> list[Souvenir]:
-    return list(Souvenir.objects.order_by("theme", "name"))
+    return list(active_souvenirs().order_by("theme", "name"))
 
 
 def get_stock_quantity(souvenir_id: int) -> int | None:
     """현재 재고. 품목이 없으면 None (재고 0과 구분)."""
-    return Souvenir.objects.filter(pk=souvenir_id).values_list("stock_quantity", flat=True).first()
+    return active_souvenirs().filter(pk=souvenir_id).values_list("stock_quantity", flat=True).first()
 
 
 # ---------------------------------------------------------------- 입고 (UC8)
@@ -77,7 +86,7 @@ def _validate_quantity(quantity) -> int:
 
 def _find_souvenir(souvenir_id) -> Souvenir:
     try:
-        return Souvenir.objects.get(pk=int(souvenir_id))
+        return active_souvenirs().get(pk=int(souvenir_id))
     except (TypeError, ValueError, Souvenir.DoesNotExist):
         raise StockReceiptError(StockReceiptStatus.NOT_FOUND, "등록된 기념품을 찾을 수 없습니다.")
 
@@ -122,7 +131,7 @@ def record_souvenir_stock_receipt(pending: dict, employee_id: int, souvenir_id, 
     # 3) 입고 내역 저장 + 재고 증가를 한 트랜잭션으로
     try:
         with transaction.atomic():
-            updated = Souvenir.objects.filter(pk=sid).update(stock_quantity=F("stock_quantity") + q)
+            updated = active_souvenirs().filter(pk=sid).update(stock_quantity=F("stock_quantity") + q)
             if not updated:
                 return StockReceiptResponse(StockReceiptStatus.NOT_FOUND, "등록된 기념품을 찾을 수 없습니다.")
             stock_after = Souvenir.objects.values_list("stock_quantity", flat=True).get(pk=sid)
@@ -171,37 +180,110 @@ class SouvenirRegistrationError(Exception):
         self.errors = errors
 
 
-def register_souvenir(name, theme) -> Souvenir:
-    """새 기념품 품목을 테마에 연결해 재고 0개로 등록한다. 수량은 입고(UC8)로 늘린다.
-
-    등록 즉시 그 테마 상품의 신청 검사·출발 확정 차감 대상이 된다 (테마 품목마다 여행자 1인당 1개).
-    """
+def _validate_input(name, theme, exclude_id: int | None = None) -> str:
     name = (name or "").strip()
     errors = {}
     if not name:
         errors["name"] = "품목 이름을 입력해 주세요."
     elif len(name) > MAX_NAME:
         errors["name"] = f"품목 이름은 {MAX_NAME}자 이내로 입력해 주세요."
-    elif Souvenir.objects.filter(name__iexact=name).exists():
-        errors["name"] = "이미 등록된 품목 이름입니다."
+    else:
+        same = Souvenir.objects.filter(name__iexact=name).exclude(pk=exclude_id).first()
+        if same:
+            errors["name"] = ("이미 등록된 품목 이름입니다." if same.is_active
+                              else "삭제한 품목 중 같은 이름이 있습니다 (내역 보존용). 다른 이름을 써 주세요.")
     if theme not in Theme.values:
         errors["theme"] = "연결할 테마를 선택해 주세요."
     if errors:
         raise SouvenirRegistrationError(errors)
+    return name
+
+
+def register_souvenir(name, theme) -> Souvenir:
+    """새 기념품 품목을 테마에 연결해 재고 0개로 등록한다. 수량은 입고(UC8)로 늘린다.
+
+    등록 즉시 그 테마 상품의 신청 검사·출발 확정 차감 대상이 된다 (테마 품목마다 여행자 1인당 1개).
+    """
+    name = _validate_input(name, theme)
     try:
         return Souvenir.objects.create(name=name, theme=theme)
     except IntegrityError:  # 동시에 같은 이름이 등록된 경우
         raise SouvenirRegistrationError({"name": "이미 등록된 품목 이름입니다."})
 
 
+# ---------------------------------------------------------------- 품목 수정·삭제 (직원)
+
+class SouvenirNotFound(Exception):
+    pass
+
+
+def get_souvenir(souvenir_id: int) -> Souvenir:
+    s = active_souvenirs().filter(pk=souvenir_id).first()
+    if s is None:
+        raise SouvenirNotFound(souvenir_id)
+    return s
+
+
+def theme_has_souvenir(theme: str) -> bool:
+    return active_souvenirs().filter(theme=theme).exists()
+
+
+def update_souvenir(souvenir_id: int, name, theme) -> Souvenir:
+    """이름·연결 테마 수정. 재고는 입고와 출발 확정 차감으로만 바뀐다.
+
+    테마를 바꾸면 이후 출발 확정부터 새 테마 상품에서 차감된다 (이미 차감한 내역은 그대로).
+    """
+    with transaction.atomic():
+        s = active_souvenirs().select_for_update().filter(pk=souvenir_id).first()
+        if s is None:
+            raise SouvenirNotFound(souvenir_id)
+        s.name = _validate_input(name, theme, exclude_id=s.pk)
+        s.theme = theme
+        try:
+            with transaction.atomic():
+                s.save(update_fields=["name", "theme"])
+        except IntegrityError:
+            raise SouvenirRegistrationError({"name": "이미 등록된 품목 이름입니다."})
+    return s
+
+
+def delete_souvenir(souvenir_id: int) -> bool:
+    """품목 삭제. 내역이 없으면 실제로 지우고 True, 입고·차감 내역이 있으면 숨기고(내역 보존) False."""
+    with transaction.atomic():
+        s = active_souvenirs().select_for_update().filter(pk=souvenir_id).first()
+        if s is None:
+            raise SouvenirNotFound(souvenir_id)
+        if s.receipts.exists() or s.issues.exists():
+            s.is_active = False
+            s.save(update_fields=["is_active"])
+            return False
+        s.delete()
+        return True
+
+
+# ---------------------------------------------------------------- 차감 내역 조회 (직원)
+
+def load_all_souvenirs() -> list[Souvenir]:
+    """숨긴 품목까지 포함한 전체 품목 (차감 내역 필터용)."""
+    return list(Souvenir.objects.order_by("theme", "name"))
+
+
+def load_issues(souvenir_id: int | None = None):
+    """출발 확정 차감 내역 (최근 순). 신청·상품·고객은 표시용으로 함께 읽는다."""
+    qs = StockIssue.objects.select_related("souvenir", "application__product", "application__member")
+    if souvenir_id:
+        qs = qs.filter(souvenir_id=souvenir_id)
+    return qs.order_by("-issued_at", "-id")
+
+
 # ---------------------------------------------------------------- 테마 기념품 조회·차감 (Travel Management 가 호출)
 
 def souvenirs_for_theme(theme: str) -> list[Souvenir]:
-    return list(Souvenir.objects.filter(theme=theme).order_by("id"))
+    return list(active_souvenirs().filter(theme=theme).order_by("id"))
 
 
 def souvenir_names_for_theme(theme: str) -> list[str]:
-    return list(Souvenir.objects.filter(theme=theme).order_by("id").values_list("name", flat=True))
+    return list(active_souvenirs().filter(theme=theme).order_by("id").values_list("name", flat=True))
 
 
 class SouvenirShortage(Exception):

@@ -74,6 +74,18 @@ class LoginTests(TestCase):
         self.assertContains(first, "historyModal")
         self.assertFalse(self.client.get(reverse("home")).context["show_history_popup"])
 
+    def test_popup_opens_on_page_reached_after_login(self):
+        """로그인 전 보던 화면(next)으로 돌아가도 그 화면에서 이력 팝업을 연다 (UC2 (4))."""
+        products = reverse("travel:products")
+        res = self.client.post(reverse("members:login") + f"?next={products}",
+                               {"username": "cust", "password": PW})
+        self.assertRedirects(res, products, fetch_redirect_response=False)
+        page = self.client.get(products)
+        self.assertTrue(page.context["show_history_popup"])
+        self.assertContains(page, "historyModal")
+        self.assertContains(page, "openHistory();")
+        self.assertFalse(self.client.get(reverse("home")).context["show_history_popup"])
+
     def test_staff_login_has_no_history_popup(self):
         self.login("emp")
         res = self.client.get(reverse("home"))
@@ -95,3 +107,55 @@ class SeedDemoTests(TestCase):
         call_command("seed_demo", stdout=StringIO())
         self.assertEqual(Member.objects.count(), counts)
         self.assertTrue(Member.objects.get(username="regular1").check_password("demo1234!"))
+
+
+
+class CaseInsensitiveUsernameTests(TestCase):
+    def test_db_rejects_same_username_with_different_case(self):
+        """폼 검사를 지나 동시에 가입해도 DB 제약이 대소문자만 다른 아이디를 막는다."""
+        from django.db import IntegrityError, transaction
+
+        from . import services
+        Member.objects.create_user(username="Hong_gd", password="x", name="홍", contact="010-1111-2222")
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Member.objects.create_user(username="hong_GD", password="x", name="홍2", contact="010-1111-3333")
+        with self.assertRaises(services.DuplicateAccountError):
+            services.sign_up(member_type="CUSTOMER", username="HONG_GD", password="x", name="홍3", address="",
+                             contact="010-1111-4444")
+
+
+class SignUpDBErrorTests(TestCase):
+    """UC1 5a: 가입 저장 중 DB 오류는 가입 여부를 확인해 안내한다."""
+
+    url = reverse("members:signup")
+
+    def test_not_saved(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+
+        from . import services
+        with mock.patch.object(services, "sign_up", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.members.views", "ERROR"):
+                res = self.client.post(self.url, signup_data())
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "가입되지 않았습니다")
+        self.assertFalse(Member.objects.exists())
+
+    def test_saved_then_error(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+
+        from . import services
+        original = services.sign_up
+
+        def saved_then_error(**kw):
+            original(**kw)
+            raise DatabaseError("응답 전 끊김")
+
+        with mock.patch.object(services, "sign_up", side_effect=saved_then_error):
+            with self.assertLogs("apps.members.views", "ERROR"):
+                res = self.client.post(self.url, signup_data(), follow=True)
+        self.assertRedirects(res, reverse("members:login"))
+        self.assertContains(res, "가입은 완료되었습니다")

@@ -59,7 +59,9 @@
     list: "{% url 'souvenir:list' %}",
     prepare: "{% url 'souvenir:prepare' %}",
     record: "{% url 'souvenir:record' %}",
+    login: "{% url 'members:login' %}",
   };
+  const AUTH_MSG = "로그인이 만료되었거나 권한이 없어 입고가 반영되지 않았습니다. 다시 로그인한 뒤 입고해 주세요.";
   const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
   const rows = document.getElementById("souvenir-rows");
   const listError = document.getElementById("list-error");
@@ -113,6 +115,12 @@
     try {
       const res = await fetch(URLS.list);
       const data = await res.json();
+      if (data.status === "PERMISSION_DENIED") {
+        souvenirs = []; rows.innerHTML = "";
+        listError.textContent = data.message;
+        listError.hidden = false;
+        return;
+      }
       if (!data.ok) throw new Error(data.message);
       souvenirs = data.souvenirs;
       render();
@@ -151,9 +159,12 @@
       headers: { "X-CSRFToken": csrf },
       body: new URLSearchParams(body),
     });
+    // 로그인 만료(로그인 화면으로 이동)·권한 없음(403)은 서버가 요청을 처리하기 전에 막은 것이라 반영되지 않았음이 확실하다
     let data = null;
     try { data = await res.json(); } catch (_) {}
-    return { res, data };
+    const authFailed = (data && data.status === "PERMISSION_DENIED") || res.status === 403
+      || (res.redirected && new URL(res.url).pathname === URLS.login);
+    return { res, data, authFailed };
   }
 
   function setBusy(on) {
@@ -166,8 +177,12 @@
   async function record() {
     setBusy(true);
     try {
-      const { res, data } = await post(URLS.record, pending);
-      if (res.ok && data && data.ok) {
+      const { res, data, authFailed } = await post(URLS.record, pending);
+      if (authFailed) {
+        pending = null;   // 새 로그인 세션에는 이 준비 문맥이 없으므로 다시 입고해야 한다
+        retry.hidden = true;
+        show("danger", AUTH_MSG);
+      } else if (res.ok && data && data.ok) {
         pending = null;
         retry.hidden = true;
         show("success", data.message + (data.receipt ? ` (입고 ${data.receipt.quantity}개)` : ""));
@@ -180,6 +195,10 @@
         } else {
           loadList();
         }
+      } else if (data && data.status === "SAVE_FAILED") {
+        // 저장 트랜잭션이 취소됨: 반영되지 않았음이 확실하다. 같은 키로 다시 시도할 수 있다.
+        show("danger", data.message + " '같은 입고 다시 확인'으로 다시 시도할 수 있습니다.");
+        retry.hidden = false;
       } else if (res.status >= 500 || !data) {
         throw new Error("unknown");
       } else {
@@ -203,7 +222,8 @@
     if (!/^\d+$/.test(v) || Number(v) < 1) { show("danger", "입고 수량은 1 이상의 정수로 입력해 주세요."); return; }
     setBusy(true);
     try {
-      const { res, data } = await post(URLS.prepare, { souvenir_id: selectedId, quantity: v });
+      const { res, data, authFailed } = await post(URLS.prepare, { souvenir_id: selectedId, quantity: v });
+      if (authFailed) { show("danger", AUTH_MSG); return; }
       if (!res.ok || !data || !data.ok) { show("danger", (data && data.message) || "입고를 준비하지 못했습니다."); return; }
       pending = { request_key: data.request_key, souvenir_id: data.souvenir_id, quantity: data.quantity };
     } catch (e) {

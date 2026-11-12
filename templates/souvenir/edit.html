@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}기념품 수정 | 미스터 월드 투어{% endblock %}
+{% block page_head %}
+  <section class="mwt-page-head">
+    <div class="container">
+      <a href="{% url 'souvenir:manage' %}" class="small"><i class="bi bi-arrow-left"></i> 기념품 관리</a>
+      <h1 class="mt-2">{{ souvenir.name }}</h1>
+      <p>{{ souvenir.get_theme_display }} · 현재 재고 {{ souvenir.stock_quantity }}개 · 입고 {{ receipt_count }}건 · 차감 {{ issue_count }}건</p>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <form method="post" novalidate class="mwt-card">
+      {% csrf_token %}
+      <div class="mwt-card-head"><span><i class="bi bi-pencil me-1"></i>정보 수정</span></div>
+      <div class="mwt-card-body">
+        <div class="mb-3">
+          <label class="form-label" for="id_name">품목 이름</label>
+          <input type="text" name="name" id="id_name" maxlength="50" value="{{ values.name }}"
+                 class="form-control {% if errors.name %}is-invalid{% endif %}">
+          {% if errors.name %}<div class="invalid-feedback">{{ errors.name }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <div class="form-label">연결할 테마</div>
+          <div class="chip-group {% if errors.theme %}is-invalid{% endif %}">
+            {% for value, label in themes %}
+              <input type="radio" class="btn-check" name="theme" id="theme_{{ value }}" value="{{ value }}"
+                     {% if values.theme == value %}checked{% endif %}>
+              <label class="btn btn-outline-primary" for="theme_{{ value }}">{{ label }}</label>
+            {% endfor %}
+          </div>
+          {% if errors.theme %}<div class="invalid-feedback d-block">{{ errors.theme }}</div>{% endif %}
+        </div>
+        <p class="small text-muted mb-0">테마를 바꾸면 이후 출발 확정부터 새 테마 상품에서 차감됩니다. 이미 차감한 내역은 그대로 남습니다.
+          재고 수량은 입고 화면에서만 늘릴 수 있습니다.</p>
+      </div>
+      <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
+        <button class="btn btn-primary"><i class="bi bi-check2 me-1"></i>수정</button>
+      </div>
+    </form>
+  </div>
+  <div class="col-lg-5">
+    <div class="mwt-card mwt-card-body">
+      <h2 class="h6"><i class="bi bi-trash me-1"></i>품목 삭제</h2>
+      <p class="small text-muted">
+        {% if receipt_count or issue_count %}입고·차감 내역이 있어 내역은 기록으로 남기고, 목록·신청 검사·차감에서만 뺍니다.
+        {% else %}내역이 없어 완전히 삭제합니다.{% endif %}
+        이 테마에 다른 기념품이 없으면 그 테마 상품은 신청할 수 없게 됩니다.</p>
+      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">삭제</button>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title h5" id="deleteModalLabel">{{ souvenir.name }} 삭제</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button></div>
+      <div class="modal-body small">삭제하면 되돌릴 수 없습니다. 남은 재고 {{ souvenir.stock_quantity }}개도 더 이상 관리하지 않습니다.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
+        <form method="post" action="{% url 'souvenir:delete' souvenir.pk %}">
+          {% csrf_token %}
+          <button class="btn btn-danger">삭제</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

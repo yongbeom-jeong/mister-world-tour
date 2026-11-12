@@ -23,6 +23,11 @@ def sign_up(*, member_type: str, username: str, password: str, name: str, addres
         raise DuplicateAccountError(username) from e
 
 
+def find_member_joined_since(username: str, since) -> Member | None:
+    """since 이후 이 아이디로 가입된 회원. 가입 저장 중 오류 뒤 가입 여부 확인용."""
+    return Member.objects.filter(username__iexact=username, date_joined__gte=since).first()
+
+
 def get_contact(member_id: int) -> tuple[str, str] | None:
     """문자 발송용 (성명, 연락처). 없는 회원이면 None."""
     row = Member.objects.filter(pk=member_id).values_list("name", "contact").first()

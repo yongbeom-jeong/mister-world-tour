@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.functions import Lower
 
 from apps.travel.choices import Theme
 
@@ -10,11 +11,15 @@ class Souvenir(models.Model):
     name = models.CharField("품목 이름", max_length=50, unique=True)
     theme = models.CharField("대응 테마", max_length=10, choices=Theme.choices)
     stock_quantity = models.PositiveIntegerField("현재 재고", default=0)
+    # 입고·차감 내역이 있는 품목을 삭제하면 내역 보존을 위해 숨긴다. 숨긴 품목은 신청 검사·차감·입고에서 빠진다.
+    is_active = models.BooleanField("사용 중", default=True)
 
     class Meta:
         verbose_name = "기념품"
         verbose_name_plural = "기념품"
         ordering = ["theme", "name"]
+        # 품목 이름은 대소문자를 무시하고 중복 금지 (숨긴 품목 포함). 동시 등록도 DB 에서 막는다.
+        constraints = [models.UniqueConstraint(Lower("name"), name="unique_souvenir_name_ci")]
 
     def __str__(self) -> str:
         return f"{self.name} ({self.get_theme_display()})"

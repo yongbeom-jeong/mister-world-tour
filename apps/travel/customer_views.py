@@ -5,8 +5,8 @@ import logging
 
 from django.contrib import messages
 from django.db import DatabaseError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.members.decorators import customer_required
@@ -26,7 +26,6 @@ from .choices import (
     TransportOption,
 )
 from .forms import ProductFilterForm
-from .models import TravelApplication
 from .pricing import DRINK_PRICES, option_difference
 
 DRAFT_KEY = "application_draft"      # 신청 화면으로 넘긴 상품·구성·입력 중인 여행자
@@ -46,15 +45,21 @@ def product_browse(request):
     if filters.is_valid():
         theme = filters.cleaned_data["theme"] or None
         level = filters.cleaned_data["tour_level"] or None
+    load_failed = False
     if theme in (Theme.HONEYMOON, Theme.FILIAL) and level and level not in ALLOWED_LEVELS_FOR_RESTRICTED:
         notice = f"{Theme(theme).label}는 그랜드 또는 프리미엄 등급으로만 운영합니다."
         products = []
     else:
-        products = booking.bookable_products(theme, level)
+        try:
+            products = booking.bookable_products(theme, level)
+        except DatabaseError:  # 조회 실패를 '상품 없음'으로 보이지 않게 구분 (UC4 2a·5a)
+            logger.exception("상품 목록 조회 실패 theme=%s level=%s", theme, level)
+            products, load_failed = [], True
     return render(request, "travel/customer/products.html", {
         "filters": filters, "products": products, "notice": notice, "theme": theme, "level": level,
-        "themes": Theme.choices, "levels": TourLevel.choices,
-    })
+        "themes": Theme.choices, "levels": TourLevel.choices, "load_failed": load_failed,
+        "filtered": bool(theme or level),
+    }, status=503 if load_failed else 200)
 
 
 # ---------------------------------------------------------------- UC4 상품 선택·구성
@@ -69,10 +74,11 @@ def _option_choices(product) -> dict:
         return "추가금 없음" if d == 0 else f"{'+' if d > 0 else '−'}{abs(d):,}원"
 
     return {
-        "hotel_level": [(v, label, diff("hotel_level", v)) for v, label in HotelLevel.choices],
+        "hotel_level": [(v, HotelLevel(v).label, diff("hotel_level", v))
+                        for v in cfg.customer_hotel_choices(product.theme)],
         "transport": [(v, TransportOption(v).label, diff("transport", v))
                       for v in TransportOption.values if v in ALLOWED_TRANSPORTS[Theme(product.theme)]],
-        "meal": [(v, label, diff("meal", v)) for v, label in MealOption.choices],
+        "meal": [(v, MealOption(v).label, diff("meal", v)) for v in cfg.customer_meal_choices(product.theme)],
         "drinks": [(v, label, DRINK_PRICES[v]) for v, label in DrinkOption.choices],
     }
 
@@ -181,7 +187,7 @@ def apply(request):
         "product": product, "config": draft["config"], "described": cfg.describe(draft["config"]),
         "unit_price": booking.calculate_unit_price(product, draft["config"]),
         "remaining": booking.remaining_seats(product), "travelers": draft.get("travelers") or [],
-        "errors": {}, "review": None,
+        "errors": {}, "review": None, "cancel_rule": booking.CANCEL_RULE,
     }
     action = request.POST.get("action") if request.method == "POST" else None
 
@@ -195,6 +201,10 @@ def apply(request):
         except booking.BookingError as e:
             messages.error(request, e.message)
             ctx["errors"] = e.errors
+        except DatabaseError:  # 가격·할인 계산 실패 (UC5 4a): 임의 금액을 쓰지 않고 다시 확인하게 한다
+            logger.exception("신청 금액 계산 중 DB 오류 member=%s product=%s", request.user.pk, product.pk)
+            messages.error(request, "일시적인 오류로 신청 금액을 계산하지 못했습니다. "
+                                    "입력한 여행자 정보는 그대로 두었으니 잠시 후 '금액 확인'을 다시 눌러 주세요.")
         else:
             _save_review(request, review)
             ctx["review"] = review
@@ -272,15 +282,30 @@ def _flash_result(request, result: booking.ApplicationResult) -> None:
 
 @customer_required
 def application_detail(request, application_id: int):
-    app = get_object_or_404(
-        TravelApplication.objects.select_related("product"), pk=application_id, member=request.user
-    )
+    app = booking.get_my_application(request.user.pk, application_id)
+    if app is None:
+        raise Http404("신청을 찾을 수 없습니다.")
     config = {"hotel_level": app.hotel_level, "transport": app.transport, "meal": app.meal,
               "drinks": cfg.normalize_drinks(app.extra_drinks)}
     return render(request, "travel/customer/application_detail.html", {
         "app": app, "travelers": app.travelers.all(), "described": cfg.describe(config),
-        "status": app.current_departure_status(),
+        "status": app.current_departure_status(), "cancel_block": booking.cancel_block_reason(app),
+        "cancel_rule": booking.CANCEL_RULE,
     })
+
+
+@customer_required
+@require_POST
+def cancel_application(request, application_id: int):
+    if booking.get_my_application(request.user.pk, application_id) is None:
+        raise Http404("신청을 찾을 수 없습니다.")
+    try:
+        booking.cancel_application(request.user, application_id)
+    except booking.BookingError as e:
+        messages.error(request, e.message)
+    else:
+        messages.success(request, "신청을 취소했습니다.")
+    return redirect("travel:application_detail", application_id=application_id)
 
 
 @customer_required

@@ -22,6 +22,7 @@ from apps.sms import services as sms_service
 from apps.souvenir import services as souvenir_services
 
 from . import configuration as cfg
+from . import services as travel_services
 from .choices import GROUP_CAPACITY, GROUP_MIN_DEPARTURE, HONEYMOON_PARTY_SIZE, DepartureStatus
 from .models import Traveler, TravelApplication, TravelHistory, TravelProduct
 from .pricing import PriceBreakdown, calculate_application_price, calculate_unit_price
@@ -61,8 +62,8 @@ def get_bookable_product(product_id: int) -> TravelProduct:
 
 
 def current_traveler_count(product_id: int) -> int:
-    """같은 상품에 저장된 실제 여행자 수 (모든 신청 합계)."""
-    return Traveler.objects.filter(application__product_id=product_id).count()
+    """같은 상품에 저장된 실제 여행자 수 (취소하지 않은 모든 신청 합계)."""
+    return Traveler.objects.filter(application__product_id=product_id, application__cancelled_at__isnull=True).count()
 
 
 def remaining_seats(product: TravelProduct) -> int:
@@ -179,6 +180,7 @@ def _check_business_rules(product: TravelProduct, traveler_count: int, current_c
 
 
 def _price(product: TravelProduct, member_id: int, config: dict, traveler_count: int) -> PriceBreakdown:
+    travel_services.complete_finished_trips(member_id)  # 다녀온 여행을 이력에 반영한 뒤 단골 여부 판단
     histories = TravelHistory.objects.filter(member_id=member_id)
     unit = calculate_unit_price(product, config)
     return calculate_application_price(unit, traveler_count, histories, timezone.localdate())
@@ -278,9 +280,10 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
             product.update_departure_status(total)
             product.save(update_fields=["departure_status"])
             newly_confirmed = not was_confirmed and product.departure_status == DepartureStatus.CONFIRMED
-            if newly_confirmed:  # 새로 확정: 이 상품의 모든 신청 고객 (중복 제거)
-                recipient_ids = list(product.applications.values_list("member_id", flat=True).distinct())
-                to_issue = list(product.applications.annotate(n=Count("travelers")).values_list("pk", "n"))
+            if newly_confirmed:  # 새로 확정: 이 상품의 모든 신청 고객 (취소 제외, 중복 제거)
+                active = product.applications.filter(cancelled_at__isnull=True)
+                recipient_ids = list(active.values_list("member_id", flat=True).distinct())
+                to_issue = list(active.annotate(n=Count("travelers")).values_list("pk", "n"))
             elif was_confirmed:  # 이미 확정된 상품의 추가 신청: 새 신청 고객만
                 recipient_ids = [member.pk]
                 to_issue = [(app.pk, count)]
@@ -294,23 +297,68 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
         except souvenir_services.SouvenirShortage as e:
             raise BookingError(_souvenir_shortage_message(count, e.name, e.needed, e.stock))
 
+        # 문자 대상과 발송 기록('발송 중')을 신청과 같은 트랜잭션에서 만든다 (보내기 전 중단 대비, 설계 05장 §2.2).
+        # 실제 발송은 저장이 끝난 뒤에 한다. 기록 준비에 실패해도 신청은 저장한다.
+        recipients, plan = [], None
+        if recipient_ids:
+            for mid in sorted(set(recipient_ids)):
+                info = member_services.get_contact(mid)
+                if info:
+                    recipients.append(sms_service.SMSRecipient(mid, info[0], info[1]))
+            notice = sms_service.DepartureNotice(product.pk, product.name, product.departure_date)
+            try:
+                plan = sms_service.prepare_departure_confirmation(recipients, notice)
+            except Exception:
+                logger.exception("문자 발송 기록 준비 실패 application=%s", app.pk)
+                plan = sms_service.DeparturePlan(notice, [sms_service.SMSMessage(r, notice.message(r))
+                                                          for r in recipients if r.contact])
+
     # 저장이 끝난 뒤 문자 요청. 문자 실패는 신청·출발 상태를 되돌리지 않는다.
     result = ApplicationResult(app, app.current_departure_status(), newly_confirmed=newly_confirmed,
                                souvenirs_issued=issued)
-    if recipient_ids:
-        recipients = []
-        for mid in sorted(set(recipient_ids)):
-            info = member_services.get_contact(mid)
-            if info:
-                recipients.append(sms_service.SMSRecipient(mid, info[0], info[1]))
-        notice = sms_service.DepartureNotice(product.pk, product.name, product.departure_date)
+    if plan is not None:
         try:
-            result.sms = sms_service.send_departure_confirmation(recipients, notice)
-        except Exception:  # 문자 모듈 자체 오류도 신청 성공을 바꾸지 않음
+            result.sms = sms_service.deliver_departure_confirmation(plan)
+        except Exception:  # 문자 모듈 자체 오류도 신청 성공을 바꾸지 않음 (기록은 '발송 중'으로 남아 직원이 재발송)
             logger.exception("문자 요청 실패 application=%s", app.pk)
             result.sms = sms_service.SMSBatchResult(invalid=recipients)
         result.recipients = recipients
     return result
+
+
+# ---------------------------------------------------------------- 신청 취소
+
+CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요."
+
+
+def cancel_block_reason(app: TravelApplication, today=None) -> str | None:
+    """취소할 수 없는 이유. 취소할 수 있으면 None. (화면 표시와 실제 취소에서 같은 규칙을 쓴다)"""
+    today = today or timezone.localdate()
+    if app.is_cancelled:
+        return "이미 취소한 신청입니다."
+    if app.current_departure_status() == DepartureStatus.CONFIRMED:
+        return "출발이 확정된 신청은 취소할 수 없습니다."
+    if app.product.departure_date <= today:
+        return "출발일이 지난 신청은 취소할 수 없습니다."
+    return None
+
+
+def cancel_application(member, application_id: int) -> TravelApplication:
+    """출발 확정 전 신청을 취소한다. 확정 판정과 겹치지 않게 상품을 잠근 뒤 다시 검사한다."""
+    with transaction.atomic():
+        product_id = (TravelApplication.objects.filter(pk=application_id, member=member)
+                      .values_list("product_id", flat=True).first())
+        if product_id is None:
+            raise BookingError("신청을 찾을 수 없습니다.")
+        TravelProduct.objects.select_for_update().filter(pk=product_id).first()  # 같은 상품의 신청·확정과 순서 맞춤
+        app = TravelApplication.objects.select_for_update().select_related("product").get(pk=application_id)
+        reason = cancel_block_reason(app)
+        if reason:
+            raise BookingError(reason)
+        app.cancelled_at = timezone.now()
+        app.save(update_fields=["cancelled_at"])
+    logger.info("신청 취소 application=%s member=%s", app.pk, member.pk)
+    return app
 
 
 def find_submitted_application(member_id: int, request_key: str) -> TravelApplication | None:
@@ -318,6 +366,17 @@ def find_submitted_application(member_id: int, request_key: str) -> TravelApplic
     if not request_key:
         return None
     return TravelApplication.objects.filter(member_id=member_id, request_key=request_key).first()
+
+
+def get_my_application(member_id: int, application_id: int) -> TravelApplication | None:
+    """고객 본인의 신청 1건. 다른 고객의 신청이면 None."""
+    return (TravelApplication.objects.select_related("product")
+            .filter(pk=application_id, member_id=member_id).first())
+
+
+def active_application_count(member_id: int) -> int:
+    """취소하지 않은 신청 수 (고객 홈 표시)."""
+    return TravelApplication.objects.filter(member_id=member_id, cancelled_at__isnull=True).count()
 
 
 def my_applications(member_id: int) -> list[TravelApplication]:

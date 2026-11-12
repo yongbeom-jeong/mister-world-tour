@@ -19,7 +19,8 @@
           <div class="p-3 flex-grow-1">
             <div class="d-flex justify-content-between gap-2 mb-1">
               <span class="fw-bold">{{ a.product.name }}</span>
-              {% if a.current_departure_status == "CONFIRMED" %}<span class="tag tag-success flex-shrink-0">출발 확정</span>
+              {% if a.is_cancelled %}<span class="tag tag-muted flex-shrink-0">취소함</span>
+              {% elif a.current_departure_status == "CONFIRMED" %}<span class="tag tag-success flex-shrink-0">출발 확정</span>
               {% else %}<span class="tag tag-muted flex-shrink-0">출발 미확정</span>{% endif %}
             </div>
             <div class="small text-muted mb-2"><i class="bi bi-calendar3"></i> {{ a.product.departure_date|date:"Y-m-d" }} 출발 · <i class="bi bi-people"></i> {{ a.n_travelers }}명</div>
