@@ -7,7 +7,7 @@ import logging
 from datetime import date, timedelta
 
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import Count, F, Q
 from django.utils import timezone
 
 from apps.souvenir import services as souvenir_services
@@ -99,6 +99,20 @@ def complete_finished_trips(member_id: int | None = None, today: date | None = N
     if created:
         logger.info("완료 여행 이력 %s건 생성 member=%s", created, member_id if member_id is not None else "전체")
     return created
+
+
+def staff_dashboard_counts() -> dict:
+    """직원 홈 통계: 상품 수, 취소 제외 신청 수, 출발 확정 상품 수."""
+    return {
+        "products": TravelProduct.objects.count(),
+        "applications": TravelApplication.objects.filter(cancelled_at__isnull=True).count(),
+        "confirmed": TravelProduct.objects.filter(departure_status=DepartureStatus.CONFIRMED).count(),
+    }
+
+
+def recent_products(limit: int = 5) -> list[TravelProduct]:
+    """직원 홈: 최근 등록 상품과 신청 수(n_apps)."""
+    return list(TravelProduct.objects.annotate(n_apps=Count("applications")).order_by("-created_at")[:limit])
 
 
 def load_products(theme: str | None = None, level: str | None = None) -> list[TravelProduct]:

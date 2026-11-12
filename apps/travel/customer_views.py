@@ -5,8 +5,8 @@ import logging
 
 from django.contrib import messages
 from django.db import DatabaseError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.members.decorators import customer_required
@@ -26,7 +26,6 @@ from .choices import (
     TransportOption,
 )
 from .forms import ProductFilterForm
-from .models import TravelApplication
 from .pricing import DRINK_PRICES, option_difference
 
 DRAFT_KEY = "application_draft"      # 신청 화면으로 넘긴 상품·구성·입력 중인 여행자
@@ -201,6 +200,10 @@ def apply(request):
         except booking.BookingError as e:
             messages.error(request, e.message)
             ctx["errors"] = e.errors
+        except DatabaseError:  # 가격·할인 계산 실패 (UC5 4a): 임의 금액을 쓰지 않고 다시 확인하게 한다
+            logger.exception("신청 금액 계산 중 DB 오류 member=%s product=%s", request.user.pk, product.pk)
+            messages.error(request, "일시적인 오류로 신청 금액을 계산하지 못했습니다. "
+                                    "입력한 여행자 정보는 그대로 두었으니 잠시 후 '금액 확인'을 다시 눌러 주세요.")
         else:
             _save_review(request, review)
             ctx["review"] = review
@@ -278,9 +281,9 @@ def _flash_result(request, result: booking.ApplicationResult) -> None:
 
 @customer_required
 def application_detail(request, application_id: int):
-    app = get_object_or_404(
-        TravelApplication.objects.select_related("product"), pk=application_id, member=request.user
-    )
+    app = booking.get_my_application(request.user.pk, application_id)
+    if app is None:
+        raise Http404("신청을 찾을 수 없습니다.")
     config = {"hotel_level": app.hotel_level, "transport": app.transport, "meal": app.meal,
               "drinks": cfg.normalize_drinks(app.extra_drinks)}
     return render(request, "travel/customer/application_detail.html", {
@@ -293,7 +296,8 @@ def application_detail(request, application_id: int):
 @customer_required
 @require_POST
 def cancel_application(request, application_id: int):
-    get_object_or_404(TravelApplication, pk=application_id, member=request.user)
+    if booking.get_my_application(request.user.pk, application_id) is None:
+        raise Http404("신청을 찾을 수 없습니다.")
     try:
         booking.cancel_application(request.user, application_id)
     except booking.BookingError as e:

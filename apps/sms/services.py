@@ -220,11 +220,12 @@ def _deliver(client, msg: SMSMessage, started: float, limit: float, clock, produ
 def _log_start(msg: SMSMessage, notice: DepartureNotice) -> None:
     r = msg.recipient
     try:
-        log = SMSLog.objects.create(
-            member_id=r.member_id, recipient_name=(r.name or "")[:50], contact=(r.contact or "")[:20],
-            product_id=notice.product_id, product_name=(notice.product_name or "")[:100],
-            message=msg.message, status=msg.status.value, last_error=msg.last_error,
-        )
+        with transaction.atomic():  # 저장점: 실패해도 호출자 트랜잭션(신청 저장)은 계속된다
+            log = SMSLog.objects.create(
+                member_id=r.member_id, recipient_name=(r.name or "")[:50], contact=(r.contact or "")[:20],
+                product_id=notice.product_id, product_name=(notice.product_name or "")[:100],
+                message=msg.message, status=msg.status.value, last_error=msg.last_error,
+            )
         msg.log_id = log.pk
     except Exception:
         logger.exception("문자 발송 기록 저장 실패 member=%s", r.member_id)
@@ -243,26 +244,56 @@ def _log_finish(msg: SMSMessage, **extra) -> None:
 
 # ---------------------------------------------------------------- 발송
 
-def send_departure_confirmation(recipients: list[SMSRecipient], notice: DepartureNotice, client=None,
-                                clock=time.monotonic) -> SMSBatchResult:
-    client = client or get_client()
-    result = SMSBatchResult()
-    limit = getattr(settings, "SMS_BATCH_TIME_LIMIT", 40)
-    started = clock()
+@dataclass
+class DeparturePlan:
+    """보내기 전에 발송 기록을 만들어 둔 출발 확정 문자 묶음."""
+
+    notice: DepartureNotice
+    messages: list[SMSMessage] = field(default_factory=list)
+    invalid: list[SMSRecipient] = field(default_factory=list)
+
+
+def prepare_departure_confirmation(recipients: list[SMSRecipient], notice: DepartureNotice) -> DeparturePlan:
+    """수신자마다 발송 기록을 '발송 중'(정보 누락은 '정보 누락')으로 먼저 만든다. 외부 호출은 하지 않는다.
+
+    신청 저장과 같은 트랜잭션에서 부르면 신청과 기록이 함께 저장된다. 그래서 저장 직후 보내기 전에
+    서버가 멈춰도 기록이 남고, 직원 문자 기록 화면에 '발송 확인 필요'로 나타나 다시 보낼 수 있다 (설계 05장 §2.2).
+    """
+    plan = DeparturePlan(notice)
     for r in recipients:
         if not r.contact or not notice.product_name or not notice.departure_date:
             logger.warning("문자 대상 정보 누락 product=%s member=%s", notice.product_id, r.member_id)
-            result.invalid.append(r)
+            plan.invalid.append(r)
             text = notice.message(r) if notice.departure_date else ""
             _log_start(SMSMessage(r, text, SMSDeliveryStatus.INVALID, last_error="연락처 또는 상품 정보 누락"), notice)
             continue
         msg = SMSMessage(r, notice.message(r))
         _log_start(msg, notice)
+        plan.messages.append(msg)
+    return plan
+
+
+def deliver_departure_confirmation(plan: DeparturePlan, client=None, clock=time.monotonic) -> SMSBatchResult:
+    """준비한 묶음을 실제로 보내고 기록을 결과로 바꾼다 (재시도 규칙·시간 한도 적용)."""
+    client = client or get_client()
+    notice = plan.notice
+    result = SMSBatchResult(invalid=list(plan.invalid))
+    limit = getattr(settings, "SMS_BATCH_TIME_LIMIT", 40)
+    started = clock()
+    for msg in plan.messages:
+        if msg.log_id is None:  # 준비 때 기록을 못 만들었으면 지금 다시 시도
+            _log_start(msg, notice)
         _deliver(client, msg, started, limit, clock, notice.product_id)
         _log_finish(msg)
         result.messages.append(msg)
     logger.info("문자 발송 결과 product=%s %s", notice.product_id, result.summary())
     return result
+
+
+def send_departure_confirmation(recipients: list[SMSRecipient], notice: DepartureNotice, client=None,
+                                clock=time.monotonic) -> SMSBatchResult:
+    """기록 준비와 발송을 한 번에 (트랜잭션 밖에서 바로 보낼 때)."""
+    return deliver_departure_confirmation(prepare_departure_confirmation(recipients, notice), client, clock)
 
 
 # ---------------------------------------------------------------- 직원 조회·재발송

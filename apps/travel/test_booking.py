@@ -243,7 +243,7 @@ class SubmitTests(BookingTestBase):
 
     def test_sms_failure_keeps_application(self):
         p = make_product(Theme.HONEYMOON)
-        with mock.patch("apps.sms.services.send_departure_confirmation", side_effect=RuntimeError("boom")):
+        with mock.patch("apps.sms.services.deliver_departure_confirmation", side_effect=RuntimeError("boom")):
             with self.assertLogs("apps.travel.booking", "ERROR"):
                 result = self.book(self.alice, p, "배우자")
         self.assertEqual(result.departure_status, DepartureStatus.CONFIRMED)
@@ -623,3 +623,43 @@ class ProductListLoadTests(BookingTestBase):
         make_product(Theme.GOLF)
         res = self.client.get(reverse("travel:products") + "?theme=TREKKING")
         self.assertContains(res, "조건에 맞는 상품이 없습니다")
+
+
+class ReviewDBErrorTests(BookingTestBase):
+    def test_price_calculation_failure_is_reported(self):
+        from django.db import DatabaseError
+        p = make_product()
+        self.client.force_login(self.alice)
+        self.client.post(reverse("travel:start_application", args=[p.pk]),
+                         {"config": json.dumps(cfg.default_configuration(p))})
+        with mock.patch.object(booking, "review_application", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["x", "동반"],
+                                                                 "traveler_contact": ["", ""]})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "신청 금액을 계산하지 못했습니다")
+        self.assertContains(res, "동반")  # 입력 유지
+        self.assertIsNone(res.context["review"])
+
+
+class SMSLogBeforeSendTests(BookingTestBase):
+    """설계 05장 §2.2: 신청 저장과 함께 문자 기록을 먼저 만들어, 보내기 전에 멈춰도 기록이 남는다."""
+
+    def test_log_exists_even_if_sending_never_happens(self):
+        from apps.sms.models import SMSLog
+        p = make_product(Theme.HONEYMOON)
+        with mock.patch("apps.sms.services.deliver_departure_confirmation", side_effect=RuntimeError("서버 중단")):
+            with self.assertLogs("apps.travel.booking", "ERROR"):
+                self.book(self.alice, p, "배우자")
+        log = SMSLog.objects.get(product_id=p.pk)
+        self.assertEqual((log.status, log.attempt_count, log.recipient_name), ("PENDING", 0, "앨리스"))
+
+    def test_rolled_back_application_leaves_no_log(self):
+        from apps.sms.models import SMSLog
+        p = make_product(Theme.GOLF)
+        review = booking.review_application(self.alice, p.pk, cfg.default_configuration(p),
+                                            self.rows(self.alice, "a", "b"))  # 3명 → 확정 예정
+        Souvenir.objects.filter(theme=Theme.GOLF).update(stock_quantity=1)  # 검토 뒤 재고 부족
+        with self.assertRaises(booking.BookingError):
+            booking.submit_travel_application(self.alice, review)
+        self.assertFalse(SMSLog.objects.exists())

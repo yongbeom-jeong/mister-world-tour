@@ -297,19 +297,29 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
         except souvenir_services.SouvenirShortage as e:
             raise BookingError(_souvenir_shortage_message(count, e.name, e.needed, e.stock))
 
+        # 문자 대상과 발송 기록('발송 중')을 신청과 같은 트랜잭션에서 만든다 (보내기 전 중단 대비, 설계 05장 §2.2).
+        # 실제 발송은 저장이 끝난 뒤에 한다. 기록 준비에 실패해도 신청은 저장한다.
+        recipients, plan = [], None
+        if recipient_ids:
+            for mid in sorted(set(recipient_ids)):
+                info = member_services.get_contact(mid)
+                if info:
+                    recipients.append(sms_service.SMSRecipient(mid, info[0], info[1]))
+            notice = sms_service.DepartureNotice(product.pk, product.name, product.departure_date)
+            try:
+                plan = sms_service.prepare_departure_confirmation(recipients, notice)
+            except Exception:
+                logger.exception("문자 발송 기록 준비 실패 application=%s", app.pk)
+                plan = sms_service.DeparturePlan(notice, [sms_service.SMSMessage(r, notice.message(r))
+                                                          for r in recipients if r.contact])
+
     # 저장이 끝난 뒤 문자 요청. 문자 실패는 신청·출발 상태를 되돌리지 않는다.
     result = ApplicationResult(app, app.current_departure_status(), newly_confirmed=newly_confirmed,
                                souvenirs_issued=issued)
-    if recipient_ids:
-        recipients = []
-        for mid in sorted(set(recipient_ids)):
-            info = member_services.get_contact(mid)
-            if info:
-                recipients.append(sms_service.SMSRecipient(mid, info[0], info[1]))
-        notice = sms_service.DepartureNotice(product.pk, product.name, product.departure_date)
+    if plan is not None:
         try:
-            result.sms = sms_service.send_departure_confirmation(recipients, notice)
-        except Exception:  # 문자 모듈 자체 오류도 신청 성공을 바꾸지 않음
+            result.sms = sms_service.deliver_departure_confirmation(plan)
+        except Exception:  # 문자 모듈 자체 오류도 신청 성공을 바꾸지 않음 (기록은 '발송 중'으로 남아 직원이 재발송)
             logger.exception("문자 요청 실패 application=%s", app.pk)
             result.sms = sms_service.SMSBatchResult(invalid=recipients)
         result.recipients = recipients
@@ -356,6 +366,17 @@ def find_submitted_application(member_id: int, request_key: str) -> TravelApplic
     if not request_key:
         return None
     return TravelApplication.objects.filter(member_id=member_id, request_key=request_key).first()
+
+
+def get_my_application(member_id: int, application_id: int) -> TravelApplication | None:
+    """고객 본인의 신청 1건. 다른 고객의 신청이면 None."""
+    return (TravelApplication.objects.select_related("product")
+            .filter(pk=application_id, member_id=member_id).first())
+
+
+def active_application_count(member_id: int) -> int:
+    """취소하지 않은 신청 수 (고객 홈 표시)."""
+    return TravelApplication.objects.filter(member_id=member_id, cancelled_at__isnull=True).count()
 
 
 def my_applications(member_id: int) -> list[TravelApplication]:

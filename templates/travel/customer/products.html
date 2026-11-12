@@ -166,6 +166,11 @@
         const why = { "no-speech": "음성이 들리지 않았습니다.", "not-allowed": "마이크 권한이 필요합니다.",
                       "audio-capture": "마이크를 찾을 수 없습니다." }[e.error] || "음성을 인식하지 못했습니다.";
         show("warning", why + " 다시 말하거나 화면에서 직접 선택해 주세요.");
+        // 실패 기록 (UC4 4a·7a). 기록 실패는 화면 동작에 영향 없음
+        fetch("{% url 'speech:failure' %}", {
+          method: "POST", headers: { "X-CSRFToken": csrf, "Content-Type": "application/json" },
+          body: JSON.stringify({ error: e.error }),
+        }).catch(() => {});
       };
       rec.onresult = e => send(e.results[0][0].transcript);
       rec.start();

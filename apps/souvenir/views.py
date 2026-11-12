@@ -7,11 +7,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
-from apps.members.decorators import staff_role_required
+from apps.members.decorators import staff_role_required, staff_role_required_json
 from apps.travel.choices import Theme
 
 from . import services
-from .models import Souvenir
 
 logger = logging.getLogger(__name__)
 PENDING_SESSION_KEY = "stock_receipt_pending"  # 요청 키별 입고 준비 문맥
@@ -50,7 +49,7 @@ def register_page(request):
     })
 
 
-@staff_role_required
+@staff_role_required_json
 @require_GET
 def souvenir_list(request):
     """LoadSouvenirs: 조회 실패는 빈 목록·재고 0과 구분해 오류로 응답."""
@@ -62,7 +61,7 @@ def souvenir_list(request):
     return JsonResponse({"ok": True, "souvenirs": [_souvenir_json(s) for s in souvenirs]})
 
 
-@staff_role_required
+@staff_role_required_json
 @require_POST
 def prepare_receipt(request):
     pending = request.session.get(PENDING_SESSION_KEY, {})
@@ -76,7 +75,7 @@ def prepare_receipt(request):
     return JsonResponse({"ok": True, **result})
 
 
-@staff_role_required
+@staff_role_required_json
 @require_POST
 def record_receipt(request):
     pending = request.session.get(PENDING_SESSION_KEY, {})
@@ -96,7 +95,8 @@ def record_receipt(request):
     if res.receipt:
         body["receipt"] = {"id": res.receipt.pk, "quantity": res.receipt.quantity,
                            "stock_after": res.receipt.stock_after}
-    status = {"SUCCESS": 200, "INVALID_INPUT": 400, "NOT_FOUND": 404, "CONFLICT": 409}.get(res.status.value, 500)
+    status = {"SUCCESS": 200, "INVALID_INPUT": 400, "PERMISSION_DENIED": 403, "NOT_FOUND": 404,
+              "CONFLICT": 409}.get(res.status.value, 500)
     return JsonResponse(body, status=status)
 
 
@@ -172,5 +172,5 @@ def issue_list(request):
     selected = int(selected) if selected and selected.isdigit() else None
     page = Paginator(services.load_issues(selected), 30).get_page(request.GET.get("page"))
     return render(request, "souvenir/issues.html", {
-        "page": page, "selected": selected, "souvenirs": Souvenir.objects.order_by("theme", "name"),
+        "page": page, "selected": selected, "souvenirs": services.load_all_souvenirs(),
     })

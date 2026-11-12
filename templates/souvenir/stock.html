@@ -115,6 +115,12 @@
     try {
       const res = await fetch(URLS.list);
       const data = await res.json();
+      if (data.status === "PERMISSION_DENIED") {
+        souvenirs = []; rows.innerHTML = "";
+        listError.textContent = data.message;
+        listError.hidden = false;
+        return;
+      }
       if (!data.ok) throw new Error(data.message);
       souvenirs = data.souvenirs;
       render();
@@ -154,9 +160,10 @@
       body: new URLSearchParams(body),
     });
     // 로그인 만료(로그인 화면으로 이동)·권한 없음(403)은 서버가 요청을 처리하기 전에 막은 것이라 반영되지 않았음이 확실하다
-    const authFailed = res.status === 403 || (res.redirected && new URL(res.url).pathname === URLS.login);
     let data = null;
-    if (!authFailed) { try { data = await res.json(); } catch (_) {} }
+    try { data = await res.json(); } catch (_) {}
+    const authFailed = (data && data.status === "PERMISSION_DENIED") || res.status === 403
+      || (res.redirected && new URL(res.url).pathname === URLS.login);
     return { res, data, authFailed };
   }
 

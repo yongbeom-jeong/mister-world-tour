@@ -27,11 +27,15 @@ MAX_PENDING_KEYS = 20  # 세션에 보관할 준비 문맥 수 (여러 탭 대�
 
 
 class StockReceiptStatus(str, Enum):
+    """입고 결과 (설계 06장 §5, 7가지)."""
+
     SUCCESS = "SUCCESS"
     INVALID_INPUT = "INVALID_INPUT"
+    PERMISSION_DENIED = "PERMISSION_DENIED"  # 직원 아님·로그인 만료 (staff_role_required_json 이 응답)
     NOT_FOUND = "NOT_FOUND"
     CONFLICT = "CONFLICT"
     SAVE_FAILED = "SAVE_FAILED"
+    RESULT_UNKNOWN = "RESULT_UNKNOWN"  # 응답을 받지 못함. 서버가 아니라 화면 스크립트가 판정하고 같은 키로만 재확인
 
 
 @dataclass
@@ -258,6 +262,11 @@ def delete_souvenir(souvenir_id: int) -> bool:
 
 
 # ---------------------------------------------------------------- 차감 내역 조회 (직원)
+
+def load_all_souvenirs() -> list[Souvenir]:
+    """숨긴 품목까지 포함한 전체 품목 (차감 내역 필터용)."""
+    return list(Souvenir.objects.order_by("theme", "name"))
+
 
 def load_issues(souvenir_id: int | None = None):
     """출발 확정 차감 내역 (최근 순). 신청·상품·고객은 표시용으로 함께 읽는다."""

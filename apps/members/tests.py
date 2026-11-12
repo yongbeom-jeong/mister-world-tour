@@ -122,3 +122,40 @@ class CaseInsensitiveUsernameTests(TestCase):
         with self.assertRaises(services.DuplicateAccountError):
             services.sign_up(member_type="CUSTOMER", username="HONG_GD", password="x", name="홍3", address="",
                              contact="010-1111-4444")
+
+
+class SignUpDBErrorTests(TestCase):
+    """UC1 5a: 가입 저장 중 DB 오류는 가입 여부를 확인해 안내한다."""
+
+    url = reverse("members:signup")
+
+    def test_not_saved(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+
+        from . import services
+        with mock.patch.object(services, "sign_up", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.members.views", "ERROR"):
+                res = self.client.post(self.url, signup_data())
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "가입되지 않았습니다")
+        self.assertFalse(Member.objects.exists())
+
+    def test_saved_then_error(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+
+        from . import services
+        original = services.sign_up
+
+        def saved_then_error(**kw):
+            original(**kw)
+            raise DatabaseError("응답 전 끊김")
+
+        with mock.patch.object(services, "sign_up", side_effect=saved_then_error):
+            with self.assertLogs("apps.members.views", "ERROR"):
+                res = self.client.post(self.url, signup_data(), follow=True)
+        self.assertRedirects(res, reverse("members:login"))
+        self.assertContains(res, "가입은 완료되었습니다")

@@ -178,6 +178,23 @@ def interpret_selection(recognized_text: str, context: VoiceSelectionContext) ->
                                 "테마·등급이나 상품을 말해 주세요. 예: '골프 그랜드', '몰디브', '두 번째 상품'")
 
 
+# ---------------------------------------------------------------- 브라우저 인식 실패 기록 (UC4 4a·7a)
+
+# Web Speech API 오류 코드 → 기록용 설명. 목록 밖 코드는 'other' 로 묶는다 (로그 오염 방지).
+BROWSER_ERRORS = {
+    "no-speech": "음성 없음", "not-allowed": "마이크 권한 거부", "audio-capture": "마이크 없음",
+    "network": "인식 서비스 연결 실패", "aborted": "인식 중단", "service-not-allowed": "인식 서비스 사용 불가",
+    "language-not-supported": "언어 미지원", "other": "기타",
+}
+
+
+def record_browser_failure(error_code: str, member_id: int | None) -> str:
+    """브라우저에서 끝난 음성 인식 실패를 기록한다. 서버까지 문장이 오지 않은 실패만 해당."""
+    code = error_code if error_code in BROWSER_ERRORS else "other"
+    logger.warning("음성 선택 실패 단계=브라우저 인식 오류=%s(%s) member=%s", code, BROWSER_ERRORS[code], member_id)
+    return code
+
+
 # ---------------------------------------------------------------- 관리자 (SpeechRecognitionAPI)
 
 def recognize_selection(voice_input: VoiceInput, context: VoiceSelectionContext, client=None) -> VoiceSelectionResult:

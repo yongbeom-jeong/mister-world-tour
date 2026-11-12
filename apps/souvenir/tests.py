@@ -251,3 +251,23 @@ class CaseInsensitiveSouvenirNameTests(TestCase):
             Souvenir.objects.create(name="golf towel", theme="GOLF")
         with self.assertRaises(services.SouvenirRegistrationError):
             services.register_souvenir("GOLF TOWEL", "GOLF")
+
+
+class StockReceiptPermissionTests(TestCase):
+    """설계 06장 §5: 권한 거부(로그인 만료 포함)를 JSON 상태로 돌려준다."""
+
+    def test_anonymous_and_customer_get_permission_denied_json(self):
+        customer = Member.objects.create_user(username="cust6", password="x", name="고객", contact="010-3")
+        ball = Souvenir.objects.get(name="골프공")
+        for login in (None, customer):
+            if login:
+                self.client.force_login(login)
+            for method, url, data in (("get", reverse("souvenir:list"), None),
+                                      ("post", reverse("souvenir:prepare"), {"souvenir_id": ball.pk, "quantity": 1}),
+                                      ("post", reverse("souvenir:record"),
+                                       {"souvenir_id": ball.pk, "quantity": 1, "request_key": "k"})):
+                with self.subTest(user=login, url=url):
+                    res = getattr(self.client, method)(url, data)
+                    self.assertEqual(res.status_code, 403)
+                    self.assertEqual(res.json()["status"], "PERMISSION_DENIED")
+        self.assertEqual(Souvenir.objects.get(pk=ball.pk).stock_quantity, ball.stock_quantity)
