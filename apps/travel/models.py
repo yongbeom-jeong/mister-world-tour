@@ -132,6 +132,8 @@ class TravelApplication(ConfigurationFields):
     departure_status = models.CharField(
         "출발 상태", max_length=10, choices=DepartureStatus.choices, null=True, blank=True
     )
+    # 고객 취소 시점. 출발 확정 전에만 취소할 수 있어 차감한 기념품이 없다. 취소한 신청은 인원·문자·차감에서 빠진다.
+    cancelled_at = models.DateTimeField("취소 시점", null=True, blank=True)
 
     class Meta:
         verbose_name = "여행 신청"
@@ -147,6 +149,10 @@ class TravelApplication(ConfigurationFields):
 
     def current_departure_status(self) -> str | None:
         return self.departure_status if self.product.is_honeymoon else self.product.departure_status
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.cancelled_at is not None
 
 
 class Traveler(models.Model):

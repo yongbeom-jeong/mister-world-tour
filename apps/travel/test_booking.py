@@ -428,3 +428,71 @@ class SeedWithApplicationsTests(TestCase):
         self.assertEqual(golf.departure_status, DepartureStatus.PENDING)
         self.assertEqual(booking.remaining_seats(filial), 2)
         self.assertEqual(filial.departure_status, DepartureStatus.CONFIRMED)
+
+
+class CancelTests(BookingTestBase):
+    def test_cancel_before_confirmation_frees_seats(self):
+        p = make_product()
+        r = self.book(self.alice, p, "동반")
+        booking.cancel_application(self.alice, r.application.pk)
+        r.application.refresh_from_db()
+        self.assertTrue(r.application.is_cancelled)
+        self.assertEqual(booking.current_traveler_count(p.pk), 0)
+        self.assertEqual(booking.remaining_seats(p), 10)
+
+    def test_cancelled_applicant_not_counted_or_notified_at_confirmation(self):
+        p = make_product()
+        first = self.book(self.alice, p, "동반")  # 2명
+        booking.cancel_application(self.alice, first.application.pk)
+        bob = customer("bob", contact="010-2000-0002")
+        r = self.book(bob, p, "a")  # 2명: 취소분을 빼면 확정 안 됨
+        self.assertFalse(r.newly_confirmed)
+        r = self.book(customer("carol", contact="010-3000-0003"), p)  # 3명째 → 확정
+        self.assertTrue(r.newly_confirmed)
+        self.assertNotIn(self.alice.pk, [x.member_id for x in r.recipients])
+        self.assertFalse(StockIssue.objects.filter(application=first.application).exists())
+
+    def test_confirmed_cannot_be_cancelled(self):
+        p = make_product()
+        r = self.book(self.alice, p, "a", "b")  # 3명 → 확정
+        with self.assertRaises(booking.BookingError) as cm:
+            booking.cancel_application(self.alice, r.application.pk)
+        self.assertIn("확정", cm.exception.message)
+        honeymoon = self.book(customer("bob"), make_product(Theme.HONEYMOON), "배우자")
+        self.assertIsNotNone(booking.cancel_block_reason(honeymoon.application))
+
+    def test_cannot_cancel_twice_or_others(self):
+        p = make_product()
+        r = self.book(self.alice, p)
+        with self.assertRaises(booking.BookingError):
+            booking.cancel_application(customer("mallory"), r.application.pk)
+        booking.cancel_application(self.alice, r.application.pk)
+        with self.assertRaises(booking.BookingError):
+            booking.cancel_application(self.alice, r.application.pk)
+
+    def test_cancel_http_flow(self):
+        p = make_product()
+        r = self.book(self.alice, p)
+        self.client.force_login(self.alice)
+        detail = reverse("travel:application_detail", args=[r.application.pk])
+        self.assertContains(self.client.get(detail), "출발이 확정되면 신청을 취소할 수 없어요")
+        res = self.client.post(reverse("travel:cancel_application", args=[r.application.pk]), follow=True)
+        self.assertRedirects(res, detail)
+        self.assertContains(res, "신청을 취소했습니다")
+        self.assertContains(res, "취소한 신청")
+        self.assertContains(self.client.get(reverse("travel:my_applications")), "취소함")
+
+    def test_cancel_others_application_404(self):
+        r = self.book(customer("bob"), make_product())
+        self.client.force_login(self.alice)
+        res = self.client.post(reverse("travel:cancel_application", args=[r.application.pk]))
+        self.assertEqual(res.status_code, 404)
+
+    def test_apply_review_shows_cancel_rule(self):
+        p = make_product()
+        self.client.force_login(self.alice)
+        self.client.post(reverse("travel:start_application", args=[p.pk]),
+                         {"config": json.dumps(cfg.default_configuration(p))})
+        res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["x"],
+                                                         "traveler_contact": [""]})
+        self.assertContains(res, "출발이 확정되면 신청을 취소할 수 없어요")

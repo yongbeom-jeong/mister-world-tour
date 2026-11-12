@@ -43,6 +43,11 @@
             <input type="hidden" name="request_key" value="{{ review.request_key }}">
             <button class="btn btn-gold btn-lg w-100" id="submit-btn"><i class="bi bi-check2-circle me-1"></i>이 내용으로 신청 확정</button>
           </form>
+          <div class="alert alert-warning small py-2 mt-3 mb-0" id="cancel-notice">
+            <i class="bi bi-exclamation-triangle me-1"></i>{{ cancel_rule }}
+            {% if product.is_honeymoon %}허니문은 신청과 함께 출발이 확정되므로 신청 후에는 취소할 수 없습니다.
+            {% else %}출발 인원 3명이 모이기 전까지만 '내 신청'에서 취소할 수 있습니다.{% endif %}
+          </div>
           <div class="small text-muted mt-2 text-center">여행자 정보를 고치면 금액을 다시 확인해야 합니다.</div>
         </div>
       </div>

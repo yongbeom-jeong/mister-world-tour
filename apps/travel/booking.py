@@ -61,8 +61,8 @@ def get_bookable_product(product_id: int) -> TravelProduct:
 
 
 def current_traveler_count(product_id: int) -> int:
-    """같은 상품에 저장된 실제 여행자 수 (모든 신청 합계)."""
-    return Traveler.objects.filter(application__product_id=product_id).count()
+    """같은 상품에 저장된 실제 여행자 수 (취소하지 않은 모든 신청 합계)."""
+    return Traveler.objects.filter(application__product_id=product_id, application__cancelled_at__isnull=True).count()
 
 
 def remaining_seats(product: TravelProduct) -> int:
@@ -278,9 +278,10 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
             product.update_departure_status(total)
             product.save(update_fields=["departure_status"])
             newly_confirmed = not was_confirmed and product.departure_status == DepartureStatus.CONFIRMED
-            if newly_confirmed:  # 새로 확정: 이 상품의 모든 신청 고객 (중복 제거)
-                recipient_ids = list(product.applications.values_list("member_id", flat=True).distinct())
-                to_issue = list(product.applications.annotate(n=Count("travelers")).values_list("pk", "n"))
+            if newly_confirmed:  # 새로 확정: 이 상품의 모든 신청 고객 (취소 제외, 중복 제거)
+                active = product.applications.filter(cancelled_at__isnull=True)
+                recipient_ids = list(active.values_list("member_id", flat=True).distinct())
+                to_issue = list(active.annotate(n=Count("travelers")).values_list("pk", "n"))
             elif was_confirmed:  # 이미 확정된 상품의 추가 신청: 새 신청 고객만
                 recipient_ids = [member.pk]
                 to_issue = [(app.pk, count)]
@@ -311,6 +312,41 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
             result.sms = sms_service.SMSBatchResult(invalid=recipients)
         result.recipients = recipients
     return result
+
+
+# ---------------------------------------------------------------- 신청 취소
+
+CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요."
+
+
+def cancel_block_reason(app: TravelApplication, today=None) -> str | None:
+    """취소할 수 없는 이유. 취소할 수 있으면 None. (화면 표시와 실제 취소에서 같은 규칙을 쓴다)"""
+    today = today or timezone.localdate()
+    if app.is_cancelled:
+        return "이미 취소한 신청입니다."
+    if app.current_departure_status() == DepartureStatus.CONFIRMED:
+        return "출발이 확정된 신청은 취소할 수 없습니다."
+    if app.product.departure_date <= today:
+        return "출발일이 지난 신청은 취소할 수 없습니다."
+    return None
+
+
+def cancel_application(member, application_id: int) -> TravelApplication:
+    """출발 확정 전 신청을 취소한다. 확정 판정과 겹치지 않게 상품을 잠근 뒤 다시 검사한다."""
+    with transaction.atomic():
+        product_id = (TravelApplication.objects.filter(pk=application_id, member=member)
+                      .values_list("product_id", flat=True).first())
+        if product_id is None:
+            raise BookingError("신청을 찾을 수 없습니다.")
+        TravelProduct.objects.select_for_update().filter(pk=product_id).first()  # 같은 상품의 신청·확정과 순서 맞춤
+        app = TravelApplication.objects.select_for_update().select_related("product").get(pk=application_id)
+        reason = cancel_block_reason(app)
+        if reason:
+            raise BookingError(reason)
+        app.cancelled_at = timezone.now()
+        app.save(update_fields=["cancelled_at"])
+    logger.info("신청 취소 application=%s member=%s", app.pk, member.pk)
+    return app
 
 
 def find_submitted_application(member_id: int, request_key: str) -> TravelApplication | None:

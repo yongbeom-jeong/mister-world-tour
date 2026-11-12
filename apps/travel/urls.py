@@ -14,6 +14,7 @@ urlpatterns = [
     path("apply/", customer_views.apply, name="apply"),
     path("applications/", customer_views.my_applications, name="my_applications"),
     path("applications/<int:application_id>/", customer_views.application_detail, name="application_detail"),
+    path("applications/<int:application_id>/cancel/", customer_views.cancel_application, name="cancel_application"),
     # 직원: 상품 등록·관리
     path("staff/products/new/", views.product_register, name="product_register"),
     path("staff/products/", views.product_manage, name="product_manage"),

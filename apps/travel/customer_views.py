@@ -181,7 +181,7 @@ def apply(request):
         "product": product, "config": draft["config"], "described": cfg.describe(draft["config"]),
         "unit_price": booking.calculate_unit_price(product, draft["config"]),
         "remaining": booking.remaining_seats(product), "travelers": draft.get("travelers") or [],
-        "errors": {}, "review": None,
+        "errors": {}, "review": None, "cancel_rule": booking.CANCEL_RULE,
     }
     action = request.POST.get("action") if request.method == "POST" else None
 
@@ -279,8 +279,22 @@ def application_detail(request, application_id: int):
               "drinks": cfg.normalize_drinks(app.extra_drinks)}
     return render(request, "travel/customer/application_detail.html", {
         "app": app, "travelers": app.travelers.all(), "described": cfg.describe(config),
-        "status": app.current_departure_status(),
+        "status": app.current_departure_status(), "cancel_block": booking.cancel_block_reason(app),
+        "cancel_rule": booking.CANCEL_RULE,
     })
+
+
+@customer_required
+@require_POST
+def cancel_application(request, application_id: int):
+    get_object_or_404(TravelApplication, pk=application_id, member=request.user)
+    try:
+        booking.cancel_application(request.user, application_id)
+    except booking.BookingError as e:
+        messages.error(request, e.message)
+    else:
+        messages.success(request, "신청을 취소했습니다.")
+    return redirect("travel:application_detail", application_id=application_id)
 
 
 @customer_required

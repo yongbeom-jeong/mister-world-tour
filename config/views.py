@@ -21,12 +21,12 @@ def home(request):
     if not user.is_authenticated or user.is_customer:
         ctx["featured"] = booking.bookable_products(None, None)[:6]
     if user.is_authenticated and user.is_customer:
-        ctx["my_count"] = TravelApplication.objects.filter(member=user).count()
+        ctx["my_count"] = TravelApplication.objects.filter(member=user, cancelled_at__isnull=True).count()
     if user.is_authenticated and user.is_staff_member:
         souvenirs = souvenir_services.load_souvenirs()
         ctx["stats"] = {
             "products": TravelProduct.objects.count(),
-            "applications": TravelApplication.objects.count(),
+            "applications": TravelApplication.objects.filter(cancelled_at__isnull=True).count(),
             "confirmed": TravelProduct.objects.filter(departure_status=DepartureStatus.CONFIRMED).count(),
             "low_stock": [s for s in souvenirs if s.stock_quantity < LOW_STOCK],
         }

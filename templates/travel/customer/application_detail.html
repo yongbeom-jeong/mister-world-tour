@@ -8,7 +8,9 @@
       <a href="{% url 'travel:my_applications' %}" class="text-white small text-decoration-none"><i class="bi bi-arrow-left"></i> 내 신청 목록</a>
       <h1 class="mt-3 mb-2">{{ app.product.name }}</h1>
       <p class="small mb-3">신청 번호 #{{ app.pk }}</p>
-      {% if status == "CONFIRMED" %}
+      {% if app.is_cancelled %}
+        <span class="tag tag-muted fs-6 px-3 py-2"><i class="bi bi-x-circle"></i> 취소한 신청 · {{ app.cancelled_at|date:"Y-m-d H:i" }}</span>
+      {% elif status == "CONFIRMED" %}
         <span class="tag tag-success fs-6 px-3 py-2"><i class="bi bi-check-circle-fill"></i> 출발 확정</span>
       {% else %}
         <span class="tag fs-6 px-3 py-2"><i class="bi bi-hourglass-split"></i> 출발 미확정 · 3명이 모이면 확정</span>
@@ -56,6 +58,31 @@
       </ul>
     </div>
   </div>
+</div>
+<div class="mwt-card mwt-card-body mt-4" id="cancel-section">
+  <h2 class="h6 mb-2"><i class="bi bi-x-circle me-1"></i>신청 취소</h2>
+  {% if not cancel_block %}
+    <p class="small text-muted mb-3">{{ cancel_rule }} 지금은 출발 확정 전이라 취소할 수 있습니다.</p>
+    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">신청 취소</button>
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header"><h2 class="modal-title h5" id="cancelModalLabel">신청을 취소할까요?</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button></div>
+          <div class="modal-body small">{{ app.product.name }} 신청(여행자 {{ travelers|length }}명)을 취소합니다. 취소한 신청은 되돌릴 수 없습니다.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
+            <form method="post" action="{% url 'travel:cancel_application' app.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-danger">신청 취소</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p class="small text-muted mb-0">{{ cancel_block }}{% if not app.is_cancelled %} ({{ cancel_rule }}){% endif %}</p>
+  {% endif %}
 </div>
 <div class="text-center mt-4">
   <a class="btn btn-outline-primary" href="{% url 'travel:products' %}">다른 여행 둘러보기</a>
