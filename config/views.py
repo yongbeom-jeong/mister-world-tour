@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db.models import Count
 from django.shortcuts import render
 
-from apps.members.views import SHOW_HISTORY_POPUP
 from apps.souvenir import services as souvenir_services
 from apps.travel import booking
 from apps.travel.choices import DepartureStatus
@@ -16,7 +15,7 @@ LOW_STOCK = 10  # 직원 대시보드에서 '재고 부족'으로 강조할 기�
 
 def home(request):
     """역할별 홈 (설계 UI MainView). 고객 로그인 직후 한 번만 이력 팝업을 연다."""
-    ctx = {"show_history_popup": request.session.pop(SHOW_HISTORY_POPUP, False)}
+    ctx = {}  # 로그인 직후 이력 팝업은 base.html + members.context_processors.history_popup 이 처리
     user = request.user
     if not user.is_authenticated or user.is_customer:
         ctx["featured"] = booking.bookable_products(None, None)[:6]

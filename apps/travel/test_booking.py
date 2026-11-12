@@ -581,3 +581,45 @@ class DepartureSMSLogTests(BookingTestBase):
         logs = SMSLog.objects.filter(product_id=p.pk)
         self.assertEqual(sorted(logs.values_list("recipient_name", flat=True)), ["bob", "앨리스"])
         self.assertTrue(all(s == "SUCCESS" for s in logs.values_list("status", flat=True)))
+
+
+class TripCountTests(BookingTestBase):
+    def test_several_applications_to_same_trip_count_once(self):
+        from . import services
+        p = make_product()
+        first = self.book(self.alice, p, "a", "b")  # 3명 → 확정
+        second = self.book(self.alice, p, "c")      # 같은 여행에 1명 추가 신청
+        TravelProduct.objects.filter(pk=p.pk).update(departure_date=timezone.localdate() - timedelta(days=10))
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 1)
+        h = TravelHistory.objects.get(member=self.alice)
+        self.assertEqual(h.price, first.application.final_amount + second.application.final_amount)
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)
+
+    def test_three_applications_to_one_trip_do_not_make_regular(self):
+        p = make_product()
+        for i in range(3):
+            self.book(self.alice, p, *([f"x{i}a", f"x{i}b"] if i == 0 else []))
+        TravelProduct.objects.filter(pk=p.pk).update(departure_date=timezone.localdate() - timedelta(days=10))
+        q = make_product(name="다음 여행")
+        review = booking.review_application(self.alice, q.pk, cfg.default_configuration(q), self.rows(self.alice))
+        self.assertFalse(review.breakdown.is_regular)
+
+
+class ProductListLoadTests(BookingTestBase):
+    def test_load_failure_is_not_shown_as_empty(self):
+        from django.db import DatabaseError
+        self.client.force_login(self.alice)
+        with mock.patch.object(booking, "bookable_products", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.client.get(reverse("travel:products"))
+        self.assertEqual(res.status_code, 503)
+        self.assertContains(res, "상품 목록을 불러오지 못했습니다", status_code=503)
+        self.assertContains(res, "다시 조회", status_code=503)
+        self.assertNotContains(res, "상품이 없습니다", status_code=503)
+
+    def test_no_products_vs_no_match(self):
+        self.client.force_login(self.alice)
+        self.assertContains(self.client.get(reverse("travel:products")), "지금 신청할 수 있는 여행 상품이 없습니다")
+        make_product(Theme.GOLF)
+        res = self.client.get(reverse("travel:products") + "?theme=TREKKING")
+        self.assertContains(res, "조건에 맞는 상품이 없습니다")

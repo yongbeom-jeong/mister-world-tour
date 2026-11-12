@@ -100,6 +100,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% if user.is_authenticated and user.is_customer %}{% include "travel/_history_modal.html" %}{% endif %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.functions import Lower
 
 from apps.travel.choices import Theme
 
@@ -17,6 +18,8 @@ class Souvenir(models.Model):
         verbose_name = "기념품"
         verbose_name_plural = "기념품"
         ordering = ["theme", "name"]
+        # 품목 이름은 대소문자를 무시하고 중복 금지 (숨긴 품목 포함). 동시 등록도 DB 에서 막는다.
+        constraints = [models.UniqueConstraint(Lower("name"), name="unique_souvenir_name_ci")]
 
     def __str__(self) -> str:
         return f"{self.name} ({self.get_theme_display()})"

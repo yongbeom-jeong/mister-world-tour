@@ -240,3 +240,14 @@ class SouvenirManageTests(TestCase):
             self.assertEqual(self.client.get(url).status_code, 403)
         self.assertEqual(self.client.post(reverse("souvenir:delete", args=[self.ball.pk])).status_code, 403)
         self.assertTrue(Souvenir.objects.filter(pk=self.ball.pk, is_active=True).exists())
+
+
+
+class CaseInsensitiveSouvenirNameTests(TestCase):
+    def test_db_rejects_same_name_with_different_case(self):
+        from django.db import IntegrityError, transaction
+        Souvenir.objects.create(name="Golf Towel", theme="GOLF")
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Souvenir.objects.create(name="golf towel", theme="GOLF")
+        with self.assertRaises(services.SouvenirRegistrationError):
+            services.register_souvenir("GOLF TOWEL", "GOLF")

@@ -1,8 +1,10 @@
 import logging
 
 from django.contrib import messages
+from django.db import DatabaseError
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.members.decorators import customer_required, staff_role_required
@@ -33,10 +35,22 @@ def product_register(request):
     """등록 화면. 관리 화면과 분리되어 있고 항상 빈 입력으로 시작한다."""
     form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
+        started = timezone.now()
         try:
             product = services.register_tour_product(form.input_data(), image=form.image_change())
         except images.InvalidImage as e:
             form.add_error("image", str(e))
+        except DatabaseError:
+            logger.exception("상품 등록 중 DB 오류")
+            saved = _find_after_error(form.input_data(), started)
+            if saved:  # 저장은 됐고 그 뒤에 오류: 다시 등록하지 않도록 저장된 상품으로 안내
+                messages.warning(request, f"처리 중 오류가 있었지만 '{saved.name}' 상품은 등록되었습니다. 내용을 확인해 주세요.")
+                return redirect("travel:product_manage_detail", product_id=saved.pk)
+            if saved is False:
+                messages.error(request, "일시적인 오류로 상품이 등록되지 않았습니다. 입력한 내용 그대로 다시 등록해 주세요.")
+            else:
+                messages.error(request, "일시적인 오류로 등록 여부를 확인하지 못했습니다. "
+                                        "상품 관리 목록에서 확인한 뒤 없으면 다시 등록해 주세요.")
         else:
             messages.success(request, f"'{product.name}' 상품을 등록했습니다.")
             return redirect("travel:product_manage_detail", product_id=product.pk)
@@ -52,6 +66,15 @@ def default_configuration(request):
     except ValueError as e:
         return JsonResponse({"ok": False, "message": str(e)}, status=400)
     return JsonResponse({"ok": True, "configuration": config})
+
+
+def _find_after_error(data: dict, since):
+    """DB 오류 뒤 등록 여부. 저장된 상품 / False(저장 안 됨) / None(확인 불가)."""
+    try:
+        return services.find_registered_since(data, since) or False
+    except DatabaseError:
+        logger.exception("상품 등록 여부 확인 실패")
+        return None
 
 
 # ---------------------------------------------------------------- 직원: 상품 관리 (UC7)
@@ -91,6 +114,11 @@ def product_manage_detail(request, product_id: int):
         except services.ProductNotFound:
             messages.error(request, "상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.")
             return redirect("travel:product_manage")
+        except DatabaseError:  # 수정은 한 트랜잭션이라 보통 반영되지 않는다. 저장된 값을 다시 보여 주어 확인하게 한다.
+            logger.exception("상품 수정 중 DB 오류 product=%s", product_id)
+            messages.error(request, "일시적인 오류로 수정이 반영되지 않았을 수 있습니다. "
+                                    "아래에 다시 불러온 저장 내용을 확인한 뒤 필요하면 다시 수정해 주세요.")
+            return redirect("travel:product_manage_detail", product_id=product_id)
         else:
             messages.success(request, f"'{product.name}' 상품을 수정했습니다.")
             return redirect("travel:product_manage_detail", product_id=product_id)
@@ -115,6 +143,9 @@ def product_delete(request, product_id: int):
         return redirect("travel:product_manage_detail", product_id=product_id)
     except services.ProductNotFound:
         messages.error(request, "상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.")
+    except DatabaseError:
+        logger.exception("상품 삭제 중 DB 오류 product=%s", product_id)
+        messages.error(request, "일시적인 오류로 삭제 여부를 확인하지 못했습니다. 목록에서 상품이 남아 있는지 확인해 주세요.")
     else:
         messages.success(request, f"'{name}' 상품을 삭제했습니다.")
     return redirect("travel:product_manage")

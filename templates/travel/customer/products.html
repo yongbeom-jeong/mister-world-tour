@@ -68,20 +68,30 @@
 </div>
 
 {% if notice %}<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ notice }}</div>{% endif %}
+{% if load_failed %}
+  <div class="alert alert-danger d-flex justify-content-between align-items-center gap-2" id="load-error">
+    <span><i class="bi bi-exclamation-octagon-fill me-1"></i>상품 목록을 불러오지 못했습니다. 잠시 후 다시 조회해 주세요.</span>
+    <a class="btn btn-sm btn-outline-danger text-nowrap" href="{{ request.get_full_path }}">다시 조회</a>
+  </div>
+{% endif %}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="text-muted small">{{ products|length }}개 상품 · 출발일이 가까운 순</div>
+  {% if not load_failed %}<div class="text-muted small">{{ products|length }}개 상품 · 출발일이 가까운 순</div>{% endif %}
 </div>
 
 <div class="row g-4 catalog-grid">
   {% for p in products %}
     <div class="col-md-6 col-lg-4">{% include "travel/customer/_product_card.html" with p=p %}</div>
   {% empty %}
-    {% if not notice %}
+    {% if not notice and not load_failed %}
       <div class="col-12">
         <div class="mwt-card mwt-card-body text-center py-5">
           <i class="bi bi-search fs-1 text-muted"></i>
-          <p class="mt-2 mb-0 text-muted">조건에 맞는 상품이 없습니다. 다른 테마나 등급을 골라 보세요.</p>
+          {% if filtered %}
+            <p class="mt-2 mb-0 text-muted">조건에 맞는 상품이 없습니다. 다른 테마나 등급을 골라 보세요.</p>
+          {% else %}
+            <p class="mt-2 mb-0 text-muted">지금 신청할 수 있는 여행 상품이 없습니다. 새 상품이 등록되면 이곳에 표시됩니다.</p>
+          {% endif %}
         </div>
       </div>
     {% endif %}

@@ -46,15 +46,21 @@ def product_browse(request):
     if filters.is_valid():
         theme = filters.cleaned_data["theme"] or None
         level = filters.cleaned_data["tour_level"] or None
+    load_failed = False
     if theme in (Theme.HONEYMOON, Theme.FILIAL) and level and level not in ALLOWED_LEVELS_FOR_RESTRICTED:
         notice = f"{Theme(theme).label}는 그랜드 또는 프리미엄 등급으로만 운영합니다."
         products = []
     else:
-        products = booking.bookable_products(theme, level)
+        try:
+            products = booking.bookable_products(theme, level)
+        except DatabaseError:  # 조회 실패를 '상품 없음'으로 보이지 않게 구분 (UC4 2a·5a)
+            logger.exception("상품 목록 조회 실패 theme=%s level=%s", theme, level)
+            products, load_failed = [], True
     return render(request, "travel/customer/products.html", {
         "filters": filters, "products": products, "notice": notice, "theme": theme, "level": level,
-        "themes": Theme.choices, "levels": TourLevel.choices,
-    })
+        "themes": Theme.choices, "levels": TourLevel.choices, "load_failed": load_failed,
+        "filtered": bool(theme or level),
+    }, status=503 if load_failed else 200)
 
 
 # ---------------------------------------------------------------- UC4 상품 선택·구성

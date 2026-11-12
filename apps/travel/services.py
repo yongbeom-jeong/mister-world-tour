@@ -53,7 +53,7 @@ def view_previous_travel_history(member_id: int) -> list[TravelHistory]:
 
 # ---------------------------------------------------------------- 완료 여행 이력
 
-HISTORY_ID_PREFIX = "application-"  # 신청에서 만든 이력의 completed_travel_id (신청마다 1건)
+HISTORY_ID_PREFIX = "product-"  # 신청에서 만든 이력의 completed_travel_id (고객·상품마다 1건)
 
 
 def trip_end_date(product: TravelProduct) -> date:
@@ -66,7 +66,9 @@ def complete_finished_trips(member_id: int | None = None, today: date | None = N
 
     대상: 취소하지 않았고 출발이 확정된 신청(허니문은 신청 상태, 그 외는 상품 상태) 중 여행 마지막 날이 지난 것.
     출발이 확정되지 않은 채 출발일이 지난 상품은 여행이 진행되지 않았으므로 이력이 되지 않는다.
-    이력은 신청 고객 계정에 1건, 가격은 실제 신청 금액(할인 반영). 여러 번 호출해도 중복되지 않는다.
+    완료 여행은 신청 건수가 아니라 실제 다녀온 여행으로 센다 (설계 05·07장): 같은 고객이 같은 상품에
+    신청을 여러 번 했어도 이력은 1건이고, 가격은 그 신청 금액(할인 반영)의 합계다.
+    여러 번 호출해도 중복되지 않는다.
     """
     today = today or timezone.localdate()
     confirmed = (Q(product__theme=Theme.HONEYMOON, departure_status=DepartureStatus.CONFIRMED)
@@ -77,19 +79,22 @@ def complete_finished_trips(member_id: int | None = None, today: date | None = N
     if member_id is not None:
         apps = apps.filter(member_id=member_id)
         done = done.filter(member_id=member_id)
-    done_ids = set(done.values_list("completed_travel_id", flat=True))
-    created = 0
+    done_keys = set(done.values_list("member_id", "completed_travel_id"))
+
+    trips: dict[tuple[int, str], dict] = {}  # (고객, 식별값) → 다녀온 여행 1건
     for app in apps:
-        key = f"{HISTORY_ID_PREFIX}{app.pk}"
-        end = trip_end_date(app.product)
-        if key in done_ids or end >= today:
+        product = app.product
+        key = (app.member_id, f"{HISTORY_ID_PREFIX}{product.pk}")
+        end = trip_end_date(product)
+        if key in done_keys or end >= today:
             continue
-        _, made = TravelHistory.objects.get_or_create(
-            member_id=app.member_id, completed_travel_id=key,
-            defaults=dict(product_name=app.product.name, tour_level=app.product.tour_level,
-                          travel_days=app.product.travel_days, price=app.final_amount,
-                          completed=True, completed_at=end),
-        )
+        trip = trips.setdefault(key, dict(product_name=product.name, tour_level=product.tour_level,
+                                          travel_days=product.travel_days, price=0, completed=True, completed_at=end))
+        trip["price"] += app.final_amount
+
+    created = 0
+    for (mid, travel_id), fields in trips.items():
+        _, made = TravelHistory.objects.get_or_create(member_id=mid, completed_travel_id=travel_id, defaults=fields)
         created += made
     if created:
         logger.info("완료 여행 이력 %s건 생성 member=%s", created, member_id if member_id is not None else "전체")
@@ -160,6 +165,13 @@ def register_tour_product(data: dict, image=None) -> TravelProduct:
     _apply_image(product, image)
     product.save()
     return product
+
+
+def find_registered_since(data: dict, since) -> TravelProduct | None:
+    """since 이후 같은 입력(이름·테마·출발일)으로 저장된 상품. 등록 중 오류 뒤 저장 여부 확인용."""
+    return (TravelProduct.objects.filter(name=data.get("name"), theme=data.get("theme"),
+                                         departure_date=data.get("departure_date"), created_at__gte=since)
+            .order_by("-id").first())
 
 
 def modify_tour_product(product_id: int, data: dict, image=None) -> TravelProduct:

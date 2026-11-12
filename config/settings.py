@@ -80,6 +80,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.travel.context_processors.site",
+                "apps.members.context_processors.history_popup",
             ],
         },
     },

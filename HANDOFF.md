@@ -30,7 +30,8 @@
 1. **AWS 서버 배포·갱신** (`deploy/DEPLOY.md`)
    - 서버 가동 여부부터 확인 (저장소로는 알 수 없음). 이 PC에는 서버 SSH 키·접속 설정이 없음 → 서버 IP·계정·`.pem` 위치 필요
    - 갱신: `BRANCH=main bash /srv/mwt/deploy/update.sh`
-     - 이번에 추가된 마이그레이션: `travel.0005`·`souvenir.0003`(11/11), `travel.0006`(취소), `sms.0001`(문자 기록), `souvenir.0004`(기념품 숨김)
+     - 이번에 추가된 마이그레이션: `travel.0005`·`souvenir.0003`(11/11), `travel.0006`(취소), `sms.0001`(문자 기록), `souvenir.0004`(기념품 숨김), `members.0002`·`souvenir.0005`(대소문자 무시 고유 제약)
+     - `members.0002`·`souvenir.0005` 는 서버 DB 에 대소문자만 다른 아이디·기념품 이름이 이미 있으면 실패한다. 실패하면 중복을 먼저 정리
    - 서버 `/srv/mwt/.env` 에 솔라피 4줄 + `SMS_ALLOWED_NUMBERS` 추가 → `sudo systemctl restart mwt`
    - 솔라피 콘솔에서 API Key 허용 IP에 **서버 공인 IP**(탄력적 IP 권장) 또는 AWS 대역 추가
    - 서버에서 `send_test_sms` 로 실제 수신 확인
