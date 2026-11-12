@@ -59,7 +59,8 @@ class SolapiSMSClient:
         if missing:
             raise ImproperlyConfigured(f"솔라피 문자 설정 누락: {', '.join(missing)} (.env 확인)")
 
-    def send_sms(self, contact: str, message: str) -> None:
+    def send_sms(self, contact: str, message: str) -> str:
+        """접수되면 솔라피 groupId 를 돌려준다 (발송 기록의 업체 접수 번호)."""
         to = digits_only(contact)
         if self.allowed and to not in self.allowed:
             raise SMSRejected(f"SMS_ALLOWED_NUMBERS 에 없는 번호라 보내지 않음 ({contact})")
@@ -93,4 +94,6 @@ class SolapiSMSClient:
         if failed:
             first = failed[0]
             raise SMSSendError(f"솔라피 접수 실패 {first.get('statusCode')}: {first.get('statusMessage')}")
-        logger.info("[SMS 솔라피 접수] to=%s group=%s", to, (data.get("groupInfo") or {}).get("groupId"))
+        group_id = (data.get("groupInfo") or {}).get("groupId") or ""
+        logger.info("[SMS 솔라피 접수] to=%s group=%s", to, group_id)
+        return group_id

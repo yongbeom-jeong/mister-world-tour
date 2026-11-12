@@ -34,6 +34,7 @@
             <li class="nav-item"><a class="nav-link {% if url == 'product_manage' or url == 'product_manage_detail' %}active{% endif %}" href="{% url 'travel:product_manage' %}">상품 관리</a></li>
             <li class="nav-item"><a class="nav-link {% if ns == 'souvenir' and url != 'register' %}active{% endif %}" href="{% url 'souvenir:stock' %}">기념품 입고</a></li>
             <li class="nav-item"><a class="nav-link {% if ns == 'souvenir' and url == 'register' %}active{% endif %}" href="{% url 'souvenir:register' %}">기념품 등록</a></li>
+            <li class="nav-item"><a class="nav-link {% if ns == 'sms' %}active{% endif %}" href="{% url 'sms:logs' %}">문자 기록</a></li>
           {% else %}
             {% for t in site_themes %}
               <li class="nav-item d-lg-none d-xl-block"><a class="nav-link" href="{% url 'home' %}#themes">{{ t.label|cut:" 투어" }}</a></li>

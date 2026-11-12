@@ -570,3 +570,14 @@ class TripCompletionTests(BookingTestBase):
         out = StringIO()
         call_command("complete_trips", stdout=out)
         self.assertIn("1건", out.getvalue())
+
+
+class DepartureSMSLogTests(BookingTestBase):
+    def test_confirmation_sms_is_logged_per_recipient(self):
+        from apps.sms.models import SMSLog
+        p = make_product()
+        self.book(self.alice, p, "a")
+        self.book(customer("bob", contact="010-2000-0002"), p)  # 3명 → 확정, 2명에게 문자
+        logs = SMSLog.objects.filter(product_id=p.pk)
+        self.assertEqual(sorted(logs.values_list("recipient_name", flat=True)), ["bob", "앨리스"])
+        self.assertTrue(all(s == "SUCCESS" for s in logs.values_list("status", flat=True)))
