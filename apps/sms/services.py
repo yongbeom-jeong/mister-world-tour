@@ -3,11 +3,14 @@
 - 수신 대상 선정과 출발 확정 판정은 Travel Management 가 한다. 여기서는 받은 대상에게 보내기만 한다.
 - 최초 발송 1회 + 명확한 실패 시 최대 3회 재시도 (전체 최대 4회 외부 호출).
 - 결과 불명(응답 시간 초과 등)은 실패로 바꿔 즉시 재발송하지 않는다 (중복 문자 방지).
+- 신청 요청 안에서 보내므로 한 번의 발송 묶음 전체에 시간 한도(settings.SMS_BATCH_TIME_LIMIT)를 둔다.
+  한도 안에 끝나지 못할 시도는 하지 않고 실패로 남긴다 (gunicorn 시간 초과로 화면이 502가 되는 것 방지).
 - settings.SMS_CLIENT 로 교체한다. 기본은 콘솔(로그)로 보내는 가짜 클라이언트,
   실제 발송은 솔라피 (apps/sms/solapi.py 의 SolapiSMSClient).
 """
 
 import logging
+import time
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -166,9 +169,18 @@ def get_client():
 
 # ---------------------------------------------------------------- 발송
 
-def send_departure_confirmation(recipients: list[SMSRecipient], notice: DepartureNotice, client=None) -> SMSBatchResult:
+def _attempt_fits(started: float, limit: float, call_timeout: float, clock) -> bool:
+    """남은 시간 안에 외부 호출 1회(최대 call_timeout 초)를 끝낼 수 있는지."""
+    return clock() - started + call_timeout <= limit
+
+
+def send_departure_confirmation(recipients: list[SMSRecipient], notice: DepartureNotice, client=None,
+                                clock=time.monotonic) -> SMSBatchResult:
     client = client or get_client()
     result = SMSBatchResult()
+    limit = getattr(settings, "SMS_BATCH_TIME_LIMIT", 40)
+    call_timeout = getattr(client, "timeout", 0)  # 외부 호출 1회의 최대 대기 시간 (가짜 클라이언트는 0)
+    started = clock()
     for r in recipients:
         if not r.contact or not notice.product_name or not notice.departure_date:
             logger.warning("문자 대상 정보 누락 product=%s member=%s", notice.product_id, r.member_id)
@@ -176,6 +188,13 @@ def send_departure_confirmation(recipients: list[SMSRecipient], notice: Departur
             continue
         msg = SMSMessage(r, notice.message(r))
         while True:
+            if not _attempt_fits(started, limit, call_timeout, clock):
+                if msg.attempt_count == 0:  # 한 번도 못 보냄: 보내지 않았음이 확실하므로 실패
+                    msg.status = SMSDeliveryStatus.FAILED
+                    msg.last_error = f"발송 시간 한도({limit}초) 초과로 보내지 않음"
+                    logger.warning("문자 발송 시간 한도 초과로 보내지 않음 product=%s member=%s",
+                                   notice.product_id, r.member_id)
+                break  # 재시도 중이면 마지막 실패 상태를 그대로 둔다
             rejected = False
             try:
                 client.send_sms(r.contact, msg.message)

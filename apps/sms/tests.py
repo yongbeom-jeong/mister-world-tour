@@ -100,6 +100,60 @@ class SendDepartureConfirmationTests(SimpleTestCase):
         self.assertEqual(result.failed, 1)
 
 
+class FakeClock:
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self):
+        return self.now
+
+
+class SlowClient:
+    """호출마다 timeout 초를 다 쓰고 결과 불명 (응답 시간 초과 상황)."""
+
+    def __init__(self, clock, timeout=10, error=sms.SMSUnknownResult):
+        self.clock, self.timeout, self.error = clock, timeout, error
+        self.calls = []
+
+    def send_sms(self, contact, message):
+        self.calls.append(contact)
+        self.clock.now += self.timeout
+        raise self.error("느림")
+
+
+@override_settings(SMS_BATCH_TIME_LIMIT=40)
+class BatchTimeLimitTests(SimpleTestCase):
+    def recipients(self, n):
+        return [sms.SMSRecipient(i, f"고객{i}", f"010-1000-{i:04d}") for i in range(n)]
+
+    def test_stops_before_exceeding_limit(self):
+        clock = FakeClock()
+        client = SlowClient(clock)
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            result = sms.send_departure_confirmation(self.recipients(10), NOTICE, client=client, clock=clock)
+        self.assertEqual(len(client.calls), 4)  # 10초 × 4 = 40초까지만
+        self.assertLessEqual(clock.now, 40)
+        self.assertEqual(result.total, 10)
+        self.assertEqual((result.unknown, result.failed), (4, 6))
+        skipped = [m for m in result.messages if m.attempt_count == 0]
+        self.assertEqual(len(skipped), 6)
+        self.assertIn("시간 한도", skipped[0].last_error)
+
+    def test_retries_also_respect_limit(self):
+        clock = FakeClock()
+        client = SlowClient(clock, timeout=15, error=sms.SMSSendError)
+        with self.assertLogs("apps.sms.services", "WARNING"):
+            result = sms.send_departure_confirmation(self.recipients(1), NOTICE, client=client, clock=clock)
+        self.assertEqual(len(client.calls), 2)  # 15 + 15 = 30, 세 번째는 45초라 시도 안 함
+        self.assertEqual(result.messages[0].attempt_count, 2)
+        self.assertEqual(result.failed, 1)
+
+    def test_fast_client_sends_all(self):
+        client = FlakyClient(failures=0)  # timeout 속성 없음 = 대기 0
+        result = sms.send_departure_confirmation(self.recipients(10), NOTICE, client=client)
+        self.assertEqual(result.success, 10)
+
+
 # ---------------------------------------------------------------- 솔라피 클라이언트 (실제 네트워크 호출 없음)
 
 SOLAPI = dict(SOLAPI_API_KEY="KEY", SOLAPI_API_SECRET="SECRET", SOLAPI_SENDER="010-9999-0000",
