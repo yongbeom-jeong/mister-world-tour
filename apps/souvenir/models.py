@@ -10,6 +10,8 @@ class Souvenir(models.Model):
     name = models.CharField("품목 이름", max_length=50, unique=True)
     theme = models.CharField("대응 테마", max_length=10, choices=Theme.choices)
     stock_quantity = models.PositiveIntegerField("현재 재고", default=0)
+    # 입고·차감 내역이 있는 품목을 삭제하면 내역 보존을 위해 숨긴다. 숨긴 품목은 신청 검사·차감·입고에서 빠진다.
+    is_active = models.BooleanField("사용 중", default=True)
 
     class Meta:
         verbose_name = "기념품"

@@ -150,3 +150,93 @@ class SouvenirRegistrationTests(TestCase):
         self.assertEqual(self.client.get(self.url).status_code, 403)
         self.assertEqual(self.client.post(self.url, {"name": "a", "theme": "GOLF"}).status_code, 403)
         self.assertEqual(Souvenir.objects.count(), 4)
+
+
+class SouvenirManageTests(TestCase):
+    """직원: 기념품 수정·삭제·차감 내역."""
+
+    def setUp(self):
+        self.staff = Member.objects.create_user(username="staff8", password="x", name="직원", contact="010-1",
+                                                role=Member.Role.STAFF)
+        self.client.force_login(self.staff)
+        self.ball = Souvenir.objects.get(name="골프공")
+
+    def receive(self, souvenir, qty=5):
+        pending = {}
+        key = services.prepare_stock_receipt(pending, self.staff.pk, souvenir.pk, qty)["request_key"]
+        services.record_souvenir_stock_receipt(pending, self.staff.pk, souvenir.pk, qty, key)
+
+    def test_edit_name_and_theme(self):
+        gloves = services.register_souvenir("골프 장갑", "GOLF")
+        res = self.client.post(reverse("souvenir:edit", args=[gloves.pk]), {"name": "트레킹 장갑", "theme": "TREKKING"})
+        self.assertRedirects(res, reverse("souvenir:manage"))
+        gloves.refresh_from_db()
+        self.assertEqual((gloves.name, gloves.theme), ("트레킹 장갑", "TREKKING"))
+        self.assertIn("트레킹 장갑", services.souvenir_names_for_theme("TREKKING"))
+
+    def test_edit_validation_and_duplicate_name(self):
+        gloves = services.register_souvenir("골프 장갑", "GOLF")
+        res = self.client.post(reverse("souvenir:edit", args=[gloves.pk]), {"name": "골프공", "theme": "GOLF"})
+        self.assertIn("name", res.context["errors"])
+        res = self.client.post(reverse("souvenir:edit", args=[gloves.pk]), {"name": "골프 장갑", "theme": "GOLF"})
+        self.assertRedirects(res, reverse("souvenir:manage"))  # 자기 이름 그대로는 허용
+
+    def test_moving_last_souvenir_warns_theme_unbookable(self):
+        res = self.client.post(reverse("souvenir:edit", args=[self.ball.pk]), {"name": "골프공", "theme": "TREKKING"},
+                               follow=True)
+        self.assertContains(res, "이 테마 상품은 신청할 수 없습니다")
+
+    def test_delete_without_history_removes_row(self):
+        gloves = services.register_souvenir("골프 장갑", "GOLF")
+        res = self.client.post(reverse("souvenir:delete", args=[gloves.pk]), follow=True)
+        self.assertContains(res, "삭제했습니다")
+        self.assertFalse(Souvenir.objects.filter(pk=gloves.pk).exists())
+
+    def test_delete_with_history_hides_and_keeps_records(self):
+        gloves = services.register_souvenir("골프 장갑", "GOLF")
+        self.receive(gloves)
+        res = self.client.post(reverse("souvenir:delete", args=[gloves.pk]), follow=True)
+        self.assertContains(res, "내역은 기록으로 남겨 둡니다")
+        gloves.refresh_from_db()
+        self.assertFalse(gloves.is_active)
+        self.assertEqual(StockReceipt.objects.filter(souvenir=gloves).count(), 1)
+        self.assertNotIn("골프 장갑", services.souvenir_names_for_theme("GOLF"))  # 신청 검사·차감 제외
+        self.assertNotIn(gloves, services.load_souvenirs())  # 입고 목록 제외
+        with self.assertRaises(services.StockReceiptError):
+            services.prepare_stock_receipt({}, self.staff.pk, gloves.pk, 1)
+        self.assertEqual(self.client.get(reverse("souvenir:edit", args=[gloves.pk])).status_code, 302)
+        with self.assertRaises(services.SouvenirRegistrationError):  # 숨긴 품목 이름은 다시 쓰지 않음
+            services.register_souvenir("골프 장갑", "GOLF")
+
+    def test_issue_list_shows_deductions(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from apps.travel import booking
+        from apps.travel import configuration as cfg
+        from apps.travel.models import TravelProduct
+        Souvenir.objects.update(stock_quantity=50)
+        p = TravelProduct(name="다낭 골프", destination="다낭", theme="GOLF", tour_level="GRAND", base_price=1_000_000,
+                          travel_days=4, departure_date=timezone.localdate() + timedelta(days=30))
+        p.apply_default_configuration()
+        p.save()
+        customer = Member.objects.create_user(username="cust8", password="x", name="고객팔", contact="010-1234-5678")
+        review = booking.review_application(customer, p.pk, cfg.default_configuration(p),
+                                            [{"name": "", "contact": ""}, {"name": "a"}, {"name": "b"}])
+        booking.submit_travel_application(customer, review)  # 3명 → 확정, 골프공 3개 차감
+        res = self.client.get(reverse("souvenir:issues") + f"?souvenir={self.ball.pk}")
+        self.assertContains(res, "다낭 골프")
+        self.assertContains(res, "고객팔")
+        self.assertContains(res, "−3개")
+        self.assertContains(res, "47개")
+
+    def test_manage_pages_staff_only(self):
+        customer = Member.objects.create_user(username="cust7", password="x", name="고객", contact="010-2")
+        self.assertContains(self.client.get(reverse("souvenir:manage")), "골프공")
+        self.client.force_login(customer)
+        for url in (reverse("souvenir:manage"), reverse("souvenir:issues"),
+                    reverse("souvenir:edit", args=[self.ball.pk])):
+            self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertEqual(self.client.post(reverse("souvenir:delete", args=[self.ball.pk])).status_code, 403)
+        self.assertTrue(Souvenir.objects.filter(pk=self.ball.pk, is_active=True).exists())
