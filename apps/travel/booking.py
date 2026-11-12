@@ -22,6 +22,7 @@ from apps.sms import services as sms_service
 from apps.souvenir import services as souvenir_services
 
 from . import configuration as cfg
+from . import services as travel_services
 from .choices import GROUP_CAPACITY, GROUP_MIN_DEPARTURE, HONEYMOON_PARTY_SIZE, DepartureStatus
 from .models import Traveler, TravelApplication, TravelHistory, TravelProduct
 from .pricing import PriceBreakdown, calculate_application_price, calculate_unit_price
@@ -179,6 +180,7 @@ def _check_business_rules(product: TravelProduct, traveler_count: int, current_c
 
 
 def _price(product: TravelProduct, member_id: int, config: dict, traveler_count: int) -> PriceBreakdown:
+    travel_services.complete_finished_trips(member_id)  # 다녀온 여행을 이력에 반영한 뒤 단골 여부 판단
     histories = TravelHistory.objects.filter(member_id=member_id)
     unit = calculate_unit_price(product, config)
     return calculate_application_price(unit, traveler_count, histories, timezone.localdate())

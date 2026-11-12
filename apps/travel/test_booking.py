@@ -496,3 +496,77 @@ class CancelTests(BookingTestBase):
         res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["x"],
                                                          "traveler_contact": [""]})
         self.assertContains(res, "출발이 확정되면 신청을 취소할 수 없어요")
+
+
+class TripCompletionTests(BookingTestBase):
+    """다녀온 여행(출발 확정 + 마지막 날 지남)만 완료 이력이 된다."""
+
+    def travel(self, product, days_ago):
+        """신청 뒤 출발일을 과거로 옮긴다 (여행 기간 4일)."""
+        TravelProduct.objects.filter(pk=product.pk).update(
+            departure_date=timezone.localdate() - timedelta(days=days_ago))
+
+    def histories(self, member):
+        return list(TravelHistory.objects.filter(member=member))
+
+    def test_confirmed_trip_becomes_history_after_last_day(self):
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        r = self.book(self.alice, p, "배우자")
+        self.travel(p, 3)  # 4일 여행의 마지막 날이 오늘 → 아직 여행 중
+        from . import services
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)
+        self.travel(p, 4)  # 어제 끝남
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 1)
+        h = self.histories(self.alice)[0]
+        self.assertTrue(h.completed)
+        self.assertEqual(h.completed_at, timezone.localdate() - timedelta(days=1))
+        self.assertEqual((h.product_name, h.price), (p.name, r.application.final_amount))
+        self.assertEqual(services.complete_finished_trips(self.alice.pk), 0)  # 중복 없음
+
+    def test_unconfirmed_or_cancelled_trip_is_not_history(self):
+        from . import services
+        pending = make_product(name="미확정")
+        self.book(self.alice, pending)  # 1명 → 미확정
+        cancelled = make_product(name="취소")
+        r = self.book(self.alice, cancelled)
+        booking.cancel_application(self.alice, r.application.pk)
+        for p in (pending, cancelled):
+            self.travel(p, 30)
+        self.assertEqual(services.complete_finished_trips(), 0)
+
+    def test_every_applicant_of_group_gets_history(self):
+        from . import services
+        p = make_product()
+        bob = customer("bob", contact="010-2000-0002")
+        self.book(self.alice, p, "a")
+        self.book(bob, p)  # 3명 → 확정
+        self.travel(p, 10)
+        self.assertEqual(services.complete_finished_trips(), 2)
+        self.assertEqual(len(self.histories(self.alice)), 1)
+        self.assertEqual(len(self.histories(bob)), 1)
+
+    def test_history_popup_and_discount_reflect_finished_trips(self):
+        trips = []
+        for i in range(3):  # 다녀온 허니문 3번 → 단골
+            p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM, name=f"다녀온 여행 {i}")
+            self.book(self.alice, p, "배우자")
+            trips.append(p)
+        for p in trips:
+            self.travel(p, 20)
+        self.client.force_login(self.alice)
+        res = self.client.get(reverse("travel:history"))
+        self.assertContains(res, "다녀온 여행 0")
+        review = booking.review_application(self.alice, make_product().pk, cfg.default_configuration(make_product()),
+                                            self.rows(self.alice))
+        self.assertTrue(review.breakdown.is_regular)
+
+    def test_complete_trips_command(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+        p = make_product(Theme.HONEYMOON, TourLevel.PREMIUM)
+        self.book(self.alice, p, "배우자")
+        self.travel(p, 10)
+        out = StringIO()
+        call_command("complete_trips", stdout=out)
+        self.assertIn("1건", out.getvalue())

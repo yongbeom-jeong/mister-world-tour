@@ -3,14 +3,29 @@
 뷰는 권한 확인과 입력 형식 검사만 하고, 업무 처리는 이 모듈의 함수를 호출한다.
 """
 
+import logging
+from datetime import date, timedelta
+
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
+from django.utils import timezone
 
 from apps.souvenir import services as souvenir_services
 
 from . import images
-from .choices import LEVEL_DEFAULTS, THEME_DEFAULTS, HotelLevel, MealOption, Theme, TourLevel, TransportOption
-from .models import TravelHistory, TravelProduct
+from .choices import (
+    LEVEL_DEFAULTS,
+    THEME_DEFAULTS,
+    DepartureStatus,
+    HotelLevel,
+    MealOption,
+    Theme,
+    TourLevel,
+    TransportOption,
+)
+from .models import TravelApplication, TravelHistory, TravelProduct
+
+logger = logging.getLogger(__name__)
 
 # 등록·수정 시 직원이 입력하는 필드 (기본 구성·출발 상태는 시스템이 결정)
 PRODUCT_INPUT_FIELDS = (
@@ -29,10 +44,56 @@ class ProductHasApplications(Exception):
 # ---------------------------------------------------------------- 조회
 
 def view_previous_travel_history(member_id: int) -> list[TravelHistory]:
-    """UC3 이전 여행 이력: 완료일 최근 순, 완료일 없는 기록은 뒤로."""
+    """UC3 이전 여행 이력: 완료일 최근 순, 완료일 없는 기록은 뒤로. 끝난 여행을 먼저 이력에 반영한다."""
+    complete_finished_trips(member_id)
     return list(
         TravelHistory.objects.filter(member_id=member_id).order_by(F("completed_at").desc(nulls_last=True), "-id")
     )
+
+
+# ---------------------------------------------------------------- 완료 여행 이력
+
+HISTORY_ID_PREFIX = "application-"  # 신청에서 만든 이력의 completed_travel_id (신청마다 1건)
+
+
+def trip_end_date(product: TravelProduct) -> date:
+    """여행 마지막 날 (출발일이 1일째)."""
+    return product.departure_date + timedelta(days=max(product.travel_days, 1) - 1)
+
+
+def complete_finished_trips(member_id: int | None = None, today: date | None = None) -> int:
+    """다녀온 여행을 완료 이력으로 만든다. 만든 이력 수를 돌려준다.
+
+    대상: 취소하지 않았고 출발이 확정된 신청(허니문은 신청 상태, 그 외는 상품 상태) 중 여행 마지막 날이 지난 것.
+    출발이 확정되지 않은 채 출발일이 지난 상품은 여행이 진행되지 않았으므로 이력이 되지 않는다.
+    이력은 신청 고객 계정에 1건, 가격은 실제 신청 금액(할인 반영). 여러 번 호출해도 중복되지 않는다.
+    """
+    today = today or timezone.localdate()
+    confirmed = (Q(product__theme=Theme.HONEYMOON, departure_status=DepartureStatus.CONFIRMED)
+                 | (~Q(product__theme=Theme.HONEYMOON) & Q(product__departure_status=DepartureStatus.CONFIRMED)))
+    apps = (TravelApplication.objects.filter(confirmed, cancelled_at__isnull=True, product__departure_date__lt=today)
+            .select_related("product"))
+    done = TravelHistory.objects.filter(completed_travel_id__startswith=HISTORY_ID_PREFIX)
+    if member_id is not None:
+        apps = apps.filter(member_id=member_id)
+        done = done.filter(member_id=member_id)
+    done_ids = set(done.values_list("completed_travel_id", flat=True))
+    created = 0
+    for app in apps:
+        key = f"{HISTORY_ID_PREFIX}{app.pk}"
+        end = trip_end_date(app.product)
+        if key in done_ids or end >= today:
+            continue
+        _, made = TravelHistory.objects.get_or_create(
+            member_id=app.member_id, completed_travel_id=key,
+            defaults=dict(product_name=app.product.name, tour_level=app.product.tour_level,
+                          travel_days=app.product.travel_days, price=app.final_amount,
+                          completed=True, completed_at=end),
+        )
+        created += made
+    if created:
+        logger.info("완료 여행 이력 %s건 생성 member=%s", created, member_id if member_id is not None else "전체")
+    return created
 
 
 def load_products(theme: str | None = None, level: str | None = None) -> list[TravelProduct]:
