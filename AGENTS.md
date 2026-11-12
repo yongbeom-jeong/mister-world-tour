@@ -17,6 +17,7 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
   - SQLite는 `select_for_update` 잠금을 무시하므로, 동시성(정원·재고) 로직은 배포 서버의 PostgreSQL에서 다시 확인
 - 데모 데이터: `.venv/Scripts/python manage.py seed_demo` (여러 번 실행해도 중복 없음, 비밀번호 `demo1234!`)
   - `staff1` 직원 / `regular1` 단골 고객(3년 내 완료 3회) / `customer2` 비단골(3년 내 2회) / `newbie` 이력 없음
+- 평가 항목 측정: `.venv/Scripts/python manage.py measure_evaluation [--list] [--csv 파일]` (seed_demo 필요. 음성 명령 20개 서버 해석 + 목록·이력 조회 각 10회 응답 시간)
 
 ## 구조와 설계 대응
 설계 산출물(docs/설계산출물, 원고는 저장소 밖 ../output/설계산출물/*.md)의 서브시스템을 앱으로 나눈다.
