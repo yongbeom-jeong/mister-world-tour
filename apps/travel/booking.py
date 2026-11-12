@@ -212,6 +212,21 @@ class PriceChanged(BookingError):
     """검토 이후 금액이 바뀌어 다시 확인이 필요함."""
 
 
+def _same_request(existing: TravelApplication, member, product: TravelProduct, review: Review) -> bool:
+    """같은 요청 키로 저장된 신청이 이번 제출과 고객·상품·구성·여행자까지 같은지."""
+    if existing.member_id != member.pk or existing.product_id != product.pk:
+        return False
+    saved_config = (existing.hotel_level, existing.transport, existing.meal,
+                    cfg.normalize_drinks(existing.extra_drinks))
+    config = review.config
+    if saved_config != (config.get("hotel_level"), config.get("transport"), config.get("meal"),
+                        cfg.normalize_drinks(config.get("drinks"))):
+        return False
+    saved_travelers = list(existing.travelers.order_by("pk").values_list("name", "contact", "is_applicant"))
+    travelers = [(t["name"], t["contact"], t["is_applicant"]) for t in review.travelers]
+    return saved_travelers == travelers
+
+
 def submit_travel_application(member, review: Review) -> ApplicationResult:
     if review.member_id != member.pk:
         raise BookingError("다른 고객의 신청 내용입니다. 다시 검토해 주세요.")
@@ -224,7 +239,7 @@ def submit_travel_application(member, review: Review) -> ApplicationResult:
 
         existing = TravelApplication.objects.filter(request_key=review.request_key).first()
         if existing:  # 같은 확인 제출의 재시도 → 기존 결과
-            if existing.member_id != member.pk or existing.product_id != product.pk:
+            if not _same_request(existing, member, product, review):
                 raise BookingError("이미 다른 내용으로 처리된 신청 요청입니다.")
             return ApplicationResult(existing, existing.current_departure_status(), duplicate=True)
 

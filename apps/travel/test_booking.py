@@ -4,6 +4,7 @@ import json
 from datetime import timedelta
 from unittest import mock
 
+from django.db import DatabaseError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -205,6 +206,23 @@ class SubmitTests(BookingTestBase):
         self.assertEqual(TravelApplication.objects.count(), 1)
         self.assertEqual(booking.current_traveler_count(p.pk), 1)
 
+    def test_resubmit_same_key_with_different_content_is_rejected(self):
+        p = make_product()
+        review = booking.review_application(self.alice, p.pk, cfg.default_configuration(p),
+                                            self.rows(self.alice, "동반"))
+        booking.submit_travel_application(self.alice, review)
+        changed_travelers = booking.Review(review.request_key, review.product_id, review.member_id, review.config,
+                                           review.travelers[:1] + [{"name": "다른 사람", "contact": "",
+                                                                    "is_applicant": False}], review.breakdown)
+        other_hotel = "STAR3" if review.config["hotel_level"] != "STAR3" else "STAR4"
+        changed_config = booking.Review(review.request_key, review.product_id, review.member_id,
+                                        {**review.config, "hotel_level": other_hotel}, review.travelers,
+                                        review.breakdown)
+        for changed in (changed_travelers, changed_config):
+            with self.assertRaises(booking.BookingError):
+                booking.submit_travel_application(self.alice, changed)
+        self.assertEqual(TravelApplication.objects.count(), 1)
+
     def test_price_change_after_review_is_not_saved(self):
         p = make_product()
         review = booking.review_application(self.alice, p.pk, cfg.default_configuration(p), self.rows(self.alice))
@@ -335,6 +353,54 @@ class ApplyFlowHttpTests(BookingTestBase):
         self.assertRedirects(res, reverse("travel:application_detail", args=[app.pk]))
         self.assertContains(res, "이미 처리된 신청입니다")
         self.assertEqual(TravelApplication.objects.count(), 1)
+
+    def reviewed(self):
+        """그룹 상품 1명 신청을 검토까지 진행하고 요청 키를 돌려준다."""
+        p = make_product()
+        self.client.force_login(self.alice)
+        self.client.post(reverse("travel:start_application", args=[p.pk]),
+                         {"config": json.dumps(cfg.default_configuration(p))})
+        res = self.client.post(reverse("travel:apply"), {"action": "review", "traveler_name": ["무시됨"],
+                                                         "traveler_contact": [""]})
+        return res.context["review"].request_key
+
+    def submit(self, key):
+        return self.client.post(reverse("travel:apply"), {"action": "submit", "request_key": key})
+
+    def test_db_error_before_save_keeps_review_for_retry(self):
+        key = self.reviewed()
+        with mock.patch.object(booking, "submit_travel_application", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.submit(key)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "신청이 저장되지 않았습니다")
+        self.assertEqual(res.context["review"].request_key, key)  # 같은 키로 다시 제출 가능
+        self.assertFalse(TravelApplication.objects.exists())
+        res = self.submit(key)  # 다시 누르면 정상 저장
+        self.assertEqual(TravelApplication.objects.count(), 1)
+
+    def test_db_error_after_save_shows_saved_application(self):
+        key = self.reviewed()
+        original = booking.submit_travel_application
+
+        def saved_then_error(*args, **kwargs):
+            original(*args, **kwargs)
+            raise DatabaseError("응답 전 끊김")
+
+        with mock.patch.object(booking, "submit_travel_application", side_effect=saved_then_error):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.submit(key)
+        app = TravelApplication.objects.get()
+        self.assertRedirects(res, reverse("travel:application_detail", args=[app.pk]))
+        self.assertNotIn(key, self.client.session.get("application_reviews", {}))
+
+    def test_db_error_and_lookup_failure_says_unknown(self):
+        key = self.reviewed()
+        with mock.patch.object(booking, "submit_travel_application", side_effect=DatabaseError("끊김")), \
+                mock.patch.object(booking, "find_submitted_application", side_effect=DatabaseError("끊김")):
+            with self.assertLogs("apps.travel.customer_views", "ERROR"):
+                res = self.submit(key)
+        self.assertContains(res, "반영 여부를 확인하지 못했습니다")
 
     def test_apply_without_selection_redirects(self):
         self.client.force_login(self.alice)

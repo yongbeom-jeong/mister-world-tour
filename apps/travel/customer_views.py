@@ -1,8 +1,10 @@
 """고객 화면: 상품 선택·구성(UC4)과 여행 신청(UC5). 설계 UI 5장 TravelProductView, 6장 TravelApplicationView."""
 
 import json
+import logging
 
 from django.contrib import messages
+from django.db import DatabaseError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -31,6 +33,7 @@ DRAFT_KEY = "application_draft"      # 신청 화면으로 넘긴 상품·구성
 REVIEWS_KEY = "application_reviews"  # 요청 키별 검토 내용
 MAX_REVIEWS = 10
 MAX_TRAVELER_ROWS = 10
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------- UC4 상품 목록
@@ -208,15 +211,42 @@ def apply(request):
             except booking.BookingError as e:
                 messages.error(request, e.message)
                 ctx["errors"] = e.errors
+            except DatabaseError:
+                logger.exception("신청 등록 중 DB 오류 member=%s key=%s", request.user.pk, key)
+                done = _find_after_db_error(request.user.pk, key)
+                if done:  # 저장은 끝났고 그 뒤에 오류: 검토 내용을 정리하고 저장된 신청으로 안내
+                    _forget_review(request, key)
+                    messages.warning(request, "처리 중 오류가 있었지만 신청은 저장되었습니다. 신청 내용을 확인해 주세요.")
+                    return redirect("travel:application_detail", application_id=done.pk)
+                if done is False:
+                    messages.error(request, "일시적인 오류로 신청이 저장되지 않았습니다. 잠시 후 '신청하기'를 다시 눌러 주세요.")
+                else:
+                    messages.error(request, "일시적인 오류로 신청 반영 여부를 확인하지 못했습니다. "
+                                            "잠시 후 '내 신청'에서 확인하고, 없으면 다시 신청해 주세요.")
+                ctx["review"] = review  # 같은 요청 키로 다시 제출 (저장됐다면 중복 없이 기존 신청 안내)
             else:
-                request.session.pop(DRAFT_KEY, None)
-                reviews = request.session.get(REVIEWS_KEY, {})
-                reviews.pop(key, None)
-                request.session[REVIEWS_KEY] = reviews
+                _forget_review(request, key)
                 _flash_result(request, result)
                 return redirect("travel:application_detail", application_id=result.application.pk)
 
     return render(request, "travel/customer/apply.html", ctx)
+
+
+def _forget_review(request, key: str) -> None:
+    """신청이 저장된 뒤 선택 상품·구성과 그 검토 내용을 세션에서 지운다."""
+    request.session.pop(DRAFT_KEY, None)
+    reviews = request.session.get(REVIEWS_KEY, {})
+    reviews.pop(key, None)
+    request.session[REVIEWS_KEY] = reviews
+
+
+def _find_after_db_error(member_id: int, key: str):
+    """DB 오류 뒤 반영 여부 확인. 저장된 신청 / False(저장 안 됨) / None(확인 불가)."""
+    try:
+        return booking.find_submitted_application(member_id, key) or False
+    except DatabaseError:
+        logger.exception("신청 반영 여부 확인 실패 member=%s key=%s", member_id, key)
+        return None
 
 
 def _flash_result(request, result: booking.ApplicationResult) -> None:

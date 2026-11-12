@@ -159,7 +159,9 @@ SMS_CLIENT = os.getenv("SMS_CLIENT", "apps.sms.services.ConsoleSMSClient")
 SOLAPI_API_KEY = os.getenv("SOLAPI_API_KEY", "")
 SOLAPI_API_SECRET = os.getenv("SOLAPI_API_SECRET", "")
 SOLAPI_SENDER = os.getenv("SOLAPI_SENDER", "")  # 솔라피에 등록한 발신번호
-SMS_TIMEOUT = int(os.getenv("SMS_TIMEOUT", "10"))  # 초
+SMS_TIMEOUT = int(os.getenv("SMS_TIMEOUT", "10"))  # 외부 호출 1회 대기 (초)
+# 신청 1건이 보내는 문자 묶음 전체의 시간 한도 (초). gunicorn --timeout 60 보다 충분히 작게.
+SMS_BATCH_TIME_LIMIT = int(os.getenv("SMS_BATCH_TIME_LIMIT", "40"))
 # 비워 두면 모든 번호로 발송. 값이 있으면 이 번호들로만 실제 발송 (데모 계정의 가상 번호로 문자가 나가지 않게)
 SMS_ALLOWED_NUMBERS = [n.strip() for n in os.getenv("SMS_ALLOWED_NUMBERS", "").split(",") if n.strip()]
 SPEECH_CLIENT = os.getenv("SPEECH_CLIENT", "apps.speech.services.BrowserTranscriptClient")

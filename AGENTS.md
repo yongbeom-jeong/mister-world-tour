@@ -55,14 +55,17 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
   - 화면은 준비(prepare) → 등록(record)을 JS로 연속 호출. 응답 불명이면 같은 키로만 "다시 확인" (재고 이중 증가 없음)
 - 교통: 허니문은 2인 차량, 나머지는 10인 승합 차량만 가능. 공통 옵션 '리무진 픽업'(+15만) 추가
 - 음료(1인 1세트): 와인 +5만, 수제맥주 +2만, 샴페인 +6만, 스페셜티 커피 +1만(원문 "샴페인, 커피 추가"). 도시락에는 추가 불가, 고급 식사엔 샴페인 기본 포함(0원)
-- 여행자 입력: 첫 행은 신청 고객 본인(계정 성명·연락처), 동반자는 성명 필수·연락처 선택. 기념품 재고는 검사만 하고 차감하지 않음
+- 여행자 입력: 첫 행은 신청 고객 본인(계정 성명·연락처), 동반자는 성명 필수·연락처 선택. 기념품 재고는 검토 때 검사만 하고, 차감은 출발 확정 때 (위 확정 정책)
 - 검토 내용(요청 키별)은 세션 `application_reviews`에 최대 10개, 선택 상품·구성은 `application_draft`
+  - 같은 요청 키 재제출은 고객·상품·구성·여행자가 모두 같을 때만 기존 신청으로 안내, 다르면 거부
+  - 신청 등록 중 DB 오류: 같은 키로 저장 여부를 다시 조회해 저장됨(상세로 이동)/저장 안 됨(같은 키로 재제출)/확인 불가('내 신청' 확인 안내)로 나눠 안내
 - 문자: `.env`의 `SMS_CLIENT`(기본 `ConsoleSMSClient`, runserver 창에 로그만). 시연용 `FlakyDemoSMSClient`(번호마다 2번 실패 후 성공)
   - 실제 발송은 솔라피 `apps/sms/solapi.py`의 `SolapiSMSClient` (`SOLAPI_API_KEY`·`SOLAPI_API_SECRET`·`SOLAPI_SENDER`). 시험 발송 `manage.py send_test_sms 번호`
   - 출발 확정 문구는 단문(90byte, 한글 2byte) 안: `[미스터월드투어] 홍길동님, 상품명 12월 1일 출발 확정되었습니다.` 넘치면 이름 생략 → 상품명 줄임
   - `SMS_ALLOWED_NUMBERS`(쉼표 구분)가 있으면 그 번호로만 실제 발송, 나머지는 `SMSRejected`(재시도 없이 실패)
   - 클라이언트는 `send_sms(contact, message)`만 가지면 교체 가능. 실패는 `SMSSendError`(재시도), 결과 불명은 `SMSUnknownResult`(재시도 안 함)
   - 솔라피 HTTP 5xx·시간 초과는 결과 불명(중복 문자 방지), 4xx·접수 거부는 실패. 테스트는 `.env`와 무관하게 `ConsoleSMSClient` 고정
+  - 신청 1건의 문자 묶음 전체에 시간 한도 `SMS_BATCH_TIME_LIMIT`(기본 40초, gunicorn 60초보다 작게). 한도 안에 못 끝낼 시도는 하지 않고 실패로 표시
 - 음성: `.env`의 `SPEECH_CLIENT`(기본 `BrowserTranscriptClient` = 브라우저 Web Speech API 인식 문장 사용, Chrome·Edge)
   - 해석 별칭(`apps/speech/services.py`): 신혼→허니문, 부모님→효도, 등산→트레킹 등. 상품은 고유 단어(여행지 등)나 순서("두 번째", "3번")
   - 상품 목록 화면에 "문장으로 입력" 칸이 있어 마이크 없이도 시험 가능
