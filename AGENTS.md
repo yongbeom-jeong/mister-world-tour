@@ -95,6 +95,8 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - 글꼴: Pretendard 하나 (제목은 굵기로 구분, 세리프 없음). 본문 `word-break: keep-all` 로 한글 단어 단위 줄바꿈
 - 공통 부품: `.mwt-page-head`(흰 바탕 페이지 머리), `.mwt-back`(뒤로 링크), `.mwt-card`/`.mwt-card-body`, `.product-card`(`templates/travel/customer/_product_card.html`), `.tag`, `.chip-group`, `.option-tile`, `.stepper`, `.empty-state`, `.app-card`
 - 홈: 사진 배너 없이 가운데 검색 막대(`.search-pill`, 테마·등급 → 상품 목록 GET). 테마 4개 + 곧 출발하는 여행 8개(4열)
+  - 테마·등급은 기본 select 대신 Bootstrap dropdown 선택 패널(`.search-menu`, 라디오 버튼). 등급 요약은 `display.levels()` 가 `LEVEL_DEFAULTS` 에서 만든다
+- 푸터: 브랜드 소개 + 바로가기 열(고객·비로그인: 테마·내 여행 / 직원: 직원 메뉴) + 이용 안내(실제 업무 규칙만) + 사진 출처. 가짜 회사 정보는 넣지 않는다
 - 상품 목록: `.catalog-toolbar`(테마·등급 칩 + 음성 버튼), 카드 PC 4열·휴대폰 1열. 휴대폰에서 칩 줄은 가로로 밀어 본다
 - 상품 상세: 제목 → 큰 사진 → 왼쪽 소개·포함·구성(`.detail-section`, `.configuration-grid`), 오른쪽 `.booking-bar` 는 PC 에서 따라오는 예약 카드, 992px 미만에서는 하단 고정 바 (같은 요소라 가격·구성·신청 버튼 id 는 한 번만)
 - 상단 메뉴는 흰 바탕 고정(sticky, PC 72px). 따라오는 패널(`.sticky-panel`, 예약 카드, 신청 요약)은 top 96px

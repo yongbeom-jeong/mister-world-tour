@@ -302,10 +302,23 @@ input:disabled + .option-tile { opacity: .45; cursor: not-allowed; }
 .voice-text-details summary { cursor: pointer; color: var(--mwt-ink-2); font-size: .85rem; text-decoration: underline; text-underline-offset: .2em; width: fit-content; }
 
 /* ---------------------------------------------------------------- 푸터 */
-.mwt-footer { background: var(--mwt-surface); border-top: 1px solid var(--mwt-line); color: var(--mwt-ink-2); padding: 2rem 0; margin-top: 4rem; font-size: .875rem; }
-.mwt-footer a { color: var(--mwt-ink-2); }
-.mwt-footer a:hover { color: var(--mwt-ink); }
-.mwt-footer .footer-brand { font-weight: 800; color: var(--mwt-ink); }
+.mwt-footer { background: var(--mwt-surface); border-top: 1px solid var(--mwt-line); color: var(--mwt-ink-2); padding: 3rem 0 1.5rem; margin-top: 4rem; font-size: .9rem; }
+.footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 1.5rem; padding-bottom: 2rem; }
+.footer-about, .footer-grid > .footer-col:last-child { grid-column: 1 / -1; }
+@media (min-width: 768px) {
+  .footer-grid { grid-template-columns: 1.4fr 1fr 1fr 1.6fr; }
+  .footer-about, .footer-grid > .footer-col:last-child { grid-column: auto; }
+}
+.footer-about .mwt-brand { text-decoration: none; }
+.footer-about p { color: var(--mwt-muted); margin: .75rem 0 0; max-width: 18rem; line-height: 1.6; }
+.footer-col h2 { font-size: .9rem; font-weight: 700; margin-bottom: .85rem; }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.footer-col a, .footer-link { color: var(--mwt-ink-2); text-decoration: none; background: none; border: 0; padding: 0; font: inherit; }
+.footer-col a:hover, .footer-link:hover { color: var(--mwt-ink); text-decoration: underline; }
+.footer-notes li { color: var(--mwt-muted); line-height: 1.55; padding-left: .9rem; position: relative; }
+.footer-notes li::before { content: ""; position: absolute; left: 0; top: .6em; width: 4px; height: 4px; border-radius: 50%; background: var(--mwt-muted); }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding-top: 1.25rem; border-top: 1px solid var(--mwt-line-strong); font-size: .82rem; color: var(--mwt-muted); }
+.footer-bottom a { color: var(--mwt-ink-2); }
 
 /* 접근성: 움직임 줄이기 */
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
