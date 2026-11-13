@@ -28,10 +28,10 @@
             <td>{{ log.product_name }}</td>
             <td class="text-nowrap">
               {% if log.status == "SUCCESS" %}<span class="tag tag-success">성공</span>
-              {% elif log.is_stale_pending %}<span class="tag tag-gold">발송 확인 필요</span>
+              {% elif log.is_stale_pending %}<span class="tag tag-warning">발송 확인 필요</span>
               {% elif log.status == "PENDING" %}<span class="tag tag-muted">발송 중</span>
-              {% elif log.status == "UNKNOWN" %}<span class="tag tag-gold">결과 확인 필요</span>
-              {% else %}<span class="tag bg-danger text-white">{{ log.get_status_display }}</span>{% endif %}
+              {% elif log.status == "UNKNOWN" %}<span class="tag tag-warning">결과 확인 필요</span>
+              {% else %}<span class="tag tag-danger">{{ log.get_status_display }}</span>{% endif %}
             </td>
             <td class="text-end">{{ log.attempt_count }}회{% if log.resend_count %}<div class="text-muted">재발송 {{ log.resend_count }}</div>{% endif %}</td>
             <td style="min-width:14rem">

@@ -19,7 +19,7 @@
     {# 대표 사진 #}
     <div class="mb-3">
       <div class="form-label">대표 사진</div>
-      <div class="rounded-3 overflow-hidden mb-2 position-relative" style="aspect-ratio:16/10;background:#dde3ee">
+      <div class="rounded-3 overflow-hidden mb-2 position-relative" style="aspect-ratio:16/10;background:var(--mwt-surface)">
         <img id="photo-preview" class="w-100 h-100" style="object-fit:cover"
              src="{% if form.instance.image %}{{ form.instance.image.url }}{% elif form.instance.theme %}{{ form.instance|product_photo }}{% else %}{% photo 'hero' 'sm' %}{% endif %}" alt="대표 사진 미리보기">
         <span class="tag position-absolute" style="top:.6rem;left:.6rem" id="photo-label">

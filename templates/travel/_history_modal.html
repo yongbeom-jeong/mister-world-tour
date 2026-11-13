@@ -1,12 +1,14 @@
-{# 고객 이전 여행 이력 팝업 (UC3). base.html 에서 고객에게만 포함한다.
-   로그인 직후 처음 보는 화면(홈이든 로그인 전 보던 화면이든)에서 한 번 자동으로 열고,
-   data-history-open 이 붙은 버튼으로 다시 열 수 있다. #}
+{% comment %}
+  고객 이전 여행 이력 팝업 (UC3). base.html 에서 고객에게만 포함한다.
+  로그인 직후 처음 보는 화면(홈이든 로그인 전 보던 화면이든)에서 한 번 자동으로 열고,
+  data-history-open 이 붙은 버튼으로 다시 열 수 있다.
+{% endcomment %}
 <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h5 class="modal-title font-serif" id="historyModalLabel">이전 여행 이력</h5>
+          <h5 class="modal-title" id="historyModalLabel">이전 여행 이력</h5>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
       </div>
