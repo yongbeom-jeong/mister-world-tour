@@ -35,7 +35,7 @@ html { scrollbar-color: #8b93a1 var(--mwt-ivory); }
 input, textarea { caret-color: var(--mwt-navy); }
 a { text-underline-offset: .22em; }
 .price-big, .pc-price, .price-table, .stat-value, .stock-num { font-variant-numeric: tabular-nums; }
-.font-serif, h1, h2, .display-title { font-family: "Noto Serif KR", serif; letter-spacing: -0.02em; }
+.font-serif, h1, h2 { font-family: "Noto Serif KR", serif; letter-spacing: -0.02em; }
 h3, h4, h5, h6 { font-weight: 700; }
 .text-gold { color: var(--mwt-gold-2) !important; }
 .text-muted { color: var(--mwt-muted) !important; }
@@ -139,8 +139,6 @@ h3, h4, h5, h6 { font-weight: 700; }
 .mwt-card > .mwt-card-head { padding: 1rem 1.25rem; border-bottom: 1px solid var(--mwt-line); font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .mwt-card-body { padding: 1.25rem; }
 @media (min-width: 992px) { .mwt-card-body { padding: 1.4rem 1.5rem; } }
-.mwt-card-navy { background: var(--mwt-navy); color: #fff; border: 0; }
-.mwt-card-navy .text-muted { color: rgba(255, 255, 255, .65) !important; }
 .sticky-panel { position: sticky; top: 1.25rem; }
 
 /* 정의 목록 */
