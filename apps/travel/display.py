@@ -2,7 +2,7 @@
 
 from django.templatetags.static import static
 
-from .choices import Theme
+from .choices import LEVEL_DEFAULTS, Theme, TourLevel
 
 # 테마별 소개 (과제 안내의 테마 설명을 바탕으로 한 화면 문구)
 THEME_INFO = {
@@ -29,6 +29,10 @@ THEME_INFO = {
 }
 
 
+# 투어 등급 아이콘 (홈 검색 선택 패널)
+LEVEL_ICONS = {TourLevel.CLASSIC: "bi-star", TourLevel.GRAND: "bi-stars", TourLevel.PREMIUM: "bi-gem"}
+
+
 def photo_url(name: str, small: bool = False) -> str:
     return static(f"img/photos/{'sm/' if small else ''}{name}.jpg")
 
@@ -38,6 +42,15 @@ def themes() -> list[dict]:
         {"code": t.value, "label": t.label, **info,
          "photo_url": photo_url(info["photo"]), "photo_sm": photo_url(info["photo"], small=True)}
         for t, info in THEME_INFO.items()
+    ]
+
+
+def levels() -> list[dict]:
+    """등급마다 기본 호텔·식사 요약 (예: '4등급 호텔 · 현지식 레스토랑 식사')."""
+    return [
+        {"code": lv.value, "label": lv.label, "icon": LEVEL_ICONS[lv],
+         "summary": f"{LEVEL_DEFAULTS[lv]['hotel'].label} · {LEVEL_DEFAULTS[lv]['meal'].label}"}
+        for lv in TourLevel
     ]
 
 
