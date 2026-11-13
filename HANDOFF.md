@@ -1,11 +1,16 @@
 # 작업 인계 (HANDOFF)
 
-마지막 갱신: 2026-11-12. 다음 세션은 이 파일 → `AGENTS.md` → `README.md` 순서로 읽고 시작한다.
+마지막 갱신: 2026-11-13. 다음 세션은 이 파일 → `AGENTS.md` → `README.md` 순서로 읽고 시작한다.
 일정: **최종 발표·시연 2026-11-24**. 지금은 **구현과 배포만** 다룬다 (문서·측정·시연 준비는 팀원이 마지막에 따로 처리).
 
 ## 1. 현재 상태
 
-- **구현 완료.** 남은 일은 **AWS 서버 배포와 서버(PostgreSQL)에서의 동시성 확인**, 그리고 팀원이 할 문서 수정
+- **구현·배포 완료.** 남은 일은 팀원이 할 문서 수정·산출물, 발표 후 AWS 자원 정리
+- 2026-11-13: 화면 리뉴얼(PR #15), AWS 배포, PostgreSQL 동시성 확인
+  - 사이트 **https://3-35-38-138.sslip.io/** (EC2 `mwt-server` t3.small, 서울, 탄력적 IP 3.35.38.138)
+  - 접속: `ssh -i ~/.ssh/mwt-key.pem ubuntu@3.35.38.138` (키는 정용범 PC 에만). 보안 그룹 `mwt-sg` 의 SSH 는 정용범 집 IP 만 허용 → 다른 곳에서는 IP 추가 필요
+  - 서버 `.env`: 솔라피 실제 발송 + `SMS_ALLOWED_NUMBERS`, 직원 가입 코드는 서버에서 무작위 생성(설치 출력 참고, 로컬 기본값과 다름)
+  - 동시성: `apps/travel/test_concurrency.py` (PostgreSQL 에서만 실행, 개발 PC 에서는 건너뜀). 서버에서 4개 통과, 잠금을 끄면 4개 모두 실패하는 것도 확인
 - 문서와 구현 기준(2026-11-12 결정): 문서대로 하면 기능이 깨지거나 위험한 항목은 구현을 유지하고 문서를 고친다. 나머지는 구현을 문서에 맞춤
   - 문서에 맞춘 구현: 직원의 기본 구성 선택(UC6 (3)), 허니문·효도 옵션 그랜드 이상, 가입·금액 계산 DB 오류 안내, 브라우저 음성 실패 기록, 뷰의 ORM 직접 조회 제거, 입고 결과 7가지 상태, 문자 기록 선 생성
   - 회의용 불일치 목록(문서 수정 대상): claude.ai Artifact '구현·문서 불일치 목록' (링크는 정용범에게)
@@ -28,19 +33,10 @@
 - 테스트는 `.env` 와 상관없이 가짜 문자 클라이언트를 쓴다 (`config/settings.py` 의 test 분기)
 - 개발 DB(SQLite)의 기존 seed 신청은 차감 기능 이전에 만들어져 `StockIssue` 가 없다. 깨끗하게 보려면 `db.sqlite3` 삭제 → `migrate` → `seed_demo`
 
-## 3. 남은 일: 배포
+## 3. 남은 일
 
-1. **AWS 서버 배포·갱신** (`deploy/DEPLOY.md`)
-   - 서버 가동 여부부터 확인 (저장소로는 알 수 없음). 이 PC에는 서버 SSH 키·접속 설정이 없음 → 서버 IP·계정·`.pem` 위치 필요
-   - 갱신: `BRANCH=main bash /srv/mwt/deploy/update.sh`
-     - 이번에 추가된 마이그레이션: `travel.0005`·`souvenir.0003`(11/11), `travel.0006`(취소), `sms.0001`(문자 기록), `souvenir.0004`(기념품 숨김), `members.0002`·`souvenir.0005`(대소문자 무시 고유 제약)
-     - `members.0002`·`souvenir.0005` 는 서버 DB 에 대소문자만 다른 아이디·기념품 이름이 이미 있으면 실패한다. 실패하면 중복을 먼저 정리
-   - 서버 `/srv/mwt/.env` 에 솔라피 4줄 + `SMS_ALLOWED_NUMBERS` 추가 → `sudo systemctl restart mwt`
-   - 솔라피 콘솔에서 API Key 허용 IP에 **서버 공인 IP**(탄력적 IP 권장) 또는 AWS 대역 추가
-   - 서버에서 `send_test_sms` 로 실제 수신 확인
-   - 음성 인식은 HTTPS 필수: `setup.sh` 가 Let's Encrypt 인증서를 발급(보안 그룹 80·443 개방 필요). 실패 시 "문장으로 입력" 칸 사용
-   - (선택) 하루 한 번 `manage.py complete_trips` (cron·systemd timer). 안 해도 고객이 이력·금액을 볼 때 자동 반영됨
-2. **PostgreSQL 서버에서 동시성 확인**: SQLite 는 `select_for_update` 를 무시하므로 서버에서만 의미 있음
-   - 같은 단체 상품에 동시 신청 → 정원 10명 초과 없음, 기념품 재고 음수 없음
-   - 신청 취소와 3명째 신청이 동시에 → 확정된 신청이 취소되지 않음
-   - 같은 문자 기록을 두 직원이 동시에 재발송 → 한 번만 발송
+1. **서버 갱신**(코드가 바뀌면): 서버에서 `BRANCH=main bash /srv/mwt/deploy/update.sh`
+2. **동시성 재확인**(잠금 관련 코드를 바꿨다면): 서버에서 `cd /srv/mwt && .venv/bin/python manage.py test apps.travel.test_concurrency --noinput`
+   - 정원 10명 동시 초과 없음 / 기념품 재고 음수 없음 / 취소와 3번째 신청이 겹쳐도 확정된 신청은 취소되지 않음 / 같은 문자 동시 재발송은 1번만
+3. (선택) 하루 한 번 `manage.py complete_trips` (cron·systemd timer). 안 해도 고객이 이력·금액을 볼 때 자동 반영됨
+4. **발표(11/24) 후 AWS 정리**: 인스턴스 종료, 탄력적 IP 해제, `mwt-sg`·`mwt-key` 삭제. 크레딧(약 $140) 소진·만료 후에는 카드로 청구됨
