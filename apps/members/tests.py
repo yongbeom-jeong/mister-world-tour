@@ -99,6 +99,13 @@ class LoginTests(TestCase):
         self.assertContains(res, "아이디 또는 비밀번호가 올바르지 않습니다")
         self.assertFalse(res.wsgi_request.user.is_authenticated)
 
+    def test_blank_login_asks_for_input(self):
+        """빈 칸은 브라우저 말풍선이 아니라 화면 안내로 알린다 (폼은 novalidate)."""
+        res = self.login("", "")
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "아이디와 비밀번호를 모두 입력해 주세요")
+        self.assertNotContains(res, "아이디 또는 비밀번호가 올바르지 않습니다")
+
 
 class SeedDemoTests(TestCase):
     def test_seed_is_idempotent(self):

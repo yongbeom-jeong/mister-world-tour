@@ -101,6 +101,10 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - 상품 상세: 제목 → 큰 사진 → 왼쪽 소개·포함·구성(`.detail-section`, `.configuration-grid`), 오른쪽 `.booking-bar` 는 PC 에서 따라오는 예약 카드, 992px 미만에서는 하단 고정 바 (같은 요소라 가격·구성·신청 버튼 id 는 한 번만)
 - 상단 메뉴는 흰 바탕 고정(sticky, PC 72px). 따라오는 패널(`.sticky-panel`, 예약 카드, 신청 요약)은 top 96px
 - Bootstrap 행 간격(`g-5`)은 휴대폰에서 가로 넘침을 만들므로 `g-4 g-lg-5`처럼 쓴다
+- 브라우저 기본 입력 UI 를 그대로 보이지 않는다 (`static/js/mwt-ui.js`, 모든 화면에서 로드)
+  - `select.form-select` 는 자동으로 디자인된 목록(버튼 + Bootstrap dropdown)이 된다. 값은 숨긴 원래 select 에 있어 폼 전송·기존 스크립트는 그대로. 옵션을 JS 로 바꿔도 자동으로 다시 그림. 기본 select 가 필요하면 `data-native`
+  - `input[type=date]` 는 flatpickr(한국어, 월은 화살표) 달력. flatpickr 를 불러온 화면에서만 (`_product_form.html`). 서버로 가는 값은 `Y-m-d` 그대로
+  - 브라우저 검증 말풍선 대신 화면 안 안내: 폼에 `novalidate`, 필수 검사는 서버. 숫자 칸 위아래 화살표는 숨김
 - 템플릿 도구 `{% load mwt %}`: `product|product_photo[:"sm"]`, `값|won`, `테마코드|theme_info:"en|icon|tagline|photo"`, `{% photo "이름" ["sm"] %}`, `dict|get_item:키`
 - 사진: 기본 사진은 `static/img/photos/`(1600px, `sm/`은 800px), 출처는 `credits.json` → `/credits/` 페이지. CC BY·BY-SA 라 출처 표시 필수, 사진을 바꾸면 credits.json 도 갱신
 - 상품 사진 업로드: `TravelProduct.image`(media/products/…), 서버에서 최대 1600px JPEG 로 재저장(`apps/travel/images.py`). 없으면 테마 기본 사진

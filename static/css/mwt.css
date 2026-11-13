@@ -225,6 +225,46 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: -0.02em; color: var(-
 .form-text { color: var(--mwt-muted); }
 .list-group { --bs-list-group-bg: #fff; --bs-list-group-border-color: var(--mwt-line); }
 
+/* 선택 상자: static/js/mwt-ui.js 가 기본 select 를 버튼 + 목록으로 바꾼다 (실제 값은 숨긴 select) */
+.mwt-select { position: relative; width: 100%; min-width: 0; }
+.mwt-select-native { position: absolute !important; inset: 0; width: 100% !important; height: 100%; opacity: 0; pointer-events: none; }
+.mwt-select-btn { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; padding: .65rem .85rem; border: 1px solid var(--mwt-line-strong); border-radius: var(--mwt-radius-sm); background: #fff; color: var(--mwt-ink); text-align: left; font-size: 1rem; line-height: 1.5; }
+.mwt-select-btn::after { content: ""; flex-shrink: 0; width: .55rem; height: .55rem; border: solid var(--mwt-ink-2); border-width: 0 1.5px 1.5px 0; transform: translateY(-25%) rotate(45deg); transition: transform .15s; }
+.mwt-select-btn[aria-expanded="true"]::after { transform: translateY(25%) rotate(-135deg); }
+.mwt-select-btn:hover { border-color: var(--mwt-ink); }
+.mwt-select-btn:focus-visible, .mwt-select-btn[aria-expanded="true"] { outline: none; border-color: var(--mwt-ink); box-shadow: 0 0 0 1px var(--mwt-ink); }
+.mwt-select-btn:disabled { background: var(--mwt-surface); color: var(--mwt-muted); cursor: not-allowed; }
+.mwt-select-btn.is-placeholder .mwt-select-text { color: var(--mwt-muted); }
+.mwt-select-btn.is-invalid { border-color: var(--mwt-danger); }
+.mwt-select-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mwt-select-sm .mwt-select-btn { padding: .4rem .7rem; font-size: .875rem; }
+.mwt-select-menu { width: 100%; min-width: 12rem; max-height: 18rem; overflow-y: auto; padding: .4rem; border: 0; border-radius: var(--mwt-radius); box-shadow: 0 8px 28px rgba(0, 0, 0, .16); }
+.mwt-select-item { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem .75rem; border-radius: var(--mwt-radius-sm); color: var(--mwt-ink); white-space: normal; }
+.mwt-select-item:hover, .mwt-select-item:focus { background: var(--mwt-surface); color: var(--mwt-ink); }
+.mwt-select-item.active, .mwt-select-item.active:hover { background: var(--mwt-accent-soft); color: var(--mwt-accent-ink); font-weight: 600; }
+.mwt-select-item.active::after { content: "\F26E"; font-family: "bootstrap-icons"; font-size: 1rem; }
+.mwt-select-item:disabled { color: var(--mwt-muted); opacity: .6; }
+.mwt-select-sm .mwt-select-item { font-size: .875rem; }
+.mwt-card-soft { background: var(--mwt-surface); border-color: var(--mwt-line); }
+
+/* 숫자 칸: 브라우저 기본 위아래 화살표 숨김 (키보드 ↑↓ 는 그대로 동작) */
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+/* 날짜 달력 (flatpickr) */
+.mwt-date.form-control[readonly] { background-color: #fff; cursor: pointer; }
+.mwt-date.form-control[readonly]:disabled { background-color: var(--mwt-surface); }
+.flatpickr-calendar { border-radius: var(--mwt-radius); box-shadow: 0 8px 28px rgba(0, 0, 0, .16); border: 0; font-family: var(--bs-body-font-family); padding: .25rem; }
+.flatpickr-calendar.arrowTop::before, .flatpickr-calendar.arrowTop::after { display: none; }
+.flatpickr-months .flatpickr-month, .flatpickr-current-month { color: var(--mwt-ink); font-weight: 700; }
+.flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 700; }
+.flatpickr-day { border-radius: 50%; color: var(--mwt-ink); }
+.flatpickr-day:hover { background: var(--mwt-surface); border-color: var(--mwt-surface); }
+.flatpickr-day.today { border-color: var(--mwt-line-strong); }
+.flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--mwt-accent); border-color: var(--mwt-accent); color: #fff; }
+.flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover { color: #c8c8c8; background: none; border-color: transparent; }
+span.flatpickr-weekday { color: var(--mwt-muted); font-weight: 600; }
+
 /* 선택 칩 (테마·등급 필터, 회원 유형) */
 .chip-group { display: flex; flex-wrap: wrap; gap: .5rem; }
 .chip-group .btn-check + .btn { border-radius: 999px; border: 1px solid var(--mwt-line-strong); background: #fff; color: var(--mwt-ink); font-weight: 600; padding: .45rem 1rem; }
