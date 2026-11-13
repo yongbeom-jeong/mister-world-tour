@@ -4,111 +4,105 @@
 {% block page_class %}product-detail-page{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-hero product-hero" style="background-image:url('{{ product|product_photo }}')">
-    <div class="container py-5">
-      <a href="{% url 'travel:products' %}?theme={{ product.theme }}" class="text-white small text-decoration-none"><i class="bi bi-arrow-left"></i> {{ product.get_theme_display }} 상품 목록</a>
-      <div class="d-flex gap-2 mt-3 mb-2">
-        <span class="tag"><i class="bi {{ product.theme|theme_info:'icon' }}"></i>{{ product.get_theme_display|cut:" 투어" }}</span>
-        <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
-        {% if product.departure_status == "CONFIRMED" %}<span class="tag tag-success"><i class="bi bi-check2"></i>출발 확정</span>{% endif %}
+  <section class="detail-title">
+    <div class="container">
+      <a href="{% url 'travel:products' %}?theme={{ product.theme }}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i>{{ product.get_theme_display|cut:" 투어" }} 상품 목록</a>
+      <h1>{{ product.name }}</h1>
+      <div class="meta">
+        {% if product.departure_status == "CONFIRMED" %}<span class="tag tag-success"><i class="bi bi-check2" aria-hidden="true"></i>출발 확정</span>{% endif %}
+        <span><i class="bi {{ product.theme|theme_info:'icon' }}" aria-hidden="true"></i> {{ product.get_theme_display|cut:" 투어" }} · {{ product.get_tour_level_display }}</span>
+        <span class="text-muted">·</span>
+        <span>{{ product.destination }}</span>
+        <span class="text-muted">·</span>
+        <span>{{ product.departure_date|date:"Y년 n월 j일" }} 출발 · {{ product.travel_days }}일</span>
       </div>
-      <h1 class="mb-2">{{ product.name }}</h1>
-      <p class="lead mb-0"><i class="bi bi-geo-alt"></i> {{ product.destination }} · {{ product.travel_days }}일 · <strong class="text-white">{{ product.departure_date|date:"Y년 n월 j일" }} 출발</strong></p>
     </div>
   </section>
 {% endblock %}
 
 {% block content %}
-<div class="row g-4 mt-1">
-  {# ---------------------------------------------------------------- 상품 소개 #}
-  <div class="col-lg-5">
-    <div class="mwt-card mwt-card-body mb-4">
-      <h2 class="h4 font-serif mt-1">여행 소개</h2>
-      <p class="mb-0 fs-6">{{ product.description|default:"상품 소개가 준비 중입니다."|linebreaksbr }}</p>
-    </div>
+<div class="detail-photo"><img src="{{ product|product_photo }}" alt="{{ product.name }} 대표 사진"></div>
 
-    <div class="mwt-card mwt-card-body mb-4">
-      <h2 class="h4 font-serif mt-1 mb-3">기본으로 포함된 것</h2>
-      <div class="row g-3">
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-stars"></i></div>
-          <div><div class="small text-muted">테마 서비스</div><div class="fw-semibold">{{ product.theme_service }}</div></div></div>
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-gift"></i></div>
-          <div><div class="small text-muted">기념품</div><div class="fw-semibold">{{ souvenirs|join:", "|default:"-" }} <span class="small text-muted fw-normal">(1인 1개씩)</span></div></div></div>
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-building"></i></div>
-          <div><div class="small text-muted">기본 호텔</div><div class="fw-semibold">{{ product.get_hotel_level_display }}</div></div></div>
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-cup-hot"></i></div>
-          <div><div class="small text-muted">기본 식사</div><div class="fw-semibold">{{ product.get_meal_display }}</div></div></div>
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-car-front"></i></div>
-          <div><div class="small text-muted">교통</div><div class="fw-semibold">{{ product.get_transport_display }}</div></div></div>
-        <div class="col-sm-6 d-flex gap-3"><div class="stat-icon"><i class="bi bi-people"></i></div>
-          <div><div class="small text-muted">모집</div><div class="fw-semibold">
-            {% if product.is_honeymoon %}2인 신청마다 바로 출발 확정
-            {% else %}정원 10명 · 3명 이상 출발<div class="small fw-normal text-muted">남은 자리 {{ remaining }}명</div>{% endif %}
-          </div></div></div>
-      </div>
-    </div>
-
-    <div class="alert alert-info small"><i class="bi bi-info-circle-fill me-1"></i>
-      출발일은 상품마다 정해져 있습니다. 여행자 수와 단골 할인(최근 3년 3회 이상 이용 시 10%)은 다음 단계에서 계산됩니다.</div>
-  </div>
-
-  {# ---------------------------------------------------------------- 구성 변경 #}
+<div class="row g-4 g-lg-5">
   <div class="col-lg-7">
-    <div class="mwt-card">
-      <div class="mwt-card-head"><span><i class="bi bi-sliders me-1"></i>나만의 여행 구성</span><span class="small text-muted fw-normal">1인 기준</span></div>
-      <div class="mwt-card-body">
-        <div class="configuration-grid">
-        {% for field, title in option_fields %}
-          <fieldset>
-            <legend class="form-label">{{ title }}</legend>
-            <div class="option-group">
-              {% for v, label, extra in options|get_item:field %}
-                <label class="m-0">
-                  <input type="radio" class="visually-hidden" name="opt-{{ field }}" value="{{ v }}" data-field="{{ field }}" {% if config|get_item:field == v %}checked{% endif %}>
-                  <span class="option-tile"><span>{{ label }}</span>
-                    <span class="opt-diff {% if extra|slice:':1' == '+' %}up{% elif extra|slice:':1' == '−' %}down{% endif %}">{{ extra }}</span></span>
-                </label>
-              {% endfor %}
-            </div>
-          </fieldset>
-        {% endfor %}
+    {# ---------------------------------------------------------------- 상품 소개 #}
+    <section class="detail-section">
+      <h2>여행 소개</h2>
+      <p class="mb-0">{{ product.description|default:"상품 소개가 준비 중입니다."|linebreaksbr }}</p>
+    </section>
 
+    <section class="detail-section">
+      <h2>기본으로 포함된 것</h2>
+      <ul class="feature-list">
+        <li><i class="bi bi-stars" aria-hidden="true"></i><div><div class="f-label">테마 서비스</div><div class="f-value">{{ product.theme_service }}</div></div></li>
+        <li><i class="bi bi-gift" aria-hidden="true"></i><div><div class="f-label">기념품</div><div class="f-value">{{ souvenirs|join:", "|default:"-" }} <span class="small text-muted fw-normal">(1인 1개씩)</span></div></div></li>
+        <li><i class="bi bi-building" aria-hidden="true"></i><div><div class="f-label">기본 호텔</div><div class="f-value">{{ product.get_hotel_level_display }}</div></div></li>
+        <li><i class="bi bi-cup-hot" aria-hidden="true"></i><div><div class="f-label">기본 식사</div><div class="f-value">{{ product.get_meal_display }}</div></div></li>
+        <li><i class="bi bi-car-front" aria-hidden="true"></i><div><div class="f-label">교통</div><div class="f-value">{{ product.get_transport_display }}</div></div></li>
+        <li><i class="bi bi-people" aria-hidden="true"></i><div><div class="f-label">모집</div><div class="f-value">
+          {% if product.is_honeymoon %}2인 신청마다 바로 출발 확정
+          {% else %}정원 10명 · 3명 이상 출발<div class="small fw-normal text-muted">남은 자리 {{ remaining }}명</div>{% endif %}
+        </div></div></li>
+      </ul>
+    </section>
+
+    {# ---------------------------------------------------------------- 구성 변경 #}
+    <section class="detail-section">
+      <h2>나만의 여행 구성 <span class="fs-6 fw-normal text-muted ms-1">1인 기준</span></h2>
+      <div class="configuration-grid">
+      {% for field, title in option_fields %}
         <fieldset>
-          <legend class="form-label">음료 추가</legend>
+          <legend class="form-label">{{ title }}</legend>
           <div class="option-group">
-            {% for v, label, price in options.drinks %}
+            {% for v, label, extra in options|get_item:field %}
               <label class="m-0">
-                <input class="visually-hidden" type="checkbox" value="{{ v }}" id="drink-{{ v }}" data-drink {% if v in config.drinks %}checked{% endif %}>
-                <span class="option-tile"><span><i class="bi bi-cup-straw me-1 text-muted"></i>{{ label }}</span>
-                  <span class="opt-diff up" data-drink-price="{{ v }}">+{{ price|won }}</span></span>
+                <input type="radio" class="visually-hidden" name="opt-{{ field }}" value="{{ v }}" data-field="{{ field }}" {% if config|get_item:field == v %}checked{% endif %}>
+                <span class="option-tile"><span>{{ label }}</span>
+                  <span class="opt-diff {% if extra|slice:':1' == '+' %}up{% elif extra|slice:':1' == '−' %}down{% endif %}">{{ extra }}</span></span>
               </label>
             {% endfor %}
           </div>
-          <div class="form-text">도시락 구성에는 음료를 추가할 수 없어요.</div>
         </fieldset>
+      {% endfor %}
+
+      <fieldset>
+        <legend class="form-label">음료 추가</legend>
+        <div class="option-group">
+          {% for v, label, price in options.drinks %}
+            <label class="m-0">
+              <input class="visually-hidden" type="checkbox" value="{{ v }}" id="drink-{{ v }}" data-drink {% if v in config.drinks %}checked{% endif %}>
+              <span class="option-tile"><span>{{ label }}</span>
+                <span class="opt-diff up" data-drink-price="{{ v }}">+{{ price|won }}</span></span>
+            </label>
+          {% endfor %}
         </div>
-        <div id="config-msg" class="alert alert-danger py-2 small mt-3 mb-0" role="alert" hidden></div>
+        <div class="form-text">도시락 구성에는 음료를 추가할 수 없어요.</div>
+      </fieldset>
       </div>
-    </div>
+      <div id="config-msg" class="alert alert-danger py-2 small mt-3 mb-0" role="alert" hidden></div>
+      <p class="small text-muted mt-4 mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>출발일은 상품마다 정해져 있습니다. 여행자 수와 단골 할인(최근 3년 3회 이상 이용 시 10%)은 다음 단계에서 계산됩니다.</p>
+    </section>
+  </div>
+
+  {# ---------------------------------------------------------------- 가격·신청 (PC: 오른쪽 카드, 휴대폰: 하단 바) #}
+  <div class="col-lg-5 col-xl-4 offset-xl-1">
+    <aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
+      <div class="booking-bar-product">
+        <div class="fw-bold">{{ product.name }}</div>
+        <div class="small text-muted">{{ product.departure_date|date:"n월 j일" }} 출발 · {{ product.travel_days }}일 · 기본 {{ product.base_price|won }}</div>
+      </div>
+      <div class="booking-bar-price">
+        <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price">{{ unit_price|stringformat:"d" }}</span>원 <span class="fs-6 fw-normal text-muted">/ 1인</span></div>
+        <div class="booking-note">옵션 포함, 단골 할인 적용 전</div>
+      </div>
+      <form method="post" action="{% url 'travel:start_application' product.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="config" id="config-input" value="{{ config_json }}">
+        <button class="btn btn-primary btn-lg" id="apply-btn">이 구성으로 신청하기</button>
+      </form>
+    </aside>
   </div>
 </div>
-<aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
-  <div class="container booking-bar-inner">
-    <div class="booking-bar-product d-none d-lg-block">
-      <div class="fw-bold">{{ product.name }}</div>
-      <div class="small text-muted">{{ product.departure_date|date:"n월 j일" }} 출발 · {{ product.travel_days }}일 · 기본 {{ product.base_price|won }}</div>
-    </div>
-    <div class="booking-bar-price">
-      <div class="small text-muted">1인 가격 · 옵션 포함, 단골 할인 적용 전</div>
-      <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price">{{ unit_price|stringformat:"d" }}</span>원</div>
-    </div>
-    <form method="post" action="{% url 'travel:start_application' product.pk %}">
-      {% csrf_token %}
-      <input type="hidden" name="config" id="config-input" value="{{ config_json }}">
-      <button class="btn btn-gold btn-lg" id="apply-btn">이 구성으로 신청하기 <i class="bi bi-arrow-right"></i></button>
-    </form>
-  </div>
-</aside>
 {% endblock %}
 
 {% block extra_js %}

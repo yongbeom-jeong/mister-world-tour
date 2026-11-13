@@ -88,10 +88,17 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - seed_demo 신청: customer2가 다낭 골프 2명(1명 더 오면 확정), 제주 효도 8명(확정, 남은 2자리)
 
 ## 화면 디자인
-- 고급 여행사 콘셉트: 네이비(`--mwt-navy`) + 골드(`--mwt-gold`), 본문 Pretendard, 제목 Noto Serif KR. 공통 스타일은 `static/css/mwt.css` 하나에서 관리
-- 공통 부품: `.mwt-page-head`(내부 페이지 머리), `.mwt-hero`(사진 배너), `.mwt-card`/`.mwt-card-body`, `.product-card`(`templates/travel/customer/_product_card.html`), `.tag`, `.chip-group`, `.option-tile`, `.stepper`, `.btn-gold`
-- PC 화면: `.home-hero`는 400px, 상단 메뉴는 72px. 상품 목록은 `.catalog-head`/`.catalog-controls`, 상세 옵션은 `.configuration-grid`에서 관리. `.booking-bar`는 PC에서 하단 고정이며 `.product-detail-page`의 하단 여백으로 콘텐츠 가림을 방지한다. 가격·구성·신청 버튼의 id는 각각 한 번만 사용한다. 직원용 제목은 `body.mwt-staff`에서 간결하게 표시한다.
-- 장식은 절제한다: 사진과 제목을 분리하고 상품은 그림자 없는 목록으로 표시한다. 영문 장식 소제목은 사용하지 않으며, 테마·등급은 일반 텍스트, 출발 상태는 의미 있는 배지로 구분한다. 금색은 브랜드와 주요 행동에 집중하고 일반 버튼은 6px 모서리를 사용한다.
+- 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `static/css/mwt.css` 하나에서 관리
+- 색: 흰 바탕, 글자 `--mwt-ink`(#222), 보조 `--mwt-muted`, 선 `--mwt-line`. 강조색은 딥 틸 `--mwt-accent`(#0F766E) 하나만, 주요 버튼(`.btn-primary`)·선택 상태·현재 단계에만 쓴다
+  - 상태 배지만 의미 색: `.tag-success`(출발 확정·성공), `.tag-warning`(확인 필요), `.tag-danger`(취소·실패), `.tag-muted`(미확정). 그 외 `.tag-accent`, `.tag-dark`(본인)
+  - 버튼: `.btn-primary`(주요, 강조색) / `.btn-dark`(보조) / `.btn-outline-primary`(일반, 회색 테두리). 모서리 8px, 카드·사진 12px
+- 글꼴: Pretendard 하나 (제목은 굵기로 구분, 세리프 없음). 본문 `word-break: keep-all` 로 한글 단어 단위 줄바꿈
+- 공통 부품: `.mwt-page-head`(흰 바탕 페이지 머리), `.mwt-back`(뒤로 링크), `.mwt-card`/`.mwt-card-body`, `.product-card`(`templates/travel/customer/_product_card.html`), `.tag`, `.chip-group`, `.option-tile`, `.stepper`, `.empty-state`, `.app-card`
+- 홈: 사진 배너 없이 가운데 검색 막대(`.search-pill`, 테마·등급 → 상품 목록 GET). 테마 4개 + 곧 출발하는 여행 8개(4열)
+- 상품 목록: `.catalog-toolbar`(테마·등급 칩 + 음성 버튼), 카드 PC 4열·휴대폰 1열. 휴대폰에서 칩 줄은 가로로 밀어 본다
+- 상품 상세: 제목 → 큰 사진 → 왼쪽 소개·포함·구성(`.detail-section`, `.configuration-grid`), 오른쪽 `.booking-bar` 는 PC 에서 따라오는 예약 카드, 992px 미만에서는 하단 고정 바 (같은 요소라 가격·구성·신청 버튼 id 는 한 번만)
+- 상단 메뉴는 흰 바탕 고정(sticky, PC 72px). 따라오는 패널(`.sticky-panel`, 예약 카드, 신청 요약)은 top 96px
+- Bootstrap 행 간격(`g-5`)은 휴대폰에서 가로 넘침을 만들므로 `g-4 g-lg-5`처럼 쓴다
 - 템플릿 도구 `{% load mwt %}`: `product|product_photo[:"sm"]`, `값|won`, `테마코드|theme_info:"en|icon|tagline|photo"`, `{% photo "이름" ["sm"] %}`, `dict|get_item:키`
 - 사진: 기본 사진은 `static/img/photos/`(1600px, `sm/`은 800px), 출처는 `credits.json` → `/credits/` 페이지. CC BY·BY-SA 라 출처 표시 필수, 사진을 바꾸면 credits.json 도 갱신
 - 상품 사진 업로드: `TravelProduct.image`(media/products/…), 서버에서 최대 1600px JPEG 로 재저장(`apps/travel/images.py`). 없으면 테마 기본 사진

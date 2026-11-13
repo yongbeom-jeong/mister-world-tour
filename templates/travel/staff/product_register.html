@@ -7,7 +7,7 @@
         <h1>상품 등록</h1>
         <p>기획한 새 여행 상품을 입력합니다. 기존 상품의 수정·삭제는 상품 관리에서 합니다.</p>
       </div>
-      <a class="btn btn-outline-light btn-sm" href="{% url 'travel:product_manage' %}"><i class="bi bi-list-ul me-1"></i>상품 관리로</a>
+      <a class="btn btn-outline-primary btn-sm" href="{% url 'travel:product_manage' %}"><i class="bi bi-list-ul me-1"></i>상품 관리로</a>
     </div>
   </section>
 {% endblock %}
@@ -18,7 +18,7 @@
     {% include "travel/staff/_product_form.html" %}
   </div>
   <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
-    <button class="btn btn-gold"><i class="bi bi-plus-lg me-1"></i>등록</button>
+    <button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>등록</button>
   </div>
 </form>
 {% endblock %}

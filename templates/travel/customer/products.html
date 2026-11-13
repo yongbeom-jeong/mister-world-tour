@@ -3,68 +3,62 @@
 {% block title %}여행 상품 | 미스터 월드 투어{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-page-head with-photo catalog-head" style="background-image:linear-gradient(90deg,rgba(13,23,43,.9),rgba(13,23,43,.45)),url('{% if theme %}{% photo theme|theme_info:"photo" %}{% else %}{% photo "hero" %}{% endif %}')">
+  <section class="mwt-page-head pb-0">
     <div class="container">
-      <h1>{% for v, label in themes %}{% if v == theme %}{{ label }}{% endif %}{% endfor %}{% if not theme %}여행 상품 선택{% endif %}</h1>
+      <h1>{% for v, label in themes %}{% if v == theme %}{{ label }}{% endif %}{% endfor %}{% if not theme %}여행 상품{% endif %}</h1>
       <p>{% if theme %}{{ theme|theme_info:"tagline" }}{% else %}취향에 맞는 테마와 등급으로 여행을 찾아보세요.{% endif %}</p>
     </div>
   </section>
 {% endblock %}
 
 {% block content %}
-<div class="row g-3 catalog-controls">
+<div class="catalog-toolbar">
   {# 테마·등급 필터 #}
-  <div class="col-lg-9">
-    <form method="get" class="mwt-card mwt-card-body h-100" id="filter-form">
-      <div class="catalog-filter-row mb-2">
-        <div class="catalog-filter-label" id="theme-label">테마</div>
-        <div class="chip-group" role="radiogroup" aria-labelledby="theme-label">
-          <input type="radio" class="btn-check" name="theme" id="theme-all" value="" {% if not theme %}checked{% endif %}>
-          <label class="btn btn-sm" for="theme-all">전체</label>
-          {% for v, label in themes %}
-            <input type="radio" class="btn-check" name="theme" id="theme-{{ v }}" value="{{ v }}" {% if theme == v %}checked{% endif %}>
-            <label class="btn btn-sm" for="theme-{{ v }}"><i class="bi {{ v|theme_info:'icon' }} me-1"></i>{{ label|cut:" 투어" }}</label>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="catalog-filter-row">
-        <div class="catalog-filter-label" id="level-label">투어 등급</div>
-        <div class="chip-group" role="radiogroup" aria-labelledby="level-label">
-          <input type="radio" class="btn-check" name="tour_level" id="level-all" value="" {% if not level %}checked{% endif %}>
-          <label class="btn btn-sm" for="level-all">전체</label>
-          {% for v, label in levels %}
-            <input type="radio" class="btn-check" name="tour_level" id="level-{{ v }}" value="{{ v }}" {% if level == v %}checked{% endif %}>
-            <label class="btn btn-sm" for="level-{{ v }}">{{ label }}</label>
-          {% endfor %}
-        </div>
-      </div>
-      <details class="catalog-help mt-2">
-        <summary>등급별 포함 사항 보기</summary>
-        <p>클래식 3등급 호텔·도시락 · 그랜드 4등급·현지식 · 프리미엄 5등급·스테이크와 샴페인. 허니문·효도는 그랜드 이상.</p>
-      </details>
-    </form>
-  </div>
+  <form method="get" id="filter-form" class="catalog-filters">
+    <div class="chip-group" role="radiogroup" aria-label="테마">
+      <input type="radio" class="btn-check" name="theme" id="theme-all" value="" {% if not theme %}checked{% endif %}>
+      <label class="btn btn-sm" for="theme-all">모든 테마</label>
+      {% for v, label in themes %}
+        <input type="radio" class="btn-check" name="theme" id="theme-{{ v }}" value="{{ v }}" {% if theme == v %}checked{% endif %}>
+        <label class="btn btn-sm" for="theme-{{ v }}"><i class="bi {{ v|theme_info:'icon' }} me-1" aria-hidden="true"></i>{{ label|cut:" 투어" }}</label>
+      {% endfor %}
+    </div>
+    <span class="divider d-none d-md-block" aria-hidden="true"></span>
+    <div class="chip-group" role="radiogroup" aria-label="투어 등급">
+      <input type="radio" class="btn-check" name="tour_level" id="level-all" value="" {% if not level %}checked{% endif %}>
+      <label class="btn btn-sm" for="level-all">모든 등급</label>
+      {% for v, label in levels %}
+        <input type="radio" class="btn-check" name="tour_level" id="level-{{ v }}" value="{{ v }}" {% if level == v %}checked{% endif %}>
+        <label class="btn btn-sm" for="level-{{ v }}">{{ label }}</label>
+      {% endfor %}
+    </div>
+  </form>
 
   {# 음성 선택 #}
-  <div class="col-lg-3">
-    <div class="mwt-card voice-box mwt-card-body h-100" id="voice-box">
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-gold mic-btn" id="mic-btn" aria-label="음성으로 선택"><i class="bi bi-mic-fill"></i></button>
-        <div>
-          <div class="fw-bold">음성으로 선택</div>
-          <div id="voice-status" class="small text-muted" role="status">예: "골프 그랜드", "몰디브"</div>
-        </div>
-      </div>
-      <details class="voice-text-details mt-2">
-        <summary>문장으로 직접 입력하기</summary>
-        <form id="voice-text-form" class="input-group input-group-sm mt-2">
-          <input id="voice-text" class="form-control" aria-label="여행 검색 문장" placeholder="예: 트레킹 클래식" maxlength="200">
-          <button class="btn btn-outline-primary" style="border-radius:0 10px 10px 0">보내기</button>
-        </form>
-      </details>
-      <div id="voice-result" class="alert mt-2 mb-0 py-2 small" hidden></div>
+  <div class="voice-panel" id="voice-box">
+    <button type="button" class="btn btn-primary mic-btn" id="mic-btn" aria-label="음성으로 선택"><i class="bi bi-mic-fill" aria-hidden="true"></i></button>
+    <div class="voice-copy">
+      <div class="fw-bold">음성으로 선택</div>
+      <div id="voice-status" class="text-muted" role="status">예: "골프 그랜드", "몰디브"</div>
     </div>
   </div>
+</div>
+
+<div class="voice-extra">
+  <div class="d-flex flex-wrap gap-3">
+    <details class="catalog-help">
+      <summary>등급별 포함 사항</summary>
+      <p>클래식 3등급 호텔·도시락 · 그랜드 4등급·현지식 · 프리미엄 5등급·스테이크와 샴페인. 허니문·효도는 그랜드 이상.</p>
+    </details>
+    <details class="voice-text-details">
+      <summary>문장으로 직접 입력하기</summary>
+      <form id="voice-text-form" class="input-group input-group-sm mt-2">
+        <input id="voice-text" class="form-control" aria-label="여행 검색 문장" placeholder="예: 트레킹 클래식" maxlength="200">
+        <button class="btn btn-dark">보내기</button>
+      </form>
+    </details>
+  </div>
+  <div id="voice-result" class="alert mt-2 mb-0 py-2 small" hidden></div>
 </div>
 
 {% if notice %}<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ notice }}</div>{% endif %}
@@ -75,18 +69,16 @@
   </div>
 {% endif %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  {% if not load_failed %}<div class="text-muted small">{{ products|length }}개 상품 · 출발일이 가까운 순</div>{% endif %}
-</div>
+{% if not load_failed and products %}<div class="catalog-count">{{ products|length }}개 상품 · 출발일이 가까운 순</div>{% endif %}
 
 <div class="row g-4 catalog-grid">
   {% for p in products %}
-    <div class="col-md-6 col-lg-4">{% include "travel/customer/_product_card.html" with p=p %}</div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">{% include "travel/customer/_product_card.html" with p=p %}</div>
   {% empty %}
     {% if not notice and not load_failed %}
       <div class="col-12">
-        <div class="mwt-card mwt-card-body text-center py-5">
-          <i class="bi bi-search fs-1 text-muted"></i>
+        <div class="empty-state">
+          <i class="bi bi-search" aria-hidden="true"></i>
           {% if filtered %}
             <p class="mt-2 mb-0 text-muted">조건에 맞는 상품이 없습니다. 다른 테마나 등급을 골라 보세요.</p>
           {% else %}

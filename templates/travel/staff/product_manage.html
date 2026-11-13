@@ -8,7 +8,7 @@
         <h1>상품 관리</h1>
         <p>목록에서 상품을 고른 뒤 수정하거나 삭제합니다. 신청이 있는 상품은 변경할 수 없습니다.</p>
       </div>
-      <a class="btn btn-gold btn-sm" href="{% url 'travel:product_register' %}"><i class="bi bi-plus-lg me-1"></i>새 상품 등록</a>
+      <a class="btn btn-primary btn-sm" href="{% url 'travel:product_register' %}"><i class="bi bi-plus-lg me-1"></i>새 상품 등록</a>
     </div>
   </section>
 {% endblock %}
@@ -54,7 +54,7 @@
           {% if selected.departure_status %}
             <span class="tag {% if selected.departure_status == 'CONFIRMED' %}tag-success{% else %}tag-muted{% endif %}">{{ selected.get_departure_status_display }}</span>
           {% else %}
-            <span class="tag tag-navy">신청별 출발 확정</span>
+            <span class="tag tag-dark">신청별 출발 확정</span>
           {% endif %}
         </div>
         <div class="mwt-card-body">

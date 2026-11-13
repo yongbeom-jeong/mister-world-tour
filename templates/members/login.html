@@ -3,16 +3,10 @@
 {% block title %}로그인 | 미스터 월드 투어{% endblock %}
 {% block full_width %}
 <div class="auth-wrap">
-  <div class="auth-photo" style="background-image:url('{% photo "theme_honeymoon" %}')">
+  <div class="auth-card">
     <div>
-      <h2 class="mb-2">다시 만나 반가워요</h2>
-      <p class="mb-0 opacity-75">로그인하면 지난 여행 이력을 바로 보여 드릴게요.</p>
-    </div>
-  </div>
-  <div class="auth-form">
-    <div class="inner">
-      <h1 class="h2 mb-1">로그인</h1>
-      <p class="text-muted mb-4">고객·직원 모두 같은 화면에서 로그인합니다.</p>
+      <h1>로그인</h1>
+      <p class="text-muted mb-4">다시 만나 반가워요. 고객·직원 모두 같은 화면에서 로그인합니다.</p>
       <form method="post">
         {% csrf_token %}
         {% if form.errors %}<div class="alert alert-danger"><i class="bi bi-exclamation-octagon-fill me-1"></i>아이디 또는 비밀번호가 올바르지 않습니다.</div>{% endif %}

@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% load mwt %}
 {% block title %}여행 신청 | 미스터 월드 투어{% endblock %}
-{% block page_class %}application-page{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-page-head application-head">
+  <section class="mwt-page-head">
     <div class="container">
-      <a href="{% url 'travel:product_detail' product.pk %}" class="small"><i class="bi bi-arrow-left"></i> 구성 다시 고르기</a>
-      <h1 class="mt-2">여행 신청</h1>
+      <a href="{% url 'travel:product_detail' product.pk %}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i>구성 다시 고르기</a>
+      <h1>여행 신청</h1>
       <p>함께 떠날 여행자를 입력하고 최종 금액을 확인하세요.</p>
     </div>
   </section>
@@ -26,8 +25,8 @@
   <div class="col-lg-5 order-2">
     <div class="application-summary">
     {% if review %}
-      <div class="mwt-card border-0" id="review-panel" style="margin-bottom:1rem;box-shadow:0 0 0 2px var(--mwt-navy), var(--mwt-shadow-lg)">
-        <div class="mwt-card-head bg-navy text-white rounded-top" style="border-radius:var(--mwt-radius) var(--mwt-radius) 0 0"><span><i class="bi bi-receipt me-1"></i>신청 금액 확인</span></div>
+      <div class="review-panel" id="review-panel">
+        <div class="mwt-card-head px-4 pt-4 pb-3 fw-bold fs-5">신청 금액 확인</div>
         <div class="mwt-card-body">
           <table class="table price-table mb-2">
             <tr><td>1인 {{ review.breakdown.unit_price|won }} × {{ review.breakdown.traveler_count }}명</td><td class="text-end">{{ review.breakdown.subtotal|won }}</td></tr>
@@ -41,7 +40,7 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="submit">
             <input type="hidden" name="request_key" value="{{ review.request_key }}">
-            <button class="btn btn-gold btn-lg w-100" id="submit-btn"><i class="bi bi-check2-circle me-1"></i>이 내용으로 신청 확정</button>
+            <button class="btn btn-primary btn-lg w-100" id="submit-btn">이 내용으로 신청 확정</button>
           </form>
           <div class="alert alert-warning small py-2 mt-3 mb-0" id="cancel-notice">
             <i class="bi bi-exclamation-triangle me-1"></i>{{ cancel_rule }}
@@ -58,8 +57,8 @@
           <img src="{{ product|product_photo:'sm' }}" alt="" class="application-summary-photo">
           <div>
             <div class="d-flex gap-2 mb-2">
-              <span class="tag tag-navy">{{ product.get_theme_display|cut:" 투어" }}</span>
-              <span class="tag tag-gold">{{ product.get_tour_level_display }}</span>
+              <span class="tag">{{ product.get_theme_display|cut:" 투어" }}</span>
+              <span class="tag">{{ product.get_tour_level_display }}</span>
             </div>
             <h2 class="h5 mb-0">{{ product.name }}</h2>
           </div>
@@ -70,7 +69,7 @@
           <dt>교통</dt><dd>{{ described.transport }}</dd>
           <dt>식사</dt><dd>{{ described.meal }}</dd>
           <dt>음료</dt><dd>{{ described.drinks }}</dd>
-          <dt>1인 가격</dt><dd class="text-gold">{{ unit_price|won }}</dd>
+          <dt>1인 가격</dt><dd>{{ unit_price|won }}</dd>
         </dl>
       </div>
     </div>
@@ -84,7 +83,7 @@
       {% csrf_token %}
       <input type="hidden" name="action" value="review">
       <div class="mwt-card-head">
-        <span><i class="bi bi-people me-1"></i>실제 여행자</span>
+        <span>실제 여행자</span>
         <span class="small text-muted fw-normal">
           {% if product.is_honeymoon %}신청 고객 + 동반 1명, 정확히 2명{% else %}최대 {{ remaining }}명까지 신청 가능{% endif %}
         </span>
@@ -97,7 +96,7 @@
           <div class="row g-2 mb-2 traveler-row align-items-center">
             <div class="col-5 col-md-6"><input class="form-control bg-light" name="traveler_name" value="{{ user.name }}" readonly aria-label="신청 고객 성명"></div>
             <div class="col-5"><input class="form-control bg-light" name="traveler_contact" value="{{ user.contact }}" readonly aria-label="신청 고객 연락처"></div>
-            <div class="col-2 col-md-1 text-center px-0"><span class="tag tag-navy">본인</span></div>
+            <div class="col-2 col-md-1 text-center px-0"><span class="tag tag-dark">본인</span></div>
           </div>
           {% for t in travelers|slice:"1:" %}
             <div class="row g-2 mb-2 traveler-row align-items-center">
@@ -118,7 +117,7 @@
         </template>
         <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="add-row"><i class="bi bi-person-plus"></i> 동반 여행자 추가</button>
         <div class="form-text mt-3"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
-        <button class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-calculator me-1"></i>{% if review %}다시 {% endif %}금액 확인</button>
+        <button class="btn {% if review %}btn-outline-primary{% else %}btn-dark{% endif %} btn-lg w-100 mt-3">{% if review %}다시 {% endif %}금액 확인</button>
       </div>
     </form>
   </div>

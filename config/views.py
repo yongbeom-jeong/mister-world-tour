@@ -16,7 +16,7 @@ def home(request):
     ctx = {}  # 로그인 직후 이력 팝업은 base.html + members.context_processors.history_popup 이 처리
     user = request.user
     if not user.is_authenticated or user.is_customer:
-        ctx["featured"] = booking.bookable_products(None, None)[:6]
+        ctx["featured"] = booking.bookable_products(None, None)[:8]
     if user.is_authenticated and user.is_customer:
         ctx["my_count"] = booking.active_application_count(user.pk)
     if user.is_authenticated and user.is_staff_member:
