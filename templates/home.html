@@ -12,21 +12,51 @@
           <h1>특별한 날, 가장 멋진 곳으로</h1>
           <p class="lead">허니문부터 효도·골프·트레킹까지, 소중한 사람과 떠나는 테마 여행.</p>
         {% endif %}
-        <form class="search-pill" method="get" action="{% url 'travel:products' %}" role="search" aria-label="여행 상품 찾기">
-          <label class="search-field">
-            <span class="search-label">테마</span>
-            <select name="theme" aria-label="테마">
-              <option value="">모든 테마</option>
-              {% for t in site_themes %}<option value="{{ t.code }}">{{ t.label|cut:" 투어" }}</option>{% endfor %}
-            </select>
-          </label>
-          <label class="search-field">
-            <span class="search-label">투어 등급</span>
-            <select name="tour_level" aria-label="투어 등급">
-              <option value="">모든 등급</option>
-              {% for v, label in site_levels %}<option value="{{ v }}">{{ label }}</option>{% endfor %}
-            </select>
-          </label>
+        <form class="search-pill" method="get" action="{% url 'travel:products' %}" role="search" aria-label="여행 상품 찾기" id="home-search">
+          {# 테마 선택: 막대를 누르면 아래에 선택 패널이 열린다 (선택값은 라디오 버튼으로 전송) #}
+          <div class="search-field dropdown">
+            <button type="button" class="search-trigger" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false">
+              <span class="search-label">테마</span>
+              <span class="search-value" data-search-value="theme">모든 테마</span>
+            </button>
+            <div class="dropdown-menu search-menu">
+              <div class="search-menu-title">어떤 여행을 떠나세요?</div>
+              <label class="search-option">
+                <input type="radio" name="theme" value="" data-text="모든 테마" checked>
+                <span class="opt-thumb opt-thumb-icon"><i class="bi bi-globe2" aria-hidden="true"></i></span>
+                <span class="opt-text"><strong>모든 테마</strong><small>네 가지 테마의 상품을 모두 봅니다</small></span>
+              </label>
+              {% for t in site_themes %}
+                <label class="search-option">
+                  <input type="radio" name="theme" value="{{ t.code }}" data-text="{{ t.label|cut:' 투어' }}">
+                  <img class="opt-thumb" src="{{ t.photo_sm }}" alt="">
+                  <span class="opt-text"><strong>{{ t.label|cut:" 투어" }}</strong><small>{{ t.tagline }}</small></span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="search-field dropdown">
+            <button type="button" class="search-trigger" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false">
+              <span class="search-label">투어 등급</span>
+              <span class="search-value" data-search-value="tour_level">모든 등급</span>
+            </button>
+            <div class="dropdown-menu search-menu">
+              <div class="search-menu-title">어느 등급으로 갈까요?</div>
+              <label class="search-option">
+                <input type="radio" name="tour_level" value="" data-text="모든 등급" checked>
+                <span class="opt-thumb opt-thumb-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                <span class="opt-text"><strong>모든 등급</strong><small>클래식부터 프리미엄까지</small></span>
+              </label>
+              {% for lv in site_levels %}
+                <label class="search-option">
+                  <input type="radio" name="tour_level" value="{{ lv.code }}" data-text="{{ lv.label }}">
+                  <span class="opt-thumb opt-thumb-icon"><i class="bi {{ lv.icon }}" aria-hidden="true"></i></span>
+                  <span class="opt-text"><strong>{{ lv.label }}</strong><small>{{ lv.summary }}</small></span>
+                </label>
+              {% endfor %}
+              <div class="search-menu-note">허니문·효도는 그랜드 이상만 있어요.</div>
+            </div>
+          </div>
           <button class="search-btn" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span>검색</span></button>
         </form>
         <div class="home-links">
@@ -175,4 +205,18 @@
   </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // 홈 검색: 선택하면 막대에 선택값을 보여 주고 패널을 닫는다
+  document.querySelectorAll("#home-search .search-option input").forEach(input => {
+    input.addEventListener("change", () => {
+      document.querySelector(`[data-search-value="${input.name}"]`).textContent = input.dataset.text;
+      const field = input.closest(".search-field");
+      field.classList.toggle("has-value", input.value !== "");
+      bootstrap.Dropdown.getOrCreateInstance(field.querySelector(".search-trigger")).hide();
+    });
+  });
+</script>
 {% endblock %}

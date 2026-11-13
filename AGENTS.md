@@ -76,7 +76,7 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - 음성: `.env`의 `SPEECH_CLIENT`(기본 `BrowserTranscriptClient` = 브라우저 Web Speech API 인식 문장 사용, Chrome·Edge)
   - 브라우저에서 끝난 인식 실패(무음·마이크 권한 등)도 `/speech/failure/`로 보내 서버 로그에 기록 (UC4 4a·7a)
   - 해석 별칭(`apps/speech/services.py`): 신혼→허니문, 부모님→효도, 등산→트레킹 등. 상품은 고유 단어(여행지 등)나 순서("두 번째", "3번")
-  - 상품 목록 화면에 "문장으로 입력" 칸이 있어 마이크 없이도 시험 가능
+  - 상품 목록 화면의 음성 검색창은 [마이크][문장 입력칸][찾기] 한 줄. 마이크 없이 문장으로도 시험 가능. 듣는 중 마이크를 다시 누르면 꺼지고, 사용자가 끈 것은 실패로 기록하지 않음
 - 신청 취소는 `cancelled_at` 기록(행 삭제 아님). 취소한 신청은 정원·출발 판정·문자·차감·홈 통계에서 제외, 출발일이 지난 신청도 취소 불가
 - 완료 이력: 여행 마지막 날 = 출발일 + 기간 − 1, 그다음 날부터 완료. 신청 고객 계정에 상품당 이력 1건(`completed_travel_id=product-<id>`, 같은 상품 신청이 여럿이어도 다녀온 여행 1회), 가격은 그 신청 금액 합계
   - 이력 조회·신청 금액 계산 직전에 그 고객 것을 반영(`travel.services.complete_finished_trips`). 일괄은 `manage.py complete_trips`
@@ -95,10 +95,16 @@ Django 5.2 + Django Template + Bootstrap 5, 운영 DB는 PostgreSQL. 최종 발�
 - 글꼴: Pretendard 하나 (제목은 굵기로 구분, 세리프 없음). 본문 `word-break: keep-all` 로 한글 단어 단위 줄바꿈
 - 공통 부품: `.mwt-page-head`(흰 바탕 페이지 머리), `.mwt-back`(뒤로 링크), `.mwt-card`/`.mwt-card-body`, `.product-card`(`templates/travel/customer/_product_card.html`), `.tag`, `.chip-group`, `.option-tile`, `.stepper`, `.empty-state`, `.app-card`
 - 홈: 사진 배너 없이 가운데 검색 막대(`.search-pill`, 테마·등급 → 상품 목록 GET). 테마 4개 + 곧 출발하는 여행 8개(4열)
-- 상품 목록: `.catalog-toolbar`(테마·등급 칩 + 음성 버튼), 카드 PC 4열·휴대폰 1열. 휴대폰에서 칩 줄은 가로로 밀어 본다
+  - 테마·등급은 기본 select 대신 Bootstrap dropdown 선택 패널(`.search-menu`, 라디오 버튼). 등급 요약은 `display.levels()` 가 `LEVEL_DEFAULTS` 에서 만든다
+- 푸터: 바로가기 열(고객·비로그인: 테마·내 여행 / 직원: 직원 메뉴) + 이용 안내(실제 업무 규칙만) + 맨 아래 `© 2026 미스터 월드 투어`·사진 출처. 로고·소개 문구·가짜 회사 정보는 넣지 않는다 (사진 출처 링크는 라이선스상 필수)
+- 상품 목록: 음성·문장 검색창(`.voice-search`) → `.catalog-toolbar`(테마·등급 칩, 등급 칩에 마우스를 올리면 기본 호텔·식사) → 카드 PC 4열·휴대폰 1열. 휴대폰에서 칩 줄은 가로로 밀어 본다
 - 상품 상세: 제목 → 큰 사진 → 왼쪽 소개·포함·구성(`.detail-section`, `.configuration-grid`), 오른쪽 `.booking-bar` 는 PC 에서 따라오는 예약 카드, 992px 미만에서는 하단 고정 바 (같은 요소라 가격·구성·신청 버튼 id 는 한 번만)
 - 상단 메뉴는 흰 바탕 고정(sticky, PC 72px). 따라오는 패널(`.sticky-panel`, 예약 카드, 신청 요약)은 top 96px
 - Bootstrap 행 간격(`g-5`)은 휴대폰에서 가로 넘침을 만들므로 `g-4 g-lg-5`처럼 쓴다
+- 브라우저 기본 입력 UI 를 그대로 보이지 않는다 (`static/js/mwt-ui.js`, 모든 화면에서 로드)
+  - `select.form-select` 는 자동으로 디자인된 목록(버튼 + Bootstrap dropdown)이 된다. 값은 숨긴 원래 select 에 있어 폼 전송·기존 스크립트는 그대로. 옵션을 JS 로 바꿔도 자동으로 다시 그림. 기본 select 가 필요하면 `data-native`
+  - `input[type=date]` 는 flatpickr(한국어, 월은 화살표) 달력. flatpickr 를 불러온 화면에서만 (`_product_form.html`). 서버로 가는 값은 `Y-m-d` 그대로
+  - 브라우저 검증 말풍선 대신 화면 안 안내: 폼에 `novalidate`, 필수 검사는 서버. 숫자 칸 위아래 화살표는 숨김
 - 템플릿 도구 `{% load mwt %}`: `product|product_photo[:"sm"]`, `값|won`, `테마코드|theme_info:"en|icon|tagline|photo"`, `{% photo "이름" ["sm"] %}`, `dict|get_item:키`
 - 사진: 기본 사진은 `static/img/photos/`(1600px, `sm/`은 800px), 출처는 `credits.json` → `/credits/` 페이지. CC BY·BY-SA 라 출처 표시 필수, 사진을 바꾸면 credits.json 도 갱신
 - 상품 사진 업로드: `TravelProduct.image`(media/products/…), 서버에서 최대 1600px JPEG 로 재저장(`apps/travel/images.py`). 없으면 테마 기본 사진

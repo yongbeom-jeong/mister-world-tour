@@ -12,6 +12,20 @@
 {% endblock %}
 
 {% block content %}
+{# 음성·문장으로 찾기 (SelectByVoice): 마이크로 말하거나 같은 칸에 문장을 입력한다 #}
+<div class="voice-search" id="voice-box">
+  <form id="voice-text-form" class="voice-search-bar" role="search" aria-label="말이나 문장으로 여행 찾기">
+    <button type="button" class="mic-btn" id="mic-btn" aria-label="음성으로 찾기" aria-pressed="false" title="음성으로 찾기">
+      <i class="bi bi-mic-fill" aria-hidden="true"></i>
+    </button>
+    <input id="voice-text" class="voice-input" aria-label="여행 검색 문장" maxlength="200" autocomplete="off"
+           placeholder="말하거나 입력하세요. 예: 골프 그랜드, 몰디브, 두 번째">
+    <button class="btn btn-primary voice-submit" type="submit">찾기</button>
+  </form>
+  <div id="voice-status" class="voice-status" role="status">마이크를 누르고 말하거나, 칸에 문장을 입력하세요.</div>
+  <div id="voice-result" class="alert mt-2 mb-0 py-2 small" hidden></div>
+</div>
+
 <div class="catalog-toolbar">
   {# 테마·등급 필터 #}
   <form method="get" id="filter-form" class="catalog-filters">
@@ -27,38 +41,12 @@
     <div class="chip-group" role="radiogroup" aria-label="투어 등급">
       <input type="radio" class="btn-check" name="tour_level" id="level-all" value="" {% if not level %}checked{% endif %}>
       <label class="btn btn-sm" for="level-all">모든 등급</label>
-      {% for v, label in levels %}
-        <input type="radio" class="btn-check" name="tour_level" id="level-{{ v }}" value="{{ v }}" {% if level == v %}checked{% endif %}>
-        <label class="btn btn-sm" for="level-{{ v }}">{{ label }}</label>
+      {% for lv in site_levels %}
+        <input type="radio" class="btn-check" name="tour_level" id="level-{{ lv.code }}" value="{{ lv.code }}" {% if level == lv.code %}checked{% endif %}>
+        <label class="btn btn-sm" for="level-{{ lv.code }}" title="{{ lv.summary }}">{{ lv.label }}</label>
       {% endfor %}
     </div>
   </form>
-
-  {# 음성 선택 #}
-  <div class="voice-panel" id="voice-box">
-    <button type="button" class="btn btn-primary mic-btn" id="mic-btn" aria-label="음성으로 선택"><i class="bi bi-mic-fill" aria-hidden="true"></i></button>
-    <div class="voice-copy">
-      <div class="fw-bold">음성으로 선택</div>
-      <div id="voice-status" class="text-muted" role="status">예: "골프 그랜드", "몰디브"</div>
-    </div>
-  </div>
-</div>
-
-<div class="voice-extra">
-  <div class="d-flex flex-wrap gap-3">
-    <details class="catalog-help">
-      <summary>등급별 포함 사항</summary>
-      <p>클래식 3등급 호텔·도시락 · 그랜드 4등급·현지식 · 프리미엄 5등급·스테이크와 샴페인. 허니문·효도는 그랜드 이상.</p>
-    </details>
-    <details class="voice-text-details">
-      <summary>문장으로 직접 입력하기</summary>
-      <form id="voice-text-form" class="input-group input-group-sm mt-2">
-        <input id="voice-text" class="form-control" aria-label="여행 검색 문장" placeholder="예: 트레킹 클래식" maxlength="200">
-        <button class="btn btn-dark">보내기</button>
-      </form>
-    </details>
-  </div>
-  <div id="voice-result" class="alert mt-2 mb-0 py-2 small" hidden></div>
 </div>
 
 {% if notice %}<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ notice }}</div>{% endif %}
@@ -103,6 +91,8 @@
     const PRODUCTS_URL = "{% url 'travel:products' %}";
     const csrf = "{{ csrf_token }}";
     const micBtn = document.getElementById("mic-btn");
+    const micIcon = micBtn.querySelector("i");
+    const input = document.getElementById("voice-text");
     const status = document.getElementById("voice-status");
     const box = document.getElementById("voice-result");
     const HINT = status.textContent;
@@ -135,36 +125,63 @@
 
     document.getElementById("voice-text-form").addEventListener("submit", ev => {
       ev.preventDefault();
-      const v = document.getElementById("voice-text").value.trim();
+      const v = input.value.trim();
       if (v) send(v);
+      else input.focus();
     });
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) {
       micBtn.disabled = true;
-      status.textContent = "이 브라우저는 음성인식을 지원하지 않습니다 (Chrome·Edge 권장). 아래 칸에 문장으로 시험할 수 있습니다.";
+      micBtn.title = "이 브라우저는 음성인식을 지원하지 않습니다";
+      status.textContent = "이 브라우저는 음성인식을 지원하지 않습니다 (Chrome·Edge 권장). 칸에 문장을 입력해 찾을 수 있습니다.";
       return;
     }
-    let listening = false;
+
+    let rec = null;          // 듣는 중인 인식기. 없으면 꺼진 상태
+    let stoppedByUser = false;
+
+    function setListening(on) {
+      micBtn.classList.toggle("listening", on);
+      micBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      micBtn.setAttribute("aria-label", on ? "음성 인식 끄기" : "음성으로 찾기");
+      micBtn.title = on ? "다시 누르면 음성 인식을 끕니다" : "음성으로 찾기";
+      micIcon.className = on ? "bi bi-stop-fill" : "bi bi-mic-fill";
+    }
+
     micBtn.addEventListener("click", () => {
-      if (listening) return;
-      const rec = new Recognition();
+      if (rec) {             // 듣는 중에 다시 누르면 끈다 (사용자가 끈 것은 실패로 기록하지 않음)
+        stoppedByUser = true;
+        rec.abort();
+        return;
+      }
+      stoppedByUser = false;
+      rec = new Recognition();
       rec.lang = "ko-KR";
       rec.interimResults = false;
       rec.maxAlternatives = 1;
-      rec.onstart = () => { listening = true; micBtn.classList.add("listening"); status.textContent = "듣는 중… 말씀하세요"; };
-      rec.onend = () => { listening = false; micBtn.classList.remove("listening"); status.textContent = HINT; };
+      rec.onstart = () => { setListening(true); status.textContent = "듣는 중… 말씀하세요 (다시 누르면 꺼집니다)"; };
+      rec.onend = () => {
+        rec = null;
+        setListening(false);
+        status.textContent = stoppedByUser ? "음성 인식을 껐습니다." : HINT;
+      };
       rec.onerror = e => {
+        if (stoppedByUser || e.error === "aborted") return;
         const why = { "no-speech": "음성이 들리지 않았습니다.", "not-allowed": "마이크 권한이 필요합니다.",
                       "audio-capture": "마이크를 찾을 수 없습니다." }[e.error] || "음성을 인식하지 못했습니다.";
-        show("warning", why + " 다시 말하거나 화면에서 직접 선택해 주세요.");
+        show("warning", why + " 다시 말하거나 칸에 입력해 주세요.");
         // 실패 기록 (UC4 4a·7a). 기록 실패는 화면 동작에 영향 없음
         fetch("{% url 'speech:failure' %}", {
           method: "POST", headers: { "X-CSRFToken": csrf, "Content-Type": "application/json" },
           body: JSON.stringify({ error: e.error }),
         }).catch(() => {});
       };
-      rec.onresult = e => send(e.results[0][0].transcript);
+      rec.onresult = e => {
+        const transcript = e.results[0][0].transcript;
+        input.value = transcript;   // 들은 문장을 칸에 보여 준다
+        send(transcript);
+      };
       rec.start();
     });
   })();

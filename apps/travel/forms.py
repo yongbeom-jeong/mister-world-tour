@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django import forms
 from django.utils import timezone
 
@@ -35,6 +37,11 @@ class ProductForm(BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["destination"].required = True  # 고객 화면 표시에 쓰므로 필수 (임시 정책)
+        # 달력에서 오늘 이전 날짜를 고르지 못하게 (최종 검사는 clean_departure_date)
+        self.fields["departure_date"].widget.attrs["min"] = (timezone.localdate() + timedelta(days=1)).isoformat()
+        # 빈 선택지 문구 ('---------' 대신)
+        self.fields["theme"].choices = [("", "테마를 고르세요"), *Theme.choices]
+        self.fields["tour_level"].choices = [("", "등급을 고르세요"), *TourLevel.choices]
         for f in BASE_CONFIG_FIELDS:  # 비우면 테마·등급 기본값
             self.fields[f].required = False
         self.fields["hotel_level"].label = "기본 호텔"
