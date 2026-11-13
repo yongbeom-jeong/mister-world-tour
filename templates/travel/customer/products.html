@@ -3,7 +3,7 @@
 {% block title %}여행 상품 | 미스터 월드 투어{% endblock %}
 
 {% block page_head %}
-  <section class="mwt-page-head pb-0">
+  <section class="mwt-page-head pb-0 text-center">
     <div class="container">
       <h1>{% for v, label in themes %}{% if v == theme %}{{ label }}{% endif %}{% endfor %}{% if not theme %}여행 상품{% endif %}</h1>
       <p>{% if theme %}{{ theme|theme_info:"tagline" }}{% else %}취향에 맞는 테마와 등급으로 여행을 찾아보세요.{% endif %}</p>
