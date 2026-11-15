@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="730" viewBox="0 0 1320 730" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<path d="M30,60 L44,46 H384 V276 L370,290 V60 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M370,60 L384,46" stroke="#000" stroke-width="1.6"/>
+<rect x="30" y="60" width="340" height="230" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="42.0" y="80.0" font-size="12" text-anchor="start" fill="#000">«device»</text>
+<text x="42.0" y="99.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">고객·직원 PC / 휴대폰</text>
+<path d="M52,135 L61,126 H357 V261 L348,270 V135 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M348,135 L357,126" stroke="#000" stroke-width="1.6"/>
+<rect x="52" y="135" width="296" height="135" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="64.0" y="155.0" font-size="12" text-anchor="start" fill="#000">«execution environment»</text>
+<text x="64.0" y="174.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">웹 브라우저</text>
+<path d="M30,360 L44,346 H384 V426 L370,440 V360 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M370,360 L384,346" stroke="#000" stroke-width="1.6"/>
+<rect x="30" y="360" width="340" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="42.0" y="380.0" font-size="12" text-anchor="start" fill="#000">«external system»</text>
+<text x="42.0" y="399.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">브라우저 음성 인식 서비스</text>
+<path d="M30,530 L44,516 H384 V596 L370,610 V530 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M370,530 L384,516" stroke="#000" stroke-width="1.6"/>
+<rect x="30" y="530" width="340" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="42.0" y="550.0" font-size="12" text-anchor="start" fill="#000">«external system»</text>
+<text x="42.0" y="569.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">Let's Encrypt</text>
+<path d="M450,60 L464,46 H1024 V426 L1010,440 V60 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M1010,60 L1024,46" stroke="#000" stroke-width="1.6"/>
+<rect x="450" y="60" width="560" height="380" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="462.0" y="80.0" font-size="12" text-anchor="start" fill="#000">«device»</text>
+<text x="462.0" y="99.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">mwt-server  (AWS EC2 t3.small, 서울)</text>
+<path d="M475,140 L484,131 H714 V231 L705,240 V140 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M705,140 L714,131" stroke="#000" stroke-width="1.6"/>
+<rect x="475" y="140" width="230" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="487.0" y="160.0" font-size="12" text-anchor="start" fill="#000">«execution environment»</text>
+<text x="487.0" y="179.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">Nginx</text>
+<path d="M755,140 L764,131 H994 V231 L985,240 V140 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M985,140 L994,131" stroke="#000" stroke-width="1.6"/>
+<rect x="755" y="140" width="230" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="767.0" y="160.0" font-size="12" text-anchor="start" fill="#000">«execution environment»</text>
+<text x="767.0" y="179.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">Gunicorn  (systemd: mwt)</text>
+<path d="M475,285 L484,276 H714 V406 L705,415 V285 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M705,285 L714,276" stroke="#000" stroke-width="1.6"/>
+<rect x="475" y="285" width="230" height="130" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="487.0" y="305.0" font-size="12" text-anchor="start" fill="#000">«execution environment»</text>
+<text x="487.0" y="324.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">PostgreSQL 18</text>
+<path d="M1090,140 L1104,126 H1304 V226 L1290,240 V140 Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<path d="M1290,140 L1304,126" stroke="#000" stroke-width="1.6"/>
+<rect x="1090" y="140" width="200" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="1102.0" y="160.0" font-size="12" text-anchor="start" fill="#000">«external system»</text>
+<text x="1102.0" y="179.0" font-size="15" text-anchor="start" fill="#000" font-weight="bold">솔라피</text>
+<path d="M820.0,520.0 L820.0,240.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M825.2,250.8 L820.0,240.0 L814.8,250.8" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M960.0,360.0 L960.0,520.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M954.8,509.2 L960.0,520.0 L965.2,509.2" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M370.0,150.0 L475.0,190.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M705.0,190.0 L755.0,190.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M775.0,240.0 L775.0,330.0 L705.0,330.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M985.0,190.0 L1090.0,190.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M200.0,290.0 L200.0,360.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M500.0,440.0 L500.0,570.0 L370.0,570.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M123.0,190 H146.0 L157.0,201 V234 H123.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M146.0,190 V201 H157.0" fill="none" stroke="#000" stroke-width="1.3"/>
+<text x="140.0" y="252.0" font-size="13.5" text-anchor="middle" fill="#000" font-weight="bold">HTML 화면</text>
+<path d="M243.0,190 H266.0 L277.0,201 V234 H243.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M266.0,190 V201 H277.0" fill="none" stroke="#000" stroke-width="1.3"/>
+<text x="260.0" y="252.0" font-size="13.5" text-anchor="middle" fill="#000" font-weight="bold">mwt-ui.js</text>
+<path d="M573.0,340 H596.0 L607.0,351 V384 H573.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M596.0,340 V351 H607.0" fill="none" stroke="#000" stroke-width="1.3"/>
+<text x="590.0" y="402.0" font-size="13.5" text-anchor="middle" fill="#000" font-weight="bold">mwt DB</text>
+<path d="M863.0,290 H886.0 L897.0,301 V334 H863.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M886.0,290 V301 H897.0" fill="none" stroke="#000" stroke-width="1.3"/>
+<text x="880.0" y="352.0" font-size="13.5" text-anchor="middle" fill="#000" font-weight="bold">.env</text>
+<path d="M943.0,290 H966.0 L977.0,301 V334 H943.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M966.0,290 V301 H977.0" fill="none" stroke="#000" stroke-width="1.3"/>
+<text x="960.0" y="352.0" font-size="13.5" text-anchor="middle" fill="#000" font-weight="bold">/srv/mwt</text>
+<rect x="560.0" y="520.0" width="450.0" height="186.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="785.0" y="544.0" font-size="12" text-anchor="middle" fill="#000">«component»</text>
+<text x="785.0" y="564.0" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">Django 애플리케이션</text>
+<rect x="588.0" y="582.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="600.0" y="602.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">config</text>
+<rect x="755.0" y="590" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="592.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="598.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="795.0" y="582.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="807.0" y="602.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">apps.members</text>
+<rect x="962.0" y="590" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="592.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="598.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="588.0" y="620.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="600.0" y="640.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">apps.travel</text>
+<rect x="755.0" y="628" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="630.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="636.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="795.0" y="620.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="807.0" y="640.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">apps.souvenir</text>
+<rect x="962.0" y="628" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="630.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="636.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="588.0" y="658.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="600.0" y="678.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">apps.speech</text>
+<rect x="755.0" y="666" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="668.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="752.0" y="674.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="795.0" y="658.0" width="187.0" height="30.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="807.0" y="678.0" font-size="12.5" text-anchor="start" fill="#000" font-weight="bold">apps.sms</text>
+<rect x="962.0" y="666" width="11" height="14" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="668.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="959.0" y="674.5" width="6" height="3" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="812.0" y="482.0" font-size="12.5" text-anchor="end" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">«deploy»</text>
+<text x="968.0" y="482.0" font-size="12.5" text-anchor="start" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">«Implementation»</text>
+<text x="428.5" y="156.0" font-size="11.5" text-anchor="middle" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">HTTPS 443</text>
+<text x="731.0" y="180.0" font-size="11.5" text-anchor="middle" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">unix</text>
+<text x="731.0" y="209.0" font-size="11.5" text-anchor="middle" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">socket</text>
+<text x="744.0" y="322.0" font-size="11.5" text-anchor="middle" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">TCP 5432</text>
+<text x="1037.5" y="180.0" font-size="11.5" text-anchor="middle" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">HTTPS (REST)</text>
+<text x="208.0" y="329.0" font-size="11.5" text-anchor="start" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">HTTPS (음성 데이터)</text>
+<text x="508.0" y="500.0" font-size="11.5" text-anchor="start" fill="#000" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">인증서 발급·갱신 (ACME)</text>
+</svg>

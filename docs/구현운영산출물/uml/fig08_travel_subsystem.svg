@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="560" viewBox="0 0 1420 560" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<rect x="300" y="54" width="120" height="16" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="300" y="70" width="760" height="410" fill="#fff" stroke="#000" stroke-width="1.7"/>
+<text x="680.0" y="94.0" font-size="13" text-anchor="middle" fill="#000">«subsystem»</text>
+<text x="680.0" y="116.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">apps.travel</text>
+<path d="M740.0,230.0 L620.0,230.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M630.8,224.8 L620.0,230.0 L630.8,235.2" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M860.0,251.3 L860.0,368.6" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M854.8,357.8 L860.0,368.6 L865.2,357.8" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M500.0,251.3 L500.0,368.6" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M494.8,357.8 L500.0,368.6 L505.2,357.8" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M812.0,251.3 L548.0,368.6" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M555.8,359.5 L548.0,368.6 L560.0,369.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M300.0,230.0 L190.0,230.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1060.0,150.0 L1133.0,150.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1060.0,270.0 L1133.0,270.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1060.0,390.0 L1133.0,390.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<rect x="380.0" y="208.7" width="240.0" height="42.7" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="590.0" y="217.65" width="18" height="22" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="585.0" y="221.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="585.0" y="230.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="494.0" y="235.3" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">services</text>
+<rect x="740.0" y="208.7" width="240.0" height="42.7" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="950.0" y="217.65" width="18" height="22" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="945.0" y="221.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="945.0" y="230.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="854.0" y="235.3" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">booking</text>
+<rect x="380.0" y="368.6" width="240.0" height="42.7" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="590.0" y="377.65" width="18" height="22" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="585.0" y="381.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="585.0" y="390.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="494.0" y="395.3" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">configuration</text>
+<rect x="740.0" y="368.6" width="240.0" height="42.7" rx="0" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="950.0" y="377.65" width="18" height="22" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="945.0" y="381.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="945.0" y="390.65" width="10" height="5" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="854.0" y="395.3" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">pricing</text>
+<circle cx="180" cy="230" r="10" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="180.0" y="213.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">TravelManagementAPI</text>
+<path d="M1150.0,167.0 A17,17 0 0 1 1150.0,133.0" fill="none" stroke="#000" stroke-width="1.6"/>
+<text x="1175.0" y="155.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">MemberManagementAPI</text>
+<path d="M1150.0,287.0 A17,17 0 0 1 1150.0,253.0" fill="none" stroke="#000" stroke-width="1.6"/>
+<text x="1175.0" y="275.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">SouvenirManagementAPI</text>
+<path d="M1150.0,407.0 A17,17 0 0 1 1150.0,373.0" fill="none" stroke="#000" stroke-width="1.6"/>
+<text x="1175.0" y="395.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">SMSNotificationAPI</text>
+</svg>
