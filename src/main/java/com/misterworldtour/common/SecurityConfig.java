@@ -1,6 +1,7 @@
 package com.misterworldtour.common;
 
-import com.misterworldtour.members.LoginHandlers;
+import com.misterworldtour.ui.LoginHandlers;
+
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,8 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -22,14 +21,14 @@ import java.util.Set;
  * 로그인·로그아웃과 접근 제한.
  *
  * <p>로그인만 필요한지는 여기서, 고객/직원 역할은 각 컨트롤러의
- * {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 검사한다 (Django 판 데코레이터와 같은 자리).
+ * {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 검사한다 .
  */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
     /**
-     * JSON 으로 응답하는 직원 기능 (Django 판 {@code staff_role_required_json}). 로그인 만료·권한 없음을
+     * JSON 으로 응답하는 직원 기능 (기념품 입고). 로그인 만료·권한 없음을
      * 로그인 화면 이동 대신 JSON 403 PERMISSION_DENIED 로 알린다 (화면 스크립트가 '권한 거부'를 '반영 불명'과 구분).
      */
     static final Set<String> STAFF_JSON_PATHS = Set.of(
@@ -58,7 +57,7 @@ public class SecurityConfig {
                         .logoutUrl("/members/logout/")
                         .logoutSuccessUrl("/"))
                 .exceptionHandling(ex -> ex
-                        // 로그인 필요: JSON 직원 기능은 JSON 403, 나머지는 로그인 화면으로 (Django 판 login_required)
+                        // 로그인 필요: JSON 직원 기능은 JSON 403, 나머지는 로그인 화면으로
                         .authenticationEntryPoint((req, res, e) -> {
                             if (staffJson.matches(req)) {
                                 permissionDenied(res);
@@ -79,11 +78,5 @@ public class SecurityConfig {
         response.setContentType("application/json");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(PERMISSION_DENIED_JSON);
-    }
-
-    /** 기본은 bcrypt. 저장값 앞에 {bcrypt} 처럼 방식이 붙어 나중에 바꿔도 기존 비밀번호가 계속 맞는다. */
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }

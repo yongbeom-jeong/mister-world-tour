@@ -15,8 +15,8 @@
     <label class="small text-muted text-nowrap" for="filter_souvenir">품목</label>
     <select name="souvenir" id="filter_souvenir" class="form-select form-select-sm" style="max-width:18rem">
       <option value="">전체</option>
-      <option th:each="s : ${souvenirs}" th:value="${s.id}" th:selected="${selected != null and selected == s.id}"
-              th:text="|${s.name} (${s.theme.label})${s.active ? '' : ' · 삭제됨'}|">품목</option>
+      <option th:each="s : ${souvenirs}" th:value="${s.souvenirId}" th:selected="${selected != null and selected == s.souvenirId}"
+              th:text="|${s.souvenirName} (${s.theme.label})${s.active ? '' : ' · 삭제됨'}|">품목</option>
     </select>
     <button class="btn btn-sm btn-outline-primary text-nowrap">보기</button>
   </form>
@@ -28,7 +28,7 @@
           <tbody>
             <tr th:each="r : ${rows}" th:with="i=${r.issue}">
               <td class="text-nowrap" th:text="${@mwt.date(i.issuedAt, 'yyyy-MM-dd HH:mm')}">시각</td>
-              <td><th:block th:text="${i.souvenir.name}">품목</th:block><span th:unless="${i.souvenir.active}" class="text-muted"> (삭제됨)</span></td>
+              <td><th:block th:text="${i.souvenir.souvenirName}">품목</th:block><span th:unless="${i.souvenir.active}" class="text-muted"> (삭제됨)</span></td>
               <td><th:block th:text="${r.application != null} ? ${r.application.productName} : '-'">상품</th:block>
                 <div th:if="${r.application != null}" class="text-muted" th:text="|${@mwt.date(r.application.departureDate, 'yyyy-MM-dd')} 출발|">출발</div></td>
               <td class="text-nowrap" th:text="|#${i.applicationId} ${r.memberName}|">신청</td>

@@ -56,7 +56,7 @@
             <th:block th:if="${m != null}">
               <div class="mwt-menu-head">
                 <div class="fw-bold" th:text="|${m.displayName}님|">홍길동님</div>
-                <div class="small text-muted"><th:block th:text="${m.username}">hong</th:block> · <span class="mwt-role" th:text="${m.role.label}">고객</span></div>
+                <div class="small text-muted"><th:block th:text="${m.account}">hong</th:block> · <span class="mwt-role" th:text="${m.role.label}">고객</span></div>
               </div>
               <hr class="dropdown-divider">
               <th:block th:if="${m.customer}">

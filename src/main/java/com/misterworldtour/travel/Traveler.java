@@ -35,11 +35,14 @@ public class Traveler {
     protected Traveler() {
     }
 
-    Traveler(TravelApplication application, String name, String contact, boolean applicant) {
-        this.application = application;
+    public Traveler(String name, String contact, boolean applicant) {
         this.name = name;
         this.contact = contact == null ? "" : contact;
         this.applicant = applicant;
+    }
+
+    void attachTo(TravelApplication application) {
+        this.application = application;
     }
 
     public Long getId() {

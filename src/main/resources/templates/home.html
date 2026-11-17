@@ -161,10 +161,10 @@
           <div class="mwt-card-head">최근 등록한 상품 <a class="small fw-normal" th:href="@{/travel/staff/products/}">전체 보기</a></div>
           <div class="list-group list-group-flush">
             <a th:each="r : ${recentProducts}" class="list-group-item list-group-item-action d-flex gap-3 align-items-center py-3"
-               th:href="@{/travel/staff/products/{id}/(id=${r.product.id})}">
+               th:href="@{/travel/staff/products/{id}/(id=${r.product.productId})}">
               <img class="thumb" th:src="@{${r.product.photoSmUrl}}" alt="">
               <div class="flex-grow-1 text-truncate">
-                <div class="fw-semibold text-truncate" th:text="${r.product.name}">상품</div>
+                <div class="fw-semibold text-truncate" th:text="${r.product.productName}">상품</div>
                 <div class="small text-muted" th:text="|${r.product.theme.label} · ${@mwt.date(r.product.departureDate, 'MM/dd')} 출발|">조건</div>
               </div>
               <span th:class="|tag ${r.applicationCount > 0 ? 'tag-accent' : 'tag-muted'}|" th:text="|신청 ${r.applicationCount}건|">신청</span>
@@ -178,7 +178,7 @@
           <div class="mwt-card-head">기념품 재고 <a class="small fw-normal" th:href="@{/souvenir/staff/stock/}">입고하기</a></div>
           <div class="mwt-card-body">
             <div th:each="s, st : ${souvenirs}" th:class="|d-flex justify-content-between align-items-center ${st.last ? '' : 'mb-3'}|">
-              <div><div class="fw-semibold" th:text="${s.name}">품목</div><div class="small text-muted" th:text="${s.theme.label}">테마</div></div>
+              <div><div class="fw-semibold" th:text="${s.souvenirName}">품목</div><div class="small text-muted" th:text="${s.theme.label}">테마</div></div>
               <div class="text-end">
                 <span th:class="|fw-bold fs-5 ${s.stockQuantity < lowStockLimit ? 'stock-low' : ''}|" th:text="${s.stockQuantity}">0</span><span class="text-muted small">개</span>
                 <div th:if="${s.stockQuantity < lowStockLimit}" class="small stock-low">재고 부족</div>

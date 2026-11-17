@@ -1,16 +1,17 @@
 package com.misterworldtour.speech;
 
 import com.misterworldtour.TestDb;
-import com.misterworldtour.members.MemberPrincipal;
-import com.misterworldtour.members.MemberPrincipalSupport;
+import com.misterworldtour.members.LoginSession;
+import com.misterworldtour.members.LoginSessionSupport;
 import com.misterworldtour.members.Role;
-import com.misterworldtour.speech.SpeechService.Context;
-import com.misterworldtour.speech.SpeechService.Kind;
-import com.misterworldtour.speech.SpeechService.ProductCandidate;
-import com.misterworldtour.speech.SpeechService.Result;
-import com.misterworldtour.speech.SpeechService.Status;
+import com.misterworldtour.speech.SpeechRecognitionAPI.Kind;
+import com.misterworldtour.speech.SpeechRecognitionAPI.ProductCandidate;
+import com.misterworldtour.speech.SpeechRecognitionAPI.Status;
+import com.misterworldtour.speech.SpeechRecognitionAPI.VoiceSelectionContext;
+import com.misterworldtour.speech.SpeechRecognitionAPI.VoiceSelectionResult;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,45 +22,47 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.misterworldtour.members.LoginSessionSupport.login;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 음성·문장 선택 (Django 판 speech/tests.py). */
+/** 음성·문장 선택 (speech/tests.py). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class SpeechTest {
 
     @Autowired
-    SpeechService speech;
+    SpeechRecognitionManager speech;
+    @Autowired
+    VoiceSelectionInterpreter interpreter;
     @Autowired
     MockMvc mvc;
     @Autowired
     JdbcTemplate jdbc;
     @Autowired
-    MemberPrincipalSupport principals;
+    LoginSessionSupport principals;
 
-    final Context ctx = new Context(null, null, List.of(
+    final VoiceSelectionContext ctx = new VoiceSelectionContext(null, null, List.of(
             new ProductCandidate(1, "몰디브 워터빌라 허니문", "몰디브 말레"),
             new ProductCandidate(2, "다낭 골프 챌린지", "베트남 다낭"),
             new ProductCandidate(3, "제주 힐링 효도 여행", "제주도"),
             new ProductCandidate(4, "한라산·올레길 트레킹", "제주도")));
 
-    Result say(String text) {
-        return speech.interpretSelection(text, ctx);
+    VoiceSelectionResult say(String text) {
+        return interpreter.interpretSelection(text, ctx);
     }
 
     @Test
     void themeAndLevelFilter() {
-        Result r = speech.interpretSelection("골프 그랜드 보여줘", new Context(null, null, List.of()));
+        VoiceSelectionResult r = interpreter.interpretSelection("골프 그랜드 보여줘", new VoiceSelectionContext(null, null, List.of()));
         assertThat(r.kind()).isEqualTo(Kind.FILTER);
         assertThat(r.theme()).isEqualTo(Theme.GOLF);
         assertThat(r.level()).isEqualTo(TourLevel.GRAND);
-        Result honeymoon = speech.interpretSelection("신혼여행", new Context(null, null, List.of()));
+        VoiceSelectionResult honeymoon = interpreter.interpretSelection("신혼여행", new VoiceSelectionContext(null, null, List.of()));
         assertThat(honeymoon.theme()).isEqualTo(Theme.HONEYMOON);
         assertThat(honeymoon.level()).isNull(); // 말한 항목만
     }
@@ -75,21 +78,21 @@ class SpeechTest {
     @Test
     void ambiguousAndConflictingAndUnsupported() {
         assertThat(say("제주도").status()).isEqualTo(Status.AMBIGUOUS);
-        assertThat(speech.interpretSelection("골프 트레킹", new Context(null, null, List.of())).status())
+        assertThat(interpreter.interpretSelection("골프 트레킹", new VoiceSelectionContext(null, null, List.of())).status())
                 .isEqualTo(Status.AMBIGUOUS);
         assertThat(say("안녕하세요").status()).isEqualTo(Status.UNSUPPORTED);
     }
 
     @Test
     void recognitionFailures() {
-        assertThat(speech.recognizeSelection(SpeechClient.VoiceInput.ofTranscript("  "), ctx).status())
+        assertThat(speech.recognizeSelection(SpeechServiceClient.VoiceInput.ofTranscript("  "), ctx).status())
                 .isEqualTo(Status.RECOGNITION_FAILED);
-        SpeechService broken = new SpeechService(input -> {
+        SpeechRecognitionManager broken = new SpeechRecognitionManager(input -> {
             throw new IllegalStateException("업체 장애");
-        });
-        assertThat(broken.recognizeSelection(SpeechClient.VoiceInput.ofTranscript("골프"), ctx).message())
+        }, interpreter);
+        assertThat(broken.recognizeSelection(SpeechServiceClient.VoiceInput.ofTranscript("골프"), ctx).message())
                 .contains("연결하지 못했습니다");
-        assertThat(speech.recognizeSelection(SpeechClient.VoiceInput.ofTranscript("몰디브"), ctx).recognizedText())
+        assertThat(speech.recognizeSelection(SpeechServiceClient.VoiceInput.ofTranscript("몰디브"), ctx).recognizedText())
                 .isEqualTo("몰디브");
         assertThat(speech.recordBrowserFailure("<script>", 1L)).isEqualTo("other");
     }
@@ -97,25 +100,25 @@ class SpeechTest {
     @Test
     void recognizeEndpointChoosesFromCurrentListOnly() throws Exception {
         TestDb.clean(jdbc);
-        MemberPrincipal customer = principals.create("cust", Role.CUSTOMER);
+        LoginSession customer = principals.create("cust", Role.CUSTOMER);
         jdbc.update("INSERT INTO travel_product (name, destination, description, theme, tour_level, base_price, travel_days, "
                 + "departure_date, theme_service, hotel_level, transport, meal, departure_status, created_at) VALUES "
                 + "('다낭 골프', '베트남 다낭', '', 'GOLF', 'GRAND', 1000, 3, DATEADD('DAY', 10, CURRENT_DATE), 's', 'STAR4', "
                 + "'LUXURY_VAN_10', 'LOCAL', 'PENDING', CURRENT_TIMESTAMP)");
         long id = jdbc.queryForObject("SELECT id FROM travel_product", Long.class);
-        mvc.perform(post("/speech/recognize/").with(user(customer)).with(csrf()).contentType("application/json")
+        mvc.perform(post("/speech/recognize/").with(login(customer)).with(csrf()).contentType("application/json")
                         .content("{\"transcript\":\"다낭\",\"theme\":\"GOLF\"}"))
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.kind").value("PRODUCT"))
                 .andExpect(jsonPath("$.product_id").value(id));
         // 다른 테마 목록에서는 그 상품이 없으므로 고르지 않는다
-        mvc.perform(post("/speech/recognize/").with(user(customer)).with(csrf()).contentType("application/json")
+        mvc.perform(post("/speech/recognize/").with(login(customer)).with(csrf()).contentType("application/json")
                         .content("{\"transcript\":\"다낭\",\"theme\":\"TREKKING\"}"))
                 .andExpect(jsonPath("$.status").value("UNSUPPORTED"));
-        mvc.perform(post("/speech/failure/").with(user(customer)).with(csrf()).contentType("application/json")
+        mvc.perform(post("/speech/failure/").with(login(customer)).with(csrf()).contentType("application/json")
                 .content("{\"error\":\"no-speech\"}")).andExpect(status().isNoContent());
-        MemberPrincipal staff = principals.create("emp", Role.STAFF);
-        mvc.perform(post("/speech/recognize/").with(user(staff)).with(csrf()).contentType("application/json")
+        LoginSession staff = principals.create("emp", Role.STAFF);
+        mvc.perform(post("/speech/recognize/").with(login(staff)).with(csrf()).contentType("application/json")
                 .content("{}")).andExpect(status().isForbidden());
     }
 }

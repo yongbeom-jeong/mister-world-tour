@@ -1,6 +1,8 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.members.MemberPrincipal;
+import com.misterworldtour.members.LoginSession;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 동시 신청 (Django 판 test_concurrency.py). 상품 행 잠금으로 정원·재고가 넘지 않는지.
+ * 동시 신청 (test_concurrency.py). 상품 행 잠금으로 정원·재고가 넘지 않는지.
  * Django 판의 SQLite 와 달리 H2 는 행 잠금을 지키므로 개발 PC 에서도 확인할 수 있다.
  */
 class BookingConcurrencyTest extends BookingTestBase {
@@ -24,10 +26,10 @@ class BookingConcurrencyTest extends BookingTestBase {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         jdbc.update("UPDATE souvenir SET stock_quantity = 10 WHERE name = '골프공'");
         int customers = 5; // 각 3명씩 → 정원 10명이라 최대 3건만 성공
-        List<Review> reviews = new ArrayList<>();
-        List<MemberPrincipal> members = new ArrayList<>();
+        List<ApplicationReviewResult> reviews = new ArrayList<>();
+        List<LoginSession> members = new ArrayList<>();
         for (int i = 0; i < customers; i++) {
-            MemberPrincipal m = customer("c" + i);
+            LoginSession m = customer("c" + i);
             members.add(m);
             reviews.add(review(m, p, "a" + i, "b" + i));
         }
@@ -39,7 +41,7 @@ class BookingConcurrencyTest extends BookingTestBase {
             results.add(pool.submit(() -> {
                 start.await();
                 try {
-                    booking.submitTravelApplication(members.get(n).getId(), reviews.get(n));
+                    booking.submitTravelApplication(members.get(n).getMemberId(), reviews.get(n));
                     return true;
                 } catch (BookingException e) {
                     return false;
@@ -54,7 +56,7 @@ class BookingConcurrencyTest extends BookingTestBase {
         pool.shutdown();
 
         assertThat(ok).isEqualTo(3);
-        assertThat(booking.currentTravelerCount(p.getId())).isEqualTo(9);
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(9);
         assertThat(stock("골프공")).isEqualTo(1); // 확정 3명 + 추가 3명 + 3명 = 9개 차감
     }
 }

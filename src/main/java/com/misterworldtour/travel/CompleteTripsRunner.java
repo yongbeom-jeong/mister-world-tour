@@ -19,10 +19,10 @@ class CompleteTripsRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(CompleteTripsRunner.class);
 
-    private final TravelService travel;
+    private final TravelManager travel;
     private final ConfigurableApplicationContext context;
 
-    CompleteTripsRunner(TravelService travel, ConfigurableApplicationContext context) {
+    CompleteTripsRunner(TravelManager travel, ConfigurableApplicationContext context) {
         this.travel = travel;
         this.context = context;
     }

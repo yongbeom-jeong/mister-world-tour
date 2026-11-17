@@ -11,14 +11,18 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 
-/** 완료된 여행 이력. 여행 당시 상품 정보를 복사해 보관한다 (설계 05장 TravelHistory). */
+/**
+ * 고객의 이전 여행 이력 (설계 5.1 TravelHistory). 여행 당시 상품 이름·여행 기간·투어 등급·가격과 완료 여부·완료일·
+ * 완료 여행 식별값을 보관한다.
+ */
 @Entity
 @Table(name = "travel_history")
 public class TravelHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private Long historyId;
 
     @Column(name = "member_id", nullable = false)
     private Long memberId;
@@ -34,8 +38,9 @@ public class TravelHistory {
     @Column(name = "tour_level", nullable = false, length = 10)
     private TourLevel tourLevel;
 
+    /** 여행 기간 (일 수). */
     @Column(name = "travel_days", nullable = false)
-    private int travelDays;
+    private int travelPeriod;
 
     @Column(nullable = false)
     private int price;
@@ -50,12 +55,12 @@ public class TravelHistory {
     }
 
     public TravelHistory(Long memberId, String completedTravelId, String productName, TourLevel tourLevel,
-                         int travelDays, int price, boolean completed, LocalDate completedAt) {
+                         int travelPeriod, int price, boolean completed, LocalDate completedAt) {
         this.memberId = memberId;
         this.completedTravelId = completedTravelId;
         this.productName = productName;
         this.tourLevel = tourLevel;
-        this.travelDays = travelDays;
+        this.travelPeriod = travelPeriod;
         this.price = price;
         this.completed = completed;
         this.completedAt = completedAt;
@@ -71,8 +76,8 @@ public class TravelHistory {
         return !completedAt.isBefore(cutoff);
     }
 
-    public Long getId() {
-        return id;
+    public Long getHistoryId() {
+        return historyId;
     }
 
     public Long getMemberId() {
@@ -91,8 +96,8 @@ public class TravelHistory {
         return tourLevel;
     }
 
-    public int getTravelDays() {
-        return travelDays;
+    public int getTravelPeriod() {
+        return travelPeriod;
     }
 
     public int getPrice() {

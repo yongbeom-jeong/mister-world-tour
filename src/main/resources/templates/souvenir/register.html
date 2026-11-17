@@ -57,7 +57,7 @@
               <th:block th:each="g : ${groups}">
                 <tr th:each="s, st : ${g.items}">
                   <td th:if="${st.first}" th:rowspan="${g.items.size()}" class="fw-semibold" th:text="${g.theme.label}">테마</td>
-                  <td th:text="${s.name}">품목</td>
+                  <td th:text="${s.souvenirName}">품목</td>
                   <td class="text-end" th:text="|${s.stockQuantity}개|">0개</td>
                 </tr>
                 <tr th:if="${g.items.isEmpty()}"><td class="fw-semibold" th:text="${g.theme.label}">테마</td><td colspan="2" class="text-danger small">등록된 기념품 없음 (이 테마 상품은 신청할 수 없음)</td></tr>

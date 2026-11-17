@@ -6,14 +6,14 @@
 <section id="page-head" class="mwt-page-head">
   <div class="container">
     <a th:href="@{/souvenir/staff/souvenirs/}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i>기념품 관리</a>
-    <h1 th:text="${souvenir.name}">품목</h1>
+    <h1 th:text="${souvenir.souvenirName}">품목</h1>
     <p th:text="|${souvenir.theme.label} · 현재 재고 ${souvenir.stockQuantity}개 · 입고 ${receiptCount}건 · 차감 ${issueCount}건|">요약</p>
   </div>
 </section>
 <div id="main" class="container pb-4">
   <div class="row g-4">
     <div class="col-lg-7">
-      <form method="post" th:action="@{/souvenir/staff/souvenirs/{id}/edit/(id=${souvenir.id})}" novalidate class="mwt-card">
+      <form method="post" th:action="@{/souvenir/staff/souvenirs/{id}/edit/(id=${souvenir.souvenirId})}" novalidate class="mwt-card">
         <div class="mwt-card-head"><span><i class="bi bi-pencil me-1"></i>정보 수정</span></div>
         <div class="mwt-card-body">
           <div class="mb-3">
@@ -54,12 +54,12 @@
   <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header"><h2 class="modal-title h5" id="deleteModalLabel" th:text="|${souvenir.name} 삭제|">삭제</h2>
+        <div class="modal-header"><h2 class="modal-title h5" id="deleteModalLabel" th:text="|${souvenir.souvenirName} 삭제|">삭제</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button></div>
         <div class="modal-body small" th:text="|삭제하면 되돌릴 수 없습니다. 남은 재고 ${souvenir.stockQuantity}개도 더 이상 관리하지 않습니다.|">안내</div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
-          <form method="post" th:action="@{/souvenir/staff/souvenirs/{id}/delete/(id=${souvenir.id})}">
+          <form method="post" th:action="@{/souvenir/staff/souvenirs/{id}/delete/(id=${souvenir.souvenirId})}">
             <button class="btn btn-danger">삭제</button>
           </form>
         </div>

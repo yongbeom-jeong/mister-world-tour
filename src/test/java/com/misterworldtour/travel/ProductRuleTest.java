@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** 상품 규칙 (Django 판 travel/tests.py ProductRuleTests). */
+/** 상품 규칙 (travel/tests.py ProductRuleTests). */
 class ProductRuleTest {
 
     static TravelProduct product(Theme theme, TourLevel level) {
@@ -31,9 +31,9 @@ class ProductRuleTest {
 
     @Test
     void honeymoonAndFilialRejectClassic() {
-        assertThat(product(Theme.HONEYMOON, TourLevel.CLASSIC).levelError()).isNotNull();
-        assertThat(product(Theme.FILIAL, TourLevel.CLASSIC).levelError()).isNotNull();
-        assertThat(product(Theme.TREKKING, TourLevel.CLASSIC).levelError()).isNull();
+        assertThat(product(Theme.HONEYMOON, TourLevel.CLASSIC).validateProduct(null)).containsKey("tour_level");
+        assertThat(product(Theme.FILIAL, TourLevel.CLASSIC).validateProduct(null)).containsKey("tour_level");
+        assertThat(product(Theme.TREKKING, TourLevel.CLASSIC).validateProduct(null)).doesNotContainKey("tour_level");
     }
 
     @Test

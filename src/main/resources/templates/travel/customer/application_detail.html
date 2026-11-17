@@ -9,12 +9,12 @@
     <div class="d-flex gap-3 align-items-center">
       <img th:src="@{${app.product.photoSmUrl}}" alt="" class="application-summary-photo d-none d-sm-block">
       <div>
-        <h1 class="mb-2" th:text="${app.product.name}">상품</h1>
+        <h1 class="mb-2" th:text="${app.product.productName}">상품</h1>
         <div class="d-flex flex-wrap align-items-center gap-2">
           <span th:if="${app.cancelled}" class="tag tag-danger"><i class="bi bi-x-circle" aria-hidden="true"></i> <th:block th:text="|취소한 신청 · ${@mwt.date(app.cancelledAt, 'yyyy-MM-dd HH:mm')}|">취소</th:block></span>
           <span th:if="${!app.cancelled and status != null and status.name() == 'CONFIRMED'}" class="tag tag-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> 출발 확정</span>
           <span th:if="${!app.cancelled and (status == null or status.name() != 'CONFIRMED')}" class="tag tag-muted"><i class="bi bi-hourglass-split" aria-hidden="true"></i> 출발 미확정 · 3명이 모이면 확정</span>
-          <span class="small text-muted" th:text="|신청 번호 #${app.id}|">신청 번호</span>
+          <span class="small text-muted" th:text="|신청 번호 #${app.applicationId}|">신청 번호</span>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@
         <h2 class="h5 mb-3">여행 정보</h2>
         <dl class="info-list">
           <dt>여행지</dt><dd th:text="${app.product.destination}">여행지</dd>
-          <dt>출발일</dt><dd th:text="|${@mwt.date(app.product.departureDate, 'yyyy년 M월 d일')} (${app.product.travelDays}일)|">출발일</dd>
+          <dt>출발일</dt><dd th:text="|${@mwt.date(app.product.departureDate, 'yyyy년 M월 d일')} (${app.product.travelPeriod}일)|">출발일</dd>
           <dt>호텔</dt><dd th:text="${described.hotel_level}">호텔</dd>
           <dt>교통</dt><dd th:text="${described.transport}">교통</dd>
           <dt>식사</dt><dd th:text="${described.meal}">식사</dd>
@@ -68,10 +68,10 @@
           <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title h5" id="cancelModalLabel">신청을 취소할까요?</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button></div>
-            <div class="modal-body small" th:text="|${app.product.name} 신청(여행자 ${travelers.size()}명)을 취소합니다. 취소한 신청은 되돌릴 수 없습니다.|">안내</div>
+            <div class="modal-body small" th:text="|${app.product.productName} 신청(여행자 ${travelers.size()}명)을 취소합니다. 취소한 신청은 되돌릴 수 없습니다.|">안내</div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
-              <form method="post" th:action="@{/travel/applications/{id}/cancel/(id=${app.id})}">
+              <form method="post" th:action="@{/travel/applications/{id}/cancel/(id=${app.applicationId})}">
                 <button class="btn btn-danger">신청 취소</button>
               </form>
             </div>

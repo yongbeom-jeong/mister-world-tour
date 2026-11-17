@@ -1,6 +1,7 @@
 package com.misterworldtour.demo;
 
 import com.misterworldtour.TestDb;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** 데모 데이터: 여러 번 실행해도 중복 없음 (Django 판 SeedDemoTests·SeedWithApplicationsTests). */
+/** 데모 데이터: 여러 번 실행해도 중복 없음 (SeedDemoTests·SeedWithApplicationsTests). */
 @SpringBootTest(properties = "mwt.media-root=target/test-media")
 @ActiveProfiles("test")
 class DemoSeederTest {

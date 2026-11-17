@@ -1,26 +1,30 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.members.MemberPrincipal;
+import com.misterworldtour.dataaccess.DataAccessAPI;
+import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.members.Role;
+import com.misterworldtour.ui.ViewHelper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import javax.imageio.ImageIO;
 
+import static com.misterworldtour.members.LoginSessionSupport.login;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,11 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 직원 상품 등록(UC6)·관리(UC7) (Django 판 test_staff_products.py). */
+/** 직원 상품 등록(UC6)·관리(UC7). */
 @TestPropertySource(properties = "mwt.media-root=target/test-media")
 class StaffProductWebTest extends BookingTestBase {
 
-    MemberPrincipal staff;
+    @Autowired
+    ViewHelper viewHelper;
+
+    LoginSession staff;
 
     @BeforeEach
     void staff() {
@@ -53,12 +60,12 @@ class StaffProductWebTest extends BookingTestBase {
             values.put(overrides[i], overrides[i + 1]);
         }
         values.forEach(b::param);
-        b.with(user(staff)).with(csrf());
+        b.with(login(staff)).with(csrf());
         return b;
     }
 
     TravelProduct only() {
-        return products.findAll().get(0);
+        return dataAccess.findProducts(new DataAccessAPI.ProductFilter(null, null, null)).get(0);
     }
 
     static byte[] png(int w, int h) throws Exception {
@@ -71,7 +78,7 @@ class StaffProductWebTest extends BookingTestBase {
     void registerSetsDefaultConfiguration() throws Exception {
         MvcResult res = mvc.perform(form("/travel/staff/products/new/")).andReturn();
         TravelProduct p = only();
-        assertThat(res.getResponse().getRedirectedUrl()).isEqualTo("/travel/staff/products/" + p.getId() + "/");
+        assertThat(res.getResponse().getRedirectedUrl()).isEqualTo("/travel/staff/products/" + p.getProductId() + "/");
         assertThat(p.getHotelLevel()).isEqualTo(HotelLevel.STAR4);
         assertThat(p.getMeal()).isEqualTo(MealOption.LOCAL);
         assertThat(p.getTransport()).isEqualTo(TransportOption.LUXURY_VAN_10);
@@ -88,7 +95,7 @@ class StaffProductWebTest extends BookingTestBase {
                 .andExpect(content().string(containsString("여행 기간은 1~30일")))
                 .andExpect(content().string(containsString("출발일은 내일 이후")))
                 .andExpect(content().string(containsString("그랜드 또는 프리미엄만")));
-        assertThat(products.count()).isZero();
+        assertThat(dataAccess.countProducts()).isZero();
     }
 
     @Test
@@ -96,7 +103,7 @@ class StaffProductWebTest extends BookingTestBase {
         mvc.perform(form("/travel/staff/products/new/", "hotelLevel", "STAR3", "transport", "LUXURY_CAR_2"))
                 .andExpect(content().string(containsString("4등급 호텔 이상이어야")))
                 .andExpect(content().string(containsString("선택할 수 없는 교통")));
-        assertThat(products.count()).isZero();
+        assertThat(dataAccess.countProducts()).isZero();
         mvc.perform(form("/travel/staff/products/new/", "hotelLevel", "STAR5", "meal", "FINE", "transport", "LIMOUSINE"));
         TravelProduct p = only();
         assertThat(p.getHotelLevel()).isEqualTo(HotelLevel.STAR5);
@@ -105,30 +112,30 @@ class StaffProductWebTest extends BookingTestBase {
 
     @Test
     void customerCannotUseStaffPages() throws Exception {
-        mvc.perform(get("/travel/staff/products/").with(user(alice))).andExpect(status().isForbidden());
-        mvc.perform(get("/travel/staff/products/new/").with(user(alice))).andExpect(status().isForbidden());
+        mvc.perform(get("/travel/staff/products/").with(login(alice))).andExpect(status().isForbidden());
+        mvc.perform(get("/travel/staff/products/new/").with(login(alice))).andExpect(status().isForbidden());
     }
 
     @Test
     void defaultConfigurationEndpointListsChoices() throws Exception {
         mvc.perform(get("/travel/staff/default-configuration/").param("theme", "GOLF").param("tour_level", "GRAND")
-                        .with(user(staff)))
+                        .with(login(staff)))
                 .andExpect(jsonPath("$.configuration.themeService").value("골프 리조트 테마 연출"))
                 .andExpect(jsonPath("$.configuration.souvenir").value("골프공"))
                 .andExpect(jsonPath("$.configuration.choices.hotel_level[0][0]").value("STAR4"))
                 .andExpect(jsonPath("$.configuration.choices.transport[0][0]").value("LUXURY_VAN_10"));
-        mvc.perform(get("/travel/staff/default-configuration/").param("theme", "X").with(user(staff)))
+        mvc.perform(get("/travel/staff/default-configuration/").param("theme", "X").with(login(staff)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void selectingDoesNotChangeAnythingAndFieldIdsAreUnique() throws Exception {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        String html = mvc.perform(get("/travel/staff/products/{id}/", p.getId()).with(user(staff)))
+        String html = mvc.perform(get("/travel/staff/products/{id}/", p.getProductId()).with(login(staff)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertThat(html).contains("filter_theme").contains("id=\"id_theme\"");
         assertThat(html.split("id=\"id_theme\"", -1)).hasSize(2); // 한 번만
-        assertThat(products.findById(p.getId()).orElseThrow().getName()).isEqualTo(p.getName());
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getProductName()).isEqualTo(p.getProductName());
     }
 
     @Test
@@ -142,8 +149,8 @@ class StaffProductWebTest extends BookingTestBase {
         assertThat(saved.getHeight()).isEqualTo(800);
         assertThat(p.getPhotoUrl()).isEqualTo("/media/" + p.getImage());
 
-        mvc.perform(form("/travel/staff/products/" + p.getId() + "/").param("image-clear", "on"));
-        assertThat(products.findById(p.getId()).orElseThrow().getImage()).isNull();
+        mvc.perform(form("/travel/staff/products/" + p.getProductId() + "/").param("image-clear", "on"));
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getImage()).isNull();
         Files.deleteIfExists(Path.of("target/test-media").resolve(p.getImage()));
     }
 
@@ -152,39 +159,39 @@ class StaffProductWebTest extends BookingTestBase {
         mvc.perform(form("/travel/staff/products/new/").file(new MockMultipartFile("image", "a.txt", "text/plain",
                         "hello".getBytes())))
                 .andExpect(content().string(containsString("사진 파일을 읽을 수 없습니다")));
-        assertThat(products.count()).isZero();
+        assertThat(dataAccess.countProducts()).isZero();
     }
 
     @Test
     void modifyRegeneratesDefaultConfigurationAndValidationKeepsSaved() throws Exception {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        String url = "/travel/staff/products/" + p.getId() + "/";
+        String url = "/travel/staff/products/" + p.getProductId() + "/";
         mvc.perform(form(url, "tourLevel", "PREMIUM", "name", "새 이름")).andExpect(redirectedUrl(url));
-        TravelProduct after = products.findById(p.getId()).orElseThrow();
-        assertThat(after.getName()).isEqualTo("새 이름");
+        TravelProduct after = dataAccess.findProduct(p.getProductId()).orElseThrow();
+        assertThat(after.getProductName()).isEqualTo("새 이름");
         assertThat(after.getHotelLevel()).isEqualTo(HotelLevel.STAR5);
         mvc.perform(form(url, "basePrice", "1")).andExpect(content().string(containsString("1인 기본 가격은")));
-        assertThat(products.findById(p.getId()).orElseThrow().getBasePrice()).isEqualTo(1_490_000);
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getBasePrice()).isEqualTo(1_490_000);
     }
 
     @Test
     void modifyAndDeleteBlockedWhenApplied() throws Exception {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         book(alice, p);
-        String url = "/travel/staff/products/" + p.getId() + "/";
-        mvc.perform(get(url).with(user(staff))).andExpect(content().string(containsString("수정·삭제할 수 없습니다")));
+        String url = "/travel/staff/products/" + p.getProductId() + "/";
+        mvc.perform(get(url).with(login(staff))).andExpect(content().string(containsString("수정·삭제할 수 없습니다")));
         mvc.perform(form(url, "name", "바꿈")).andExpect(content().string(containsString("신청이 있는 상품은 수정할 수 없습니다")));
-        mvc.perform(post(url + "delete/").with(user(staff)).with(csrf())).andExpect(redirectedUrl(url));
-        assertThat(products.findById(p.getId()).orElseThrow().getName()).isEqualTo(p.getName());
+        mvc.perform(post(url + "delete/").with(login(staff)).with(csrf())).andExpect(redirectedUrl(url));
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getProductName()).isEqualTo(p.getProductName());
     }
 
     @Test
     void deleteAndMissingProductRedirects() throws Exception {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        mvc.perform(post("/travel/staff/products/{id}/delete/", p.getId()).with(user(staff)).with(csrf()))
+        mvc.perform(post("/travel/staff/products/{id}/delete/", p.getProductId()).with(login(staff)).with(csrf()))
                 .andExpect(redirectedUrl("/travel/staff/products/"));
-        assertThat(products.count()).isZero();
-        mvc.perform(get("/travel/staff/products/{id}/", p.getId()).with(user(staff)))
+        assertThat(dataAccess.countProducts()).isZero();
+        mvc.perform(get("/travel/staff/products/{id}/", p.getProductId()).with(login(staff)))
                 .andExpect(redirectedUrl("/travel/staff/products/"));
     }
 
@@ -192,7 +199,7 @@ class StaffProductWebTest extends BookingTestBase {
     void listFilter() throws Exception {
         product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "골프 상품");
         product(Theme.TREKKING, TourLevel.CLASSIC, 1_000_000, 30, "트레킹 상품");
-        MockHttpServletRequestBuilder req = get("/travel/staff/products/").param("theme", "GOLF").with(user(staff));
+        MockHttpServletRequestBuilder req = get("/travel/staff/products/").param("theme", "GOLF").with(login(staff));
         mvc.perform(req)
                 .andExpect(content().string(containsString("골프 상품")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(containsString("트레킹 상품"))));

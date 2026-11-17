@@ -1,9 +1,11 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.members.MemberPrincipal;
-import com.misterworldtour.travel.BookingService.ApplicationResult;
-import com.misterworldtour.travel.ConfigurationRules.ConfigurationException;
-import com.misterworldtour.travel.Review.TravelerInput;
+import com.misterworldtour.members.LoginSession;
+import com.misterworldtour.travel.TravelApplication.TravelerInput;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
+import com.misterworldtour.travel.TravelManager.ConfigurationException;
+
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -13,7 +15,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** UC4 구성, UC5 검토·등록·출발 확정·기념품 차감 (Django 판 test_booking.py). */
+/** UC4 구성, UC5 검토·등록·출발 확정·기념품 차감 (test_booking.py). */
 class BookingServiceTest extends BookingTestBase {
 
     // ---------------------------------------------------------------- 구성
@@ -21,49 +23,49 @@ class BookingServiceTest extends BookingTestBase {
     @Test
     void changeOneOptionUpdatesPrice() {
         TravelProduct p = product(Theme.GOLF, TourLevel.CLASSIC); // 3등급 호텔·도시락
-        var r = booking.configureTravelProduct(p, TravelConfig.defaultOf(p).toMap(), Map.of("hotel_level", "STAR5"));
-        assertThat(r.config().hotelLevel()).isEqualTo("STAR5");
-        assertThat(r.config().meal()).isEqualTo("LUNCHBOX"); // 바꾸지 않은 항목은 유지
+        var r = booking.configureTravelProduct(p, TravelConfiguration.defaultOf(p), Map.of("hotel_level", "STAR5"));
+        assertThat(r.configuration().hotelLevel()).isEqualTo("STAR5");
+        assertThat(r.configuration().meal()).isEqualTo("LUNCHBOX"); // 바꾸지 않은 항목은 유지
         assertThat(r.unitPrice()).isEqualTo(1_350_000);
     }
 
     @Test
     void invalidChangeKeepsPrevious() {
         TravelProduct p = product(Theme.GOLF, TourLevel.CLASSIC);
-        Map<String, Object> current = TravelConfig.defaultOf(p).toMap();
+        TravelConfiguration current = TravelConfiguration.defaultOf(p);
         assertThatThrownBy(() -> booking.configureTravelProduct(p, current, Map.of("drinks", List.of("WINE"))))
                 .isInstanceOfSatisfying(ConfigurationException.class, e -> assertThat(e.getErrors()).containsKey("drinks"));
-        assertThat(current).isEqualTo(TravelConfig.defaultOf(p).toMap()); // 직전 구성은 그대로
+        assertThat(current).isEqualTo(TravelConfiguration.defaultOf(p)); // 직전 구성은 그대로
     }
 
     @Test
     void transportRulesByTheme() {
         TravelProduct honeymoon = product(Theme.HONEYMOON, TourLevel.GRAND);
-        Map<String, Object> current = TravelConfig.defaultOf(honeymoon).toMap();
+        TravelConfiguration current = TravelConfiguration.defaultOf(honeymoon);
         assertThatThrownBy(() -> booking.configureTravelProduct(honeymoon, current, Map.of("transport", "LUXURY_VAN_10")))
                 .isInstanceOf(ConfigurationException.class);
-        assertThat(booking.configureTravelProduct(honeymoon, current, Map.of("transport", "LIMOUSINE")).config().transport())
+        assertThat(booking.configureTravelProduct(honeymoon, current, Map.of("transport", "LIMOUSINE")).configuration().transport())
                 .isEqualTo("LIMOUSINE");
     }
 
     @Test
     void includedChampagneNotCharged() {
         TravelProduct p = product(Theme.GOLF, TourLevel.PREMIUM); // 고급 식사(샴페인 포함)
-        assertThat(booking.configureTravelProduct(p, TravelConfig.defaultOf(p).toMap(),
+        assertThat(booking.configureTravelProduct(p, TravelConfiguration.defaultOf(p),
                 Map.of("drinks", List.of("CHAMPAGNE"))).unitPrice()).isEqualTo(1_000_000);
     }
 
     @Test
     void restrictedThemesCannotChooseBelowGrand() {
         TravelProduct p = product(Theme.FILIAL, TourLevel.GRAND);
-        Map<String, Object> current = TravelConfig.defaultOf(p).toMap();
+        TravelConfiguration current = TravelConfiguration.defaultOf(p);
         assertThatThrownBy(() -> booking.configureTravelProduct(p, current, Map.of("hotel_level", "STAR3")))
                 .isInstanceOf(ConfigurationException.class);
         assertThatThrownBy(() -> booking.configureTravelProduct(p, current, Map.of("meal", "LUNCHBOX")))
                 .isInstanceOf(ConfigurationException.class);
         TravelProduct golf = product(Theme.GOLF, TourLevel.GRAND);
-        assertThat(booking.configureTravelProduct(golf, TravelConfig.defaultOf(golf).toMap(),
-                Map.of("hotel_level", "STAR3")).config().hotelLevel()).isEqualTo("STAR3");
+        assertThat(booking.configureTravelProduct(golf, TravelConfiguration.defaultOf(golf),
+                Map.of("hotel_level", "STAR3")).configuration().hotelLevel()).isEqualTo("STAR3");
     }
 
     // ---------------------------------------------------------------- 검토
@@ -103,10 +105,10 @@ class BookingServiceTest extends BookingTestBase {
         for (int i = 0; i < 3; i++) {
             jdbc.update("INSERT INTO travel_history (member_id, completed_travel_id, product_name, tour_level, "
                     + "travel_days, price, completed, completed_at) VALUES (?, ?, 'p', 'GRAND', 3, 1, TRUE, ?)",
-                    alice.getId(), "t" + i, today.minusDays(100L * (i + 1)));
+                    alice.getMemberId(), "t" + i, today.minusDays(100L * (i + 1)));
         }
-        Review r = review(alice, product(Theme.GOLF, TourLevel.GRAND), "밥");
-        assertThat(List.of(r.breakdown().subtotal(), r.breakdown().discountAmount(), r.breakdown().finalAmount()))
+        ApplicationReviewResult r = review(alice, product(Theme.GOLF, TourLevel.GRAND), "밥");
+        assertThat(List.of(r.price().subtotal(), r.price().discountAmount(), r.price().finalAmount()))
                 .containsExactly(2_000_000, 200_000, 1_800_000);
     }
 
@@ -114,7 +116,7 @@ class BookingServiceTest extends BookingTestBase {
     void invalidCompanionContact() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         List<TravelerInput> rows = List.of(new TravelerInput("x", "", true), new TravelerInput("밥", "123", false));
-        assertThatThrownBy(() -> booking.reviewApplication(alice.getId(), p.getId(), TravelConfig.defaultOf(p), rows))
+        assertThatThrownBy(() -> booking.reviewApplication(alice.getMemberId(), p.getProductId(), TravelConfiguration.defaultOf(p), rows))
                 .isInstanceOfSatisfying(BookingException.class, e -> assertThat(e.getErrors()).containsKey("traveler_1"));
     }
 
@@ -123,7 +125,7 @@ class BookingServiceTest extends BookingTestBase {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         List<TravelerInput> rows = List.of(new TravelerInput("무시됨", "", true),
                 new TravelerInput("동반", "01099990000", false));
-        Review r = booking.reviewApplication(alice.getId(), p.getId(), TravelConfig.defaultOf(p), rows);
+        ApplicationReviewResult r = booking.reviewApplication(alice.getMemberId(), p.getProductId(), TravelConfiguration.defaultOf(p), rows);
         assertThat(r.travelers().get(0)).isEqualTo(new TravelerInput("앨리스", "010-1000-0001", true));
         assertThat(r.travelers().get(1).contact()).isEqualTo("010-9999-0000");
     }
@@ -133,7 +135,7 @@ class BookingServiceTest extends BookingTestBase {
     @Test
     void groupConfirmsAtThreeAndListsAllApplicants() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        MemberPrincipal bob = customer("bob");
+        LoginSession bob = customer("bob");
         ApplicationResult first = book(bob, p, "밥동반"); // 2명
         assertThat(first.departureStatus()).isEqualTo(DepartureStatus.PENDING);
         assertThat(first.recipientMemberIds()).isEmpty();
@@ -141,57 +143,57 @@ class BookingServiceTest extends BookingTestBase {
         ApplicationResult second = book(alice, p); // +1 → 3명
         assertThat(second.newlyConfirmed()).isTrue();
         assertThat(second.departureStatus()).isEqualTo(DepartureStatus.CONFIRMED);
-        assertThat(second.recipientMemberIds()).containsExactlyInAnyOrder(bob.getId(), alice.getId());
+        assertThat(second.recipientMemberIds()).containsExactlyInAnyOrder(bob.getMemberId(), alice.getMemberId());
 
-        MemberPrincipal carol = customer("carol");
+        LoginSession carol = customer("carol");
         ApplicationResult third = book(carol, p); // 이미 확정된 상품의 추가 신청
         assertThat(third.newlyConfirmed()).isFalse();
-        assertThat(third.recipientMemberIds()).containsExactly(carol.getId());
+        assertThat(third.recipientMemberIds()).containsExactly(carol.getMemberId());
     }
 
     @Test
     void sameCustomerTwiceIsOneRecipient() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         book(alice, p);
-        assertThat(book(alice, p, "동반").recipientMemberIds()).containsExactly(alice.getId());
+        assertThat(book(alice, p, "동반").recipientMemberIds()).containsExactly(alice.getMemberId());
     }
 
     @Test
     void honeymoonEachApplicationConfirmedIndependently() {
         TravelProduct p = product(Theme.HONEYMOON, TourLevel.GRAND);
-        MemberPrincipal bob = customer("bob");
+        LoginSession bob = customer("bob");
         ApplicationResult r1 = book(alice, p, "배우자");
         ApplicationResult r2 = book(bob, p, "배우자2");
         assertThat(r1.departureStatus()).isEqualTo(DepartureStatus.CONFIRMED);
-        assertThat(r1.recipientMemberIds()).containsExactly(alice.getId());
-        assertThat(r2.recipientMemberIds()).containsExactly(bob.getId());
-        assertThat(products.findById(p.getId()).orElseThrow().getDepartureStatus()).isNull();
+        assertThat(r1.recipientMemberIds()).containsExactly(alice.getMemberId());
+        assertThat(r2.recipientMemberIds()).containsExactly(bob.getMemberId());
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getDepartureStatus()).isNull();
     }
 
     @Test
     void resubmitSameKeyDoesNotDuplicate() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        Review r = review(alice, p);
-        booking.submitTravelApplication(alice.getId(), r);
-        assertThat(booking.submitTravelApplication(alice.getId(), r).duplicate()).isTrue();
+        ApplicationReviewResult r = review(alice, p);
+        booking.submitTravelApplication(alice.getMemberId(), r);
+        assertThat(booking.submitTravelApplication(alice.getMemberId(), r).duplicate()).isTrue();
         assertThat(applicationCount()).isEqualTo(1);
-        assertThat(booking.currentTravelerCount(p.getId())).isEqualTo(1);
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(1);
     }
 
     @Test
     void resubmitSameKeyWithDifferentContentIsRejected() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        Review r = review(alice, p, "동반");
-        booking.submitTravelApplication(alice.getId(), r);
-        Review changedTravelers = new Review(r.requestKey(), r.productId(), r.memberId(), r.config(),
-                List.of(r.travelers().get(0), new TravelerInput("다른 사람", "", false)), r.breakdown());
-        TravelConfig c = r.config();
-        Review changedConfig = new Review(r.requestKey(), r.productId(), r.memberId(),
-                new TravelConfig("STAR3".equals(c.hotelLevel()) ? "STAR4" : "STAR3", c.transport(), c.meal(), c.drinks()),
-                r.travelers(), r.breakdown());
-        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getId(), changedTravelers))
+        ApplicationReviewResult r = review(alice, p, "동반");
+        booking.submitTravelApplication(alice.getMemberId(), r);
+        ApplicationReviewResult changedTravelers = new ApplicationReviewResult(r.requestKey(), r.productId(), r.memberId(), r.configuration(),
+                List.of(r.travelers().get(0), new TravelerInput("다른 사람", "", false)), r.price());
+        TravelConfiguration c = r.configuration();
+        ApplicationReviewResult changedConfig = new ApplicationReviewResult(r.requestKey(), r.productId(), r.memberId(),
+                new TravelConfiguration("STAR3".equals(c.hotelLevel()) ? "STAR4" : "STAR3", c.transport(), c.meal(), c.drinks()),
+                r.travelers(), r.price());
+        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), changedTravelers))
                 .isInstanceOf(BookingException.class);
-        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getId(), changedConfig))
+        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), changedConfig))
                 .isInstanceOf(BookingException.class);
         assertThat(applicationCount()).isEqualTo(1);
     }
@@ -199,26 +201,26 @@ class BookingServiceTest extends BookingTestBase {
     @Test
     void priceChangeAfterReviewIsNotSaved() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        Review r = review(alice, p);
-        jdbc.update("UPDATE travel_product SET base_price = 1200000 WHERE id = ?", p.getId());
-        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getId(), r))
-                .isInstanceOf(BookingService.PriceChangedException.class);
+        ApplicationReviewResult r = review(alice, p);
+        jdbc.update("UPDATE travel_product SET base_price = 1200000 WHERE id = ?", p.getProductId());
+        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), r))
+                .isInstanceOf(TravelManager.PriceChangedException.class);
         assertThat(applicationCount()).isZero();
     }
 
     @Test
     void capacityRecheckedAtSubmit() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        Review r = review(alice, p, "a", "b"); // 3명, 검토 시점엔 가능
+        ApplicationReviewResult r = review(alice, p, "a", "b"); // 3명, 검토 시점엔 가능
         book(customer("bob"), p, "1", "2", "3", "4", "5", "6", "7"); // 그 사이 8명 신청
-        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getId(), r)).isInstanceOf(BookingException.class);
-        assertThat(booking.currentTravelerCount(p.getId())).isEqualTo(8);
+        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), r)).isInstanceOf(BookingException.class);
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(8);
     }
 
     @Test
     void otherCustomerCannotSubmitReview() {
-        Review r = review(alice, product(Theme.GOLF, TourLevel.GRAND));
-        long mallory = customer("mallory").getId();
+        ApplicationReviewResult r = review(alice, product(Theme.GOLF, TourLevel.GRAND));
+        long mallory = customer("mallory").getMemberId();
         assertThatThrownBy(() -> booking.submitTravelApplication(mallory, r)).isInstanceOf(BookingException.class);
     }
 
@@ -271,9 +273,9 @@ class BookingServiceTest extends BookingTestBase {
     void shortageAtSubmitRollsBackEverything() {
         jdbc.update("INSERT INTO souvenir (name, name_key, theme, stock_quantity) VALUES ('골프 장갑', '골프 장갑', 'GOLF', 10)");
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
-        Review r = review(alice, p, "a", "b");
+        ApplicationReviewResult r = review(alice, p, "a", "b");
         jdbc.update("UPDATE souvenir SET stock_quantity = 1 WHERE name = '골프 장갑'"); // 검토 뒤 재고가 줄어듦
-        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getId(), r)).isInstanceOf(BookingException.class);
+        assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), r)).isInstanceOf(BookingException.class);
         assertThat(applicationCount()).isZero();
         assertThat(stock("골프공")).isEqualTo(100); // 앞 품목 차감도 되돌아감
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM stock_issue", Integer.class)).isZero();

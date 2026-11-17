@@ -1,5 +1,7 @@
 package com.misterworldtour.members;
 
+import com.misterworldtour.dataaccess.DataAccessAPI;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** UC1 회원가입·UC2 로그인 (Django 판 apps/members/tests.py 를 옮김). */
+/** UC1 회원가입·UC2 로그인 (apps/members/tests.py 를 옮김). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -49,13 +52,11 @@ class MemberWebTest {
     @Autowired
     JdbcTemplate jdbc;
     @Autowired
-    MemberRepository members;
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    DataAccessAPI members;
     @Autowired
     PlatformTransactionManager transactionManager;
     @MockitoSpyBean
-    MemberService memberService;
+    MemberManager memberService;
 
     @BeforeEach
     void clean() {
@@ -82,8 +83,12 @@ class MemberWebTest {
         return post("/members/signup/").params(signupData(overrides)).with(csrf());
     }
 
+    long memberCount() {
+        return jdbc.queryForObject("SELECT COUNT(*) FROM member", Long.class);
+    }
+
     Member createMember(String username, Role role) {
-        return members.saveAndFlush(new Member(username, passwordEncoder.encode(PW), "이름", "", "010-0000-0000", role));
+        return members.saveMember(new Member(username, Member.hashPassword(PW), "이름", "", "010-0000-0000", role));
     }
 
     // ---------------------------------------------------------------- UC1 회원가입
@@ -93,11 +98,11 @@ class MemberWebTest {
         mvc.perform(signup())
                 .andExpect(redirectedUrl("/members/login/"))
                 .andExpect(flash().attributeExists("messages"));
-        Member m = members.findByUsername("hong_1").orElseThrow();
+        Member m = members.findMemberByAccount("hong_1").orElseThrow();
         assertThat(m.isCustomer()).isTrue();
         assertThat(m.getContact()).isEqualTo("010-1234-5678");
         assertThat(m.getPasswordHash()).isNotEqualTo(PW);
-        assertThat(passwordEncoder.matches(PW, m.getPasswordHash())).isTrue();
+        assertThat(m.checkPassword(PW)).isTrue();
     }
 
     @Test
@@ -105,11 +110,11 @@ class MemberWebTest {
         mvc.perform(signup("memberType", "STAFF", "staffCode", "wrong"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("form", "staffCode"));
-        assertThat(members.count()).isZero();
+        assertThat(memberCount()).isZero();
 
         mvc.perform(signup("memberType", "STAFF", "staffCode", "TEST-STAFF-CODE"))
                 .andExpect(redirectedUrl("/members/login/"));
-        assertThat(members.findByUsername("hong_1").orElseThrow().isStaffMember()).isTrue();
+        assertThat(members.findMemberByAccount("hong_1").orElseThrow().isStaffMember()).isTrue();
     }
 
     @Test
@@ -127,21 +132,24 @@ class MemberWebTest {
     })
     void invalidInputsPointToFields(String errorField, String field, String value) throws Exception {
         mvc.perform(signup(field, value)).andExpect(model().attributeHasFieldErrors("form", errorField));
-        assertThat(members.count()).isZero();
+        assertThat(memberCount()).isZero();
     }
 
     @Test
     void numericShortPasswordIsRejected() throws Exception {
         mvc.perform(signup("password1", "1234", "password2", "1234"))
                 .andExpect(model().attributeHasFieldErrors("form", "password1"));
-        assertThat(members.count()).isZero();
+        assertThat(memberCount()).isZero();
     }
 
     @Test
     void dbRejectsSameUsernameWithDifferentCase() {
         createMember("Hong_gd", Role.CUSTOMER);
-        assertThatThrownBy(() -> memberService.signUp(Role.CUSTOMER, "HONG_GD", "x", "홍3", "", "010-1111-4444"))
-                .isInstanceOf(MemberService.DuplicateAccountException.class);
+        // 화면·MemberManager 검사를 지나도(동시 가입) 대소문자만 다른 아이디는 DB 유일 제약이 막는다
+        assertThatThrownBy(() -> members.saveMember(new Member("HONG_GD", Member.hashPassword(PW), "홍3", "", "010-1111-4444",
+                Role.CUSTOMER))).isInstanceOf(DataIntegrityViolationException.class);
+        assertThat(memberService.signUp(Role.CUSTOMER, "HONG_GD", PW, "홍3", "주소", "010-1111-4444").errors())
+                .containsKey("account");
     }
 
     /** UC1 5a: 가입 저장 중 DB 오류는 가입 여부를 확인해 안내한다. */
@@ -152,7 +160,7 @@ class MemberWebTest {
         mvc.perform(signup())
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("가입되지 않았습니다")));
-        assertThat(members.count()).isZero();
+        assertThat(memberCount()).isZero();
     }
 
     /** 저장(커밋)은 됐는데 응답 전에 연결이 끊긴 경우. 저장은 별도 트랜잭션으로 먼저 확정한다. */

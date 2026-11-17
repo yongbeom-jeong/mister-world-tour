@@ -1,12 +1,15 @@
 package com.misterworldtour.travel;
 
 import com.misterworldtour.TestDb;
-import com.misterworldtour.members.MemberPrincipal;
-import com.misterworldtour.members.MemberPrincipalSupport;
+import com.misterworldtour.dataaccess.DataAccessAPI;
+import com.misterworldtour.members.LoginSession;
+import com.misterworldtour.members.LoginSessionSupport;
 import com.misterworldtour.members.Role;
-import com.misterworldtour.souvenir.SouvenirService;
-import com.misterworldtour.travel.BookingService.ApplicationResult;
-import com.misterworldtour.travel.Review.TravelerInput;
+import com.misterworldtour.souvenir.SouvenirManager;
+import com.misterworldtour.travel.TravelApplication.TravelerInput;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 신청 테스트 공통 (Django 판 BookingTestBase). 기념품 재고는 모두 100개로 시작한다. */
+/** 신청 테스트 공통. 기념품 재고는 모두 100개로 시작한다. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -30,17 +33,15 @@ abstract class BookingTestBase {
     @Autowired
     JdbcTemplate jdbc;
     @Autowired
-    BookingService booking;
+    TravelManager booking;
     @Autowired
-    SouvenirService souvenirs;
+    SouvenirManager souvenirs;
     @Autowired
-    TravelProductRepository products;
+    DataAccessAPI dataAccess;
     @Autowired
-    TravelApplicationRepository applications;
-    @Autowired
-    MemberPrincipalSupport principals;
+    LoginSessionSupport principals;
 
-    MemberPrincipal alice;
+    LoginSession alice;
 
     @BeforeEach
     void baseSetUp() {
@@ -49,11 +50,11 @@ abstract class BookingTestBase {
         alice = customer("alice", "앨리스", "010-1000-0001");
     }
 
-    MemberPrincipal customer(String username) {
+    LoginSession customer(String username) {
         return customer(username, username, "010-1111-2222");
     }
 
-    MemberPrincipal customer(String username, String name, String contact) {
+    LoginSession customer(String username, String name, String contact) {
         return principals.create(username, Role.CUSTOMER, name, contact);
     }
 
@@ -62,7 +63,7 @@ abstract class BookingTestBase {
     }
 
     TravelProduct product(Theme theme, TourLevel level, int price, int daysAhead, String name) {
-        return products.save(new TravelProduct(name, "어딘가", "", theme, level, price, 4,
+        return dataAccess.saveProduct(new TravelProduct(name, "어딘가", "", theme, level, price, 4,
                 LocalDate.now().plusDays(daysAhead)));
     }
 
@@ -76,12 +77,13 @@ abstract class BookingTestBase {
         return rows;
     }
 
-    Review review(MemberPrincipal member, TravelProduct p, String... companions) {
-        return booking.reviewApplication(member.getId(), p.getId(), TravelConfig.defaultOf(p), rows(companions));
+    ApplicationReviewResult review(LoginSession member, TravelProduct p, String... companions) {
+        return booking.reviewApplication(member.getMemberId(), p.getProductId(), TravelConfiguration.defaultOf(p),
+                rows(companions));
     }
 
-    ApplicationResult book(MemberPrincipal member, TravelProduct p, String... companions) {
-        return booking.submitTravelApplication(member.getId(), review(member, p, companions));
+    ApplicationResult book(LoginSession member, TravelProduct p, String... companions) {
+        return booking.submitTravelApplication(member.getMemberId(), review(member, p, companions));
     }
 
     int stock(String souvenirName) {
@@ -89,6 +91,6 @@ abstract class BookingTestBase {
     }
 
     long applicationCount() {
-        return applications.count();
+        return jdbc.queryForObject("SELECT COUNT(*) FROM travel_application", Long.class);
     }
 }

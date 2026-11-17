@@ -1,10 +1,13 @@
 package com.misterworldtour.speech;
 
+import com.misterworldtour.speech.SpeechServiceClient.Recognized;
+import com.misterworldtour.speech.SpeechServiceClient.VoiceInput;
+
 import org.springframework.stereotype.Component;
 
 /** 브라우저 Web Speech API 가 이미 인식한 문장을 그대로 사용한다 (Chrome·Edge). */
 @Component
-class BrowserTranscriptClient implements SpeechClient {
+class BrowserTranscriptClient implements SpeechServiceClient {
 
     static final int MAX_LENGTH = 200;
 

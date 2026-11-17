@@ -1,17 +1,17 @@
 package com.misterworldtour.demo;
 
 import com.misterworldtour.common.MwtProperties;
-import com.misterworldtour.members.MemberService;
+import com.misterworldtour.members.MemberManager;
 import com.misterworldtour.members.Role;
-import com.misterworldtour.souvenir.SouvenirService;
-import com.misterworldtour.travel.BookingService;
-import com.misterworldtour.travel.Review;
-import com.misterworldtour.travel.Review.TravelerInput;
+import com.misterworldtour.souvenir.SouvenirManager;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
-import com.misterworldtour.travel.TravelConfig;
+import com.misterworldtour.travel.TravelApplication.TravelerInput;
+import com.misterworldtour.travel.TravelConfiguration;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
+import com.misterworldtour.travel.TravelManager;
 import com.misterworldtour.travel.TravelProduct;
-import com.misterworldtour.travel.TravelService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 데모·시험용 더미 데이터 (Django 판 {@code manage.py seed_demo}).
+ * 데모·시험용 더미 데이터.
  *
  * <pre>mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--seed-demo</pre>
  *
@@ -113,18 +113,16 @@ class DemoSeeder implements ApplicationRunner {
             new DemoApplication("customer2", "제주 힐링 효도 여행",
                     List.of("이부모", "이모친", "김이모", "김삼촌", "박사촌", "박조카", "최할매")));
 
-    private final MemberService members;
-    private final TravelService travel;
-    private final BookingService booking;
-    private final SouvenirService souvenirs;
+    private final MemberManager members;
+    private final TravelManager travel;
+    private final SouvenirManager souvenirs;
     private final MwtProperties properties;
     private final Clock clock;
 
-    DemoSeeder(MemberService members, TravelService travel, BookingService booking, SouvenirService souvenirs,
+    DemoSeeder(MemberManager members, TravelManager travel, SouvenirManager souvenirs,
                MwtProperties properties, Clock clock) {
         this.members = members;
         this.travel = travel;
-        this.booking = booking;
         this.souvenirs = souvenirs;
         this.properties = properties;
         this.clock = clock;
@@ -141,19 +139,19 @@ class DemoSeeder implements ApplicationRunner {
         LocalDate today = LocalDate.now(clock);
         int newMembers = 0;
         for (DemoMember m : MEMBERS) {
-            if (members.findByUsername(m.username()).isEmpty()) {
+            if (members.findMemberByAccount(m.username()).isEmpty()) {
                 members.signUp(m.role(), m.username(), PASSWORD, m.name(), m.address(), m.contact());
                 newMembers++;
             }
         }
         int newProducts = 0;
         for (DemoProduct d : PRODUCTS) {
-            if (travel.findByName(d.name()).isPresent()) {
+            if (travel.findProductByName(d.name()).isPresent()) {
                 continue;
             }
             TravelProduct p = travel.registerTourProduct(new TravelProduct(d.name(), d.destination(), d.description(),
                     d.theme(), d.level(), d.price(), d.days(), today.plusDays(d.daysUntilDeparture())));
-            travel.setProductImage(p.getId(), copyPhoto(d.photo()));
+            travel.setProductImage(p.getProductId(), copyPhoto(d.photo()));
             newProducts++;
         }
         long staffId = memberId("staff1");
@@ -176,18 +174,18 @@ class DemoSeeder implements ApplicationRunner {
             DemoApplication a = APPLICATIONS.get(i);
             String key = "seed-application-" + i;
             long mid = memberId(a.username());
-            if (booking.findSubmittedApplication(mid, key).isPresent()) {
+            if (travel.findSubmittedApplication(mid, key).isPresent()) {
                 continue;
             }
-            TravelProduct product = travel.findByName(a.productName()).orElse(null);
+            TravelProduct product = travel.findProductByName(a.productName()).orElse(null);
             if (product == null) {
                 continue;
             }
             List<TravelerInput> rows = new ArrayList<>();
             rows.add(new TravelerInput("", "", true)); // 첫 행은 신청 고객 본인 (계정 정보로 채움)
             a.companions().forEach(n -> rows.add(new TravelerInput(n, "", false)));
-            Review review = booking.reviewApplication(mid, product.getId(), TravelConfig.defaultOf(product), rows);
-            booking.submitTravelApplication(mid, review.withRequestKey(key));
+            ApplicationReviewResult review = travel.reviewApplication(mid, product.getProductId(), TravelConfiguration.defaultOf(product), rows);
+            travel.submitTravelApplication(mid, review.withRequestKey(key));
             newApps++;
         }
         log.info("데모 데이터 준비 완료: 계정 {}개·상품 {}개·이력 {}건·신청 {}건 신규 (비밀번호 모두 {})",
@@ -195,7 +193,7 @@ class DemoSeeder implements ApplicationRunner {
     }
 
     private long memberId(String username) {
-        return members.findByUsername(username).orElseThrow().getId();
+        return members.findMemberByAccount(username).orElseThrow().getMemberId();
     }
 
     /** 데모 상품 사진을 업로드 사진처럼 media 폴더에 복사한다. 반환값은 media 기준 경로. */

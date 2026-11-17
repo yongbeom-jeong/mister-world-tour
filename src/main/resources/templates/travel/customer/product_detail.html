@@ -1,25 +1,25 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
-<head><title th:text="${product.name} + ' | 미스터 월드 투어'">상품 | 미스터 월드 투어</title></head>
+<head><title th:text="${product.productName} + ' | 미스터 월드 투어'">상품 | 미스터 월드 투어</title></head>
 <body>
 <section id="page-head" class="detail-title">
   <div class="container">
     <a th:href="@{/travel/products/(theme=${product.theme.name()})}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i><th:block th:text="|${product.theme.shortLabel} 상품 목록|">상품 목록</th:block></a>
-    <h1 th:text="${product.name}">상품</h1>
+    <h1 th:text="${product.productName}">상품</h1>
     <div class="meta">
       <span th:if="${product.confirmed}" class="tag tag-success"><i class="bi bi-check2" aria-hidden="true"></i>출발 확정</span>
       <span><i th:class="|bi ${@mwt.theme(product.theme).icon}|" aria-hidden="true"></i> <th:block th:text="|${product.theme.shortLabel} · ${product.tourLevel.label}|">테마</th:block></span>
       <span class="text-muted">·</span>
       <span th:text="${product.destination}">여행지</span>
       <span class="text-muted">·</span>
-      <span th:text="|${@mwt.date(product.departureDate, 'yyyy년 M월 d일')} 출발 · ${product.travelDays}일|">출발</span>
+      <span th:text="|${@mwt.date(product.departureDate, 'yyyy년 M월 d일')} 출발 · ${product.travelPeriod}일|">출발</span>
     </div>
   </div>
 </section>
 
 <div id="main" class="container pb-4">
-  <div class="detail-photo"><img th:src="@{${product.photoUrl}}" th:alt="|${product.name} 대표 사진|"></div>
+  <div class="detail-photo"><img th:src="@{${product.photoUrl}}" th:alt="|${product.productName} 대표 사진|"></div>
 
   <div class="row g-4 g-lg-5">
     <div class="col-lg-7">
@@ -82,14 +82,14 @@
     <div class="col-lg-5 col-xl-4 offset-xl-1">
       <aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
         <div class="booking-bar-product">
-          <div class="fw-bold" th:text="${product.name}">상품</div>
-          <div class="small text-muted" th:text="|${@mwt.date(product.departureDate, 'M월 d일')} 출발 · ${product.travelDays}일 · 기본 ${@mwt.won(product.basePrice)}|">조건</div>
+          <div class="fw-bold" th:text="${product.productName}">상품</div>
+          <div class="small text-muted" th:text="|${@mwt.date(product.departureDate, 'M월 d일')} 출발 · ${product.travelPeriod}일 · 기본 ${@mwt.won(product.basePrice)}|">조건</div>
         </div>
         <div class="booking-bar-price">
           <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price" th:text="${unitPrice}">0</span>원 <span class="fs-6 fw-normal text-muted">/ 1인</span></div>
           <div class="booking-note">옵션 포함, 단골 할인 적용 전</div>
         </div>
-        <form method="post" th:action="@{/travel/products/{id}/apply/(id=${product.id})}">
+        <form method="post" th:action="@{/travel/products/{id}/apply/(id=${product.productId})}">
           <input type="hidden" name="config" id="config-input" th:value="${configJson}">
           <button class="btn btn-primary btn-lg" id="apply-btn">이 구성으로 신청하기</button>
         </form>
@@ -100,7 +100,7 @@
 
 <script id="scripts" th:inline="javascript">
 (() => {
-  const URL = /*[[@{/travel/products/{id}/configure/(id=${product.id})}]]*/ "";
+  const URL = /*[[@{/travel/products/{id}/configure/(id=${product.productId})}]]*/ "";
   const csrf = document.querySelector("input[name=_csrf]").value;
   const NO_DRINK_MEALS = /*[[${noDrinkMeals}]]*/ [];
   const INCLUDED = /*[[${includedDrinks}]]*/ {};

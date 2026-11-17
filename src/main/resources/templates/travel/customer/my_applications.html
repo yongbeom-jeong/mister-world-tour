@@ -12,11 +12,11 @@
 <div id="main" class="container pb-4">
   <div th:if="${!applications.isEmpty()}" class="row g-3">
     <div th:each="row : ${applications}" class="col-lg-6" th:with="a=${row.application}">
-      <a class="app-card" th:href="@{/travel/applications/{id}/(id=${a.id})}">
+      <a class="app-card" th:href="@{/travel/applications/{id}/(id=${a.applicationId})}">
         <img th:src="@{${a.product.photoSmUrl}}" alt="">
         <div class="flex-grow-1">
           <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
-            <span class="fw-bold" th:text="${a.product.name}">상품</span>
+            <span class="fw-bold" th:text="${a.product.productName}">상품</span>
             <span th:if="${a.cancelled}" class="tag tag-muted flex-shrink-0">취소함</span>
             <span th:if="${!a.cancelled and a.currentDepartureStatus() != null and a.currentDepartureStatus().name() == 'CONFIRMED'}" class="tag tag-success flex-shrink-0">출발 확정</span>
             <span th:if="${!a.cancelled and (a.currentDepartureStatus() == null or a.currentDepartureStatus().name() != 'CONFIRMED')}" class="tag tag-muted flex-shrink-0">출발 미확정</span>
