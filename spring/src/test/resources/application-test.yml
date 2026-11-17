@@ -1,0 +1,6 @@
+# 테스트: 메모리 H2 (테스트마다 표를 비운다). .env 와 무관하게 같은 값으로 돈다.
+spring:
+  datasource:
+    url: jdbc:h2:mem:mwt-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+mwt:
+  staff-signup-code: TEST-STAFF-CODE

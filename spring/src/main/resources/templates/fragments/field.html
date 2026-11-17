@@ -1,0 +1,14 @@
+<!--/*
+  폼 칸 하나를 Bootstrap 형식으로 (Django 판 includes/field.html).
+  사용: th:object 가 걸린 <form> 안에서
+    <div th:replace="~{fragments/field :: field('username', '아이디', 'text', true, '영문·숫자·밑줄 4~20자')}"></div>
+  비밀번호 칸은 다시 그릴 때 값을 비운다. 오류는 BindingResult 의 칸별 오류를 그대로 보여 준다.
+*/-->
+<div th:fragment="field(name, label, type, required, help)" class="mb-3">
+  <label class="form-label" th:for="|id_${name}|"><th:block th:text="${label}">이름</th:block><th:block th:if="${required}"> <span class="text-danger">*</span></th:block></label>
+  <input th:type="${type}" th:name="${name}" th:id="|id_${name}|"
+         th:value="${type == 'password'} ? '' : *{__${name}__}"
+         th:class="|form-control${#fields.hasErrors(name) ? ' is-invalid' : ''}|">
+  <div th:each="e : ${#fields.errors(name)}" class="invalid-feedback d-block" th:text="${e}">오류</div>
+  <div th:if="${help}" class="form-text" th:text="${help}">도움말</div>
+</div>
