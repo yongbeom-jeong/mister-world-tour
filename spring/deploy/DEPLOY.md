@@ -29,7 +29,6 @@ Django 판 안내 `deploy/DEPLOY.md` 의 1~3장과 같다 (Ubuntu 24.04, 보안 
 ## 4. 설치 (한 번 실행, 약 5~10분)
 
 Spring 판은 **`spring` 브랜치**를 받아 빌드한다 (`main` 은 Django 판 배포용).
-이식 PR(#20 → … → #25 → 배포 PR)이 `spring` 에 병합되기 전에는 `spring` 대신 `feat/spring-deploy` 를 쓴다.
 
 **A. Spring 판만 쓰는 서버** (저장소가 아직 없을 때):
 ```bash
