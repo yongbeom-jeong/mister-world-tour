@@ -32,7 +32,7 @@ bash /srv/mwt-spring/deploy/setup.sh
 ```
 
 하는 일: Java 21·PostgreSQL 18·Nginx 설치 → `.env` 확인(없으면 `.env.example` 로 만들고 비밀값 무작위 생성) → DB `mwt_spring` 생성
-→ `mvnw package`(테스트 포함, 메모리 H2) → Nginx → HTTPS 인증서 → `mwt-spring` 서비스 → 데모 데이터(`--seed-demo`).
+→ `mvnw package`(테스트 포함, 메모리 H2) → Nginx → HTTPS 인증서 → `mwt-spring` 서비스 → 데모 데이터(`--seed-demo`) → 매일 백업 타이머(`mwt-backup.timer`).
 끝나면 접속 주소, 데모 계정, 직원 가입 코드가 출력된다.
 
 바꿀 수 있는 값 (예: `SKIP_TESTS=1 bash /srv/mwt-spring/deploy/setup.sh`)
@@ -64,6 +64,8 @@ bash /srv/mwt-spring/deploy/setup.sh
 | 데모 데이터 다시 넣기 (중복 없음) | `SKIP_TESTS=1 bash /srv/mwt-spring/deploy/setup.sh` |
 | 서버에서 테스트 | `cd /srv/mwt-spring && ./mvnw test` (메모리 H2) |
 | DB 직접 보기 | `sudo -u postgres psql mwt_spring` |
+| 백업 (매일 04:00 KST 자동, 14일 보관) | `sudo systemctl start mwt-backup` 로 바로 실행, 파일은 `sudo ls /var/backups/mwt` (DB 덤프 + `.env`·사진 묶음) |
+| 백업에서 DB 복원 | `sudo systemctl stop mwt-spring` → `sudo cat /var/backups/mwt/db-mwt_spring-<시각>.dump \| sudo -u postgres pg_restore -c -d mwt_spring` → 서비스 시작 |
 | 비밀값 확인·변경 | `nano /srv/mwt-spring/.env` 후 `sudo systemctl restart mwt-spring` |
 
 ## 문제 해결
