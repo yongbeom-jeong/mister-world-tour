@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
+<head><title th:text="${product.productName} + ' | 미스터 월드 투어'">상품 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="detail-title">
+  <div class="container">
+    <a th:href="@{/travel/products/(theme=${product.theme.name()})}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i><th:block th:text="|${product.theme.shortLabel} 상품 목록|">상품 목록</th:block></a>
+    <h1 th:text="${product.productName}">상품</h1>
+    <div class="meta">
+      <span th:if="${product.confirmed}" class="tag tag-success"><i class="bi bi-check2" aria-hidden="true"></i>출발 확정</span>
+      <span><i th:class="|bi ${@mwt.theme(product.theme).icon}|" aria-hidden="true"></i> <th:block th:text="|${product.theme.shortLabel} · ${product.tourLevel.label}|">테마</th:block></span>
+      <span class="text-muted">·</span>
+      <span th:text="${product.destination}">여행지</span>
+      <span class="text-muted">·</span>
+      <span th:text="|${@mwt.date(product.departureDate, 'yyyy년 M월 d일')} 출발 · ${product.travelPeriod}일|">출발</span>
+    </div>
+  </div>
+</section>
+
+<div id="main" class="container pb-4">
+  <div class="detail-photo"><img th:src="@{${product.photoUrl}}" th:alt="|${product.productName} 대표 사진|"></div>
+
+  <div class="row g-4 g-lg-5">
+    <div class="col-lg-7">
+      <!--/* ---------------------------------------------------------------- 상품 소개 */-->
+      <section class="detail-section">
+        <h2>여행 소개</h2>
+        <p class="mb-0" style="white-space: pre-line" th:text="${#strings.isEmpty(product.description)} ? '상품 소개가 준비 중입니다.' : ${product.description}">소개</p>
+      </section>
+
+      <section class="detail-section">
+        <h2>기본으로 포함된 것</h2>
+        <ul class="feature-list">
+          <li><i class="bi bi-stars" aria-hidden="true"></i><div><div class="f-label">테마 서비스</div><div class="f-value" th:text="${product.themeService}">서비스</div></div></li>
+          <li><i class="bi bi-gift" aria-hidden="true"></i><div><div class="f-label">기념품</div><div class="f-value"><th:block th:text="${souvenirs.isEmpty()} ? '-' : ${#strings.listJoin(souvenirs, ', ')}">기념품</th:block> <span class="small text-muted fw-normal">(1인 1개씩)</span></div></div></li>
+          <li><i class="bi bi-building" aria-hidden="true"></i><div><div class="f-label">기본 호텔</div><div class="f-value" th:text="${product.hotelLevel.label}">호텔</div></div></li>
+          <li><i class="bi bi-cup-hot" aria-hidden="true"></i><div><div class="f-label">기본 식사</div><div class="f-value" th:text="${product.meal.label}">식사</div></div></li>
+          <li><i class="bi bi-car-front" aria-hidden="true"></i><div><div class="f-label">교통</div><div class="f-value" th:text="${product.transport.label}">교통</div></div></li>
+          <li><i class="bi bi-people" aria-hidden="true"></i><div><div class="f-label">모집</div><div class="f-value">
+            <th:block th:if="${product.honeymoon}">2인 신청마다 바로 출발 확정</th:block>
+            <th:block th:unless="${product.honeymoon}">정원 10명 · 3명 이상 출발<div class="small fw-normal text-muted" th:text="|남은 자리 ${remaining}명|">남은 자리</div></th:block>
+          </div></div></li>
+        </ul>
+      </section>
+
+      <!--/* ---------------------------------------------------------------- 구성 변경 */-->
+      <section class="detail-section">
+        <h2>나만의 여행 구성 <span class="fs-6 fw-normal text-muted ms-1">1인 기준</span></h2>
+        <div class="configuration-grid">
+          <fieldset th:each="f : ${optionFields}">
+            <legend class="form-label" th:text="${f.title}">항목</legend>
+            <div class="option-group">
+              <label th:each="o : ${f.choices}" class="m-0">
+                <input type="radio" class="visually-hidden" th:name="|opt-${f.field}|" th:value="${o.value}" th:attr="data-field=${f.field}"
+                       th:checked="${config.toMap().get(f.field) == o.value}">
+                <span class="option-tile"><span th:text="${o.label}">선택지</span>
+                  <span th:class="|opt-diff ${o.direction()}|" th:text="${o.extra}">기본</span></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend class="form-label">음료 추가</legend>
+            <div class="option-group">
+              <label th:each="d : ${drinkChoices}" class="m-0">
+                <input class="visually-hidden" type="checkbox" th:value="${d.value}" th:id="|drink-${d.value}|" data-drink
+                       th:checked="${config.drinks().contains(d.value)}">
+                <span class="option-tile"><span th:text="${d.label}">음료</span>
+                  <span class="opt-diff up" th:attr="data-drink-price=${d.value}" th:text="|+${@mwt.won(d.price)}|">+0원</span></span>
+              </label>
+            </div>
+            <div class="form-text">도시락 구성에는 음료를 추가할 수 없어요.</div>
+          </fieldset>
+        </div>
+        <div id="config-msg" class="alert alert-danger py-2 small mt-3 mb-0" role="alert" hidden></div>
+        <p class="small text-muted mt-4 mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>출발일은 상품마다 정해져 있습니다. 여행자 수와 단골 할인(최근 3년 3회 이상 이용 시 10%)은 다음 단계에서 계산됩니다.</p>
+      </section>
+    </div>
+
+    <!--/* ---------------------------------------------------------------- 가격·신청 (PC: 오른쪽 카드, 휴대폰: 하단 바) */-->
+    <div class="col-lg-5 col-xl-4 offset-xl-1">
+      <aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
+        <div class="booking-bar-product">
+          <div class="fw-bold" th:text="${product.productName}">상품</div>
+          <div class="small text-muted" th:text="|${@mwt.date(product.departureDate, 'M월 d일')} 출발 · ${product.travelPeriod}일 · 기본 ${@mwt.won(product.basePrice)}|">조건</div>
+        </div>
+        <div class="booking-bar-price">
+          <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price" th:text="${unitPrice}">0</span>원 <span class="fs-6 fw-normal text-muted">/ 1인</span></div>
+          <div class="booking-note">옵션 포함, 단골 할인 적용 전</div>
+        </div>
+        <form method="post" th:action="@{/travel/products/{id}/apply/(id=${product.productId})}">
+          <input type="hidden" name="config" id="config-input" th:value="${configJson}">
+          <button class="btn btn-primary btn-lg" id="apply-btn">이 구성으로 신청하기</button>
+        </form>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script id="scripts" th:inline="javascript">
+(() => {
+  const URL = /*[[@{/travel/products/{id}/configure/(id=${product.productId})}]]*/ "";
+  const csrf = document.querySelector("input[name=_csrf]").value;
+  const NO_DRINK_MEALS = /*[[${noDrinkMeals}]]*/ [];
+  const INCLUDED = /*[[${includedDrinks}]]*/ {};
+  let current = JSON.parse(document.getElementById("config-input").value);  // 마지막으로 유효한 구성
+  const msg = document.getElementById("config-msg");
+  const price = document.getElementById("unit-price");
+  const applyBtn = document.getElementById("apply-btn");
+  let seq = 0;
+
+  const fmt = n => Number(n).toLocaleString("ko-KR");
+  price.textContent = fmt(price.textContent);
+
+  function syncInputs() {
+    // 화면 입력을 마지막 유효 구성으로 되돌리거나 맞춘다
+    for (const r of document.querySelectorAll("input[data-field]")) r.checked = current[r.dataset.field] === r.value;
+    const included = INCLUDED[current.meal] || [];
+    for (const cb of document.querySelectorAll("[data-drink]")) {
+      cb.checked = current.drinks.includes(cb.value) || included.includes(cb.value);
+      cb.disabled = NO_DRINK_MEALS.includes(current.meal) || included.includes(cb.value);
+      const tag = document.querySelector(`[data-drink-price="${cb.value}"]`);
+      tag.textContent = included.includes(cb.value) ? "식사에 포함" : cb.dataset.price;
+      tag.classList.toggle("up", !included.includes(cb.value));
+    }
+    document.getElementById("config-input").value = JSON.stringify(current);
+  }
+
+  async function change(changes) {
+    const my = ++seq;
+    msg.hidden = true;
+    applyBtn.disabled = true;   // 응답 전에는 섞인 구성으로 신청하지 않게
+    try {
+      const res = await fetch(URL, {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": csrf, "Content-Type": "application/json" },
+        body: JSON.stringify({ current, changes }),
+      });
+      const data = await res.json();
+      if (my !== seq) return;
+      if (data.ok) {
+        current = data.config;
+        price.textContent = fmt(data.unit_price);
+      } else {
+        msg.textContent = data.message + " (이전 구성을 유지합니다)";
+        msg.hidden = false;
+      }
+    } catch (e) {
+      if (my !== seq) return;
+      msg.textContent = "구성을 확인하지 못했습니다. 이전 구성을 유지합니다.";
+      msg.hidden = false;
+    } finally {
+      if (my === seq) { syncInputs(); applyBtn.disabled = false; }
+    }
+  }
+
+  document.querySelectorAll("[data-drink]").forEach(cb => {
+    cb.dataset.price = document.querySelector(`[data-drink-price="${cb.value}"]`).textContent;
+  });
+  document.querySelectorAll("input[data-field]").forEach(r =>
+    r.addEventListener("change", () => change({ [r.dataset.field]: r.value })));
+  document.querySelectorAll("[data-drink]").forEach(cb => cb.addEventListener("change", () => {
+    const included = INCLUDED[current.meal] || [];
+    const drinks = [...document.querySelectorAll("[data-drink]:checked")].map(c => c.value)
+      .filter(d => !included.includes(d));
+    change({ drinks });
+  }));
+  syncInputs();
+})();
+</script>
+</body>
+</html>

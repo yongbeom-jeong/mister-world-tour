@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+<head><title>기념품 등록 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <div>
+      <h1>기념품 등록</h1>
+      <p>새 기념품 품목을 테마에 연결합니다. 그 테마 상품의 출발이 확정되면 여행자 1인당 1개씩 재고에서 차감됩니다.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary btn-sm" th:href="@{/souvenir/staff/souvenirs/}"><i class="bi bi-arrow-left me-1"></i>기념품 관리</a>
+      <a class="btn btn-outline-primary btn-sm" th:href="@{/souvenir/staff/stock/}"><i class="bi bi-box-arrow-in-down me-1"></i>기념품 입고로</a>
+    </div>
+  </div>
+</section>
+<div id="main" class="container pb-4">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <form method="post" th:action="@{/souvenir/staff/souvenirs/new/}" novalidate class="mwt-card">
+        <div class="mwt-card-head"><span><i class="bi bi-plus-lg me-1"></i>새 품목</span></div>
+        <div class="mwt-card-body">
+          <div class="mb-3">
+            <label class="form-label" for="id_name">품목 이름</label>
+            <input type="text" name="name" id="id_name" maxlength="50" th:value="${values.name}" autofocus
+                   th:class="|form-control ${errors.get('name') != null ? 'is-invalid' : ''}|" placeholder="예: 골프 장갑">
+            <div th:if="${errors.get('name') != null}" class="invalid-feedback" th:text="${errors.get('name')}">오류</div>
+          </div>
+          <div class="mb-3">
+            <div class="form-label">연결할 테마</div>
+            <div th:class="|chip-group ${errors.get('theme') != null ? 'is-invalid' : ''}|">
+              <th:block th:each="g : ${groups}">
+                <input type="radio" class="btn-check" name="theme" th:id="|theme_${g.theme.name()}|" th:value="${g.theme.name()}"
+                       th:checked="${values.theme == g.theme.name()}">
+                <label class="btn btn-outline-primary" th:for="|theme_${g.theme.name()}|" th:text="${g.theme.label}">테마</label>
+              </th:block>
+            </div>
+            <div th:if="${errors.get('theme') != null}" class="invalid-feedback d-block" th:text="${errors.get('theme')}">오류</div>
+          </div>
+          <p class="small text-muted mb-0">재고 0개로 등록됩니다. 등록한 뒤 입고 화면에서 수량을 넣으세요.
+            같은 테마에 품목이 여러 개면 여행자마다 품목별로 1개씩 필요합니다.</p>
+        </div>
+        <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
+          <button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>등록</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="mwt-card">
+        <div class="mwt-card-head"><span>테마별 기념품</span></div>
+        <div class="mwt-card-body">
+          <table class="table align-middle mb-0">
+            <thead><tr><th>테마</th><th>품목</th><th class="text-end">현재 재고</th></tr></thead>
+            <tbody>
+              <th:block th:each="g : ${groups}">
+                <tr th:each="s, st : ${g.items}">
+                  <td th:if="${st.first}" th:rowspan="${g.items.size()}" class="fw-semibold" th:text="${g.theme.label}">테마</td>
+                  <td th:text="${s.souvenirName}">품목</td>
+                  <td class="text-end" th:text="|${s.stockQuantity}개|">0개</td>
+                </tr>
+                <tr th:if="${g.items.isEmpty()}"><td class="fw-semibold" th:text="${g.theme.label}">테마</td><td colspan="2" class="text-danger small">등록된 기념품 없음 (이 테마 상품은 신청할 수 없음)</td></tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

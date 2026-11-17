@@ -1,0 +1,19 @@
+# 배포 서버(AWS): PostgreSQL. 값은 .env 의 POSTGRES_*
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:127.0.0.1}:${POSTGRES_PORT:5432}/${POSTGRES_DB}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:}
+  thymeleaf:
+    cache: true
+  web:
+    resources:
+      cache:
+        period: 7d
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+  forward-headers-strategy: native   # Nginx 뒤에서 https 주소를 올바르게 인식

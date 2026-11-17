@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+<head><title>기념품 관리 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <div>
+      <h1>기념품 관리</h1>
+      <p>테마에 연결된 기념품입니다. 그 테마 상품의 출발이 확정되면 품목마다 여행자 1인당 1개씩 차감됩니다.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary btn-sm" th:href="@{/souvenir/staff/souvenirs/issues/}"><i class="bi bi-list-check me-1"></i>차감 내역</a>
+      <a class="btn btn-primary btn-sm" th:href="@{/souvenir/staff/souvenirs/new/}"><i class="bi bi-plus-lg me-1"></i>새 품목 등록</a>
+    </div>
+  </div>
+</section>
+<div id="main" class="container pb-4">
+  <div class="mwt-card">
+    <div class="mwt-card-body p-0">
+      <table class="table align-middle mb-0" id="souvenir-manage-table">
+        <thead><tr><th>테마</th><th>품목</th><th class="text-end">현재 재고</th><th class="text-end">관리</th></tr></thead>
+        <tbody>
+          <th:block th:each="g : ${groups}">
+            <tr th:each="s, st : ${g.items}">
+              <td th:if="${st.first}" th:rowspan="${g.items.size()}" class="fw-semibold" th:text="${g.theme.label}">테마</td>
+              <td th:text="${s.souvenirName}">품목</td>
+              <td class="text-end" th:text="|${s.stockQuantity}개|">0개</td>
+              <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" th:href="@{/souvenir/staff/souvenirs/issues/(souvenir=${s.souvenirId})}">차감 내역</a>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/souvenir/staff/souvenirs/{id}/edit/(id=${s.souvenirId})}">수정·삭제</a>
+              </td>
+            </tr>
+            <tr th:if="${g.items.isEmpty()}"><td class="fw-semibold" th:text="${g.theme.label}">테마</td><td colspan="3" class="text-danger small">등록된 기념품 없음 (이 테마 상품은 신청할 수 없음)</td></tr>
+          </th:block>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="small text-muted mt-3">재고 수량은 <a th:href="@{/souvenir/staff/stock/}">기념품 입고</a>와 출발 확정 차감으로만 바뀝니다.</p>
+</div>
+</body>
+</html>

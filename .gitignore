@@ -1,28 +1,15 @@
-# Python
-__pycache__/
-*.py[cod]
-
-# 가상환경
-.venv/
-venv/
-
 # 환경 설정 (비밀값)
 .env
 
-# Django
-db.sqlite3
-staticfiles/
+# 빌드·실행 결과 (개발 DB, 업로드 사진, 서버 jar)
+target/
+data/
 media/
+run/
 
 # IDE / OS
 .vscode/
 .idea/
+*.iml
 .DS_Store
 Thumbs.db
-
-
-# Spring (spring/)
-spring/target/
-spring/data/
-spring/media/
-spring/run/

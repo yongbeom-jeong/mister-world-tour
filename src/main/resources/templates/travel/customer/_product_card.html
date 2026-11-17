@@ -1,0 +1,13 @@
+<!--/* 상품 카드. 사용: <div th:replace="~{travel/customer/_product_card :: card(${p})}"></div> */-->
+<article th:fragment="card(p)" class="product-card">
+  <div class="pc-photo">
+    <img th:src="@{${p.photoSmUrl}}" alt="" loading="lazy">
+    <div th:if="${p.confirmed}" class="pc-tags"><span class="tag tag-success"><i class="bi bi-check2" aria-hidden="true"></i>출발 확정</span></div>
+  </div>
+  <div class="pc-body">
+    <h3><a class="pc-link" th:href="@{/travel/products/{id}/(id=${p.productId})}" th:text="${p.productName}">상품</a></h3>
+    <div class="pc-sub" th:text="${p.destination}">여행지</div>
+    <div class="pc-sub" th:text="|${p.theme.shortLabel} · ${p.tourLevel.label} · ${@mwt.date(p.departureDate, 'M월 d일')} 출발 · ${p.travelPeriod}일|">조건</div>
+    <div class="pc-price"><strong th:text="${@mwt.won(p.basePrice)}">0원</strong> / 1인~</div>
+  </div>
+</article>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+<head><title>상품 관리 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <div>
+      <h1>상품 관리</h1>
+      <p>목록에서 상품을 고른 뒤 수정하거나 삭제합니다. 신청이 있는 상품은 변경할 수 없습니다.</p>
+    </div>
+    <a class="btn btn-primary btn-sm" th:href="@{/travel/staff/products/new/}"><i class="bi bi-plus-lg me-1"></i>새 상품 등록</a>
+  </div>
+</section>
+<div id="main" class="container pb-4">
+  <div class="row g-4">
+    <!--/* 왼쪽: 상품 목록 */-->
+    <div class="col-lg-4">
+      <div class="mwt-card">
+        <form method="get" th:action="@{/travel/staff/products/}" class="mwt-card-head gap-2">
+          <!--/* 같은 화면의 상품 입력 폼과 id 가 겹치지 않도록 filter_ 를 붙인다 (파라미터 이름은 그대로) */-->
+          <select name="theme" id="filter_theme" class="form-select form-select-sm">
+            <option value="">전체 테마</option>
+            <option th:each="t : ${themes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${filterTheme == t}">테마</option>
+          </select>
+          <select name="tour_level" id="filter_tour_level" class="form-select form-select-sm">
+            <option value="">전체 등급</option>
+            <option th:each="lv : ${levels}" th:value="${lv.name()}" th:text="${lv.label}" th:selected="${filterLevel == lv}">등급</option>
+          </select>
+          <button class="btn btn-outline-primary btn-sm flex-shrink-0" aria-label="조회"><i class="bi bi-funnel"></i></button>
+        </form>
+        <div class="list-group list-group-flush" style="max-height:70vh;overflow:auto">
+          <a th:each="p : ${products}" th:href="@{/travel/staff/products/{id}/(id=${p.productId})} + ${query}"
+             th:class="|list-group-item list-group-item-action d-flex gap-3 align-items-center py-3 ${selected != null and selected.productId == p.productId ? 'active' : ''}|">
+            <img class="thumb" th:src="@{${p.photoSmUrl}}" alt="">
+            <div class="flex-grow-1 text-truncate">
+              <div class="fw-semibold text-truncate" th:text="${p.productName}">상품</div>
+              <div class="small text-muted" th:text="|${p.theme.shortLabel} · ${p.tourLevel.label} · ${@mwt.date(p.departureDate, 'MM/dd')}|">조건</div>
+            </div>
+          </a>
+          <div th:if="${products.isEmpty()}" class="list-group-item text-muted text-center py-4">조건에 맞는 상품이 없습니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!--/* 오른쪽: 선택한 상품 */-->
+    <div class="col-lg-8">
+      <div th:if="${selected == null}" class="mwt-card mwt-card-body text-center text-muted py-5 h-100 d-flex flex-column justify-content-center">
+        <i class="bi bi-hand-index fs-1"></i>
+        <p class="mt-2 mb-0">왼쪽 목록에서 수정·삭제할 상품을 선택하세요.</p>
+      </div>
+      <th:block th:if="${selected != null}">
+        <form method="post" th:action="@{/travel/staff/products/{id}/(id=${selected.productId})}" enctype="multipart/form-data" novalidate class="mwt-card">
+          <div class="mwt-card-head">
+            <span class="text-truncate" th:text="${selected.productName}">상품</span>
+            <span th:if="${selected.departureStatus != null}" th:class="|tag ${selected.confirmed ? 'tag-success' : 'tag-muted'}|" th:text="${selected.departureStatus.label}">상태</span>
+            <span th:if="${selected.departureStatus == null}" class="tag tag-dark">신청별 출발 확정</span>
+          </div>
+          <div class="mwt-card-body">
+            <div th:if="${hasApplications}" class="alert alert-warning"><i class="bi bi-lock-fill me-1"></i>이 상품에는 여행 신청이 있어 수정·삭제할 수 없습니다.</div>
+            <fieldset th:disabled="${hasApplications}">
+              <th:block th:replace="~{travel/staff/_product_form :: fields(@{${selected.photoUrl}}, ${selected.image != null})}"></th:block>
+            </fieldset>
+          </div>
+          <div class="mwt-card-head border-top border-bottom-0 justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" th:disabled="${hasApplications}"><i class="bi bi-trash me-1"></i>삭제</button>
+            <button class="btn btn-primary" th:disabled="${hasApplications}"><i class="bi bi-check2 me-1"></i>수정</button>
+          </div>
+        </form>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">상품 삭제</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" th:text="|'${selected.productName}' 상품을 삭제할까요? 되돌릴 수 없습니다.|">안내</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">취소</button>
+              <form method="post" th:action="@{/travel/staff/products/{id}/delete/(id=${selected.productId})}">
+                <button class="btn btn-danger">삭제</button>
+              </form>
+            </div>
+          </div></div>
+        </div>
+      </th:block>
+    </div>
+  </div>
+</div>
+</body>
+</html>

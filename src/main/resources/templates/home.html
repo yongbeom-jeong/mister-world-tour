@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
+<head><title>미스터 월드 투어 · 특별한 날의 테마 여행</title></head>
+<body>
+<th:block id="page-head" th:with="m=${currentMember}">
+  <section th:if="${m == null or m.customer}" class="home-search">
+    <div class="container">
+      <th:block th:if="${m != null}">
+        <h1 th:text="|${m.name}님, 이번엔 어디로 떠나볼까요?|">홍길동님, 이번엔 어디로 떠나볼까요?</h1>
+        <p class="lead">테마와 등급을 고르고, 호텔·식사를 바꿔 나만의 여행을 완성하세요.</p>
+      </th:block>
+      <th:block th:if="${m == null}">
+        <h1>특별한 날, 가장 멋진 곳으로</h1>
+        <p class="lead">허니문부터 효도·골프·트레킹까지, 소중한 사람과 떠나는 테마 여행.</p>
+      </th:block>
+      <form class="search-pill" method="get" th:action="@{/travel/products/}" role="search" aria-label="여행 상품 찾기" id="home-search">
+        <!--/* 테마 선택: 막대를 누르면 아래에 선택 패널이 열린다 (선택값은 라디오 버튼으로 전송) */-->
+        <div class="search-field dropdown">
+          <button type="button" class="search-trigger" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false">
+            <span class="search-label">테마</span>
+            <span class="search-value" data-search-value="theme">모든 테마</span>
+          </button>
+          <div class="dropdown-menu search-menu">
+            <div class="search-menu-title">어떤 여행을 떠나세요?</div>
+            <label class="search-option">
+              <input type="radio" name="theme" value="" data-text="모든 테마" checked>
+              <span class="opt-thumb opt-thumb-icon"><i class="bi bi-globe2" aria-hidden="true"></i></span>
+              <span class="opt-text"><strong>모든 테마</strong><small>네 가지 테마의 상품을 모두 봅니다</small></span>
+            </label>
+            <label th:each="t : ${siteThemes}" class="search-option">
+              <input type="radio" name="theme" th:value="${t.code}" th:attr="data-text=${t.shortLabel}">
+              <img class="opt-thumb" th:src="@{${t.photoSm}}" alt="">
+              <span class="opt-text"><strong th:text="${t.shortLabel}">테마</strong><small th:text="${t.tagline}">소개</small></span>
+            </label>
+          </div>
+        </div>
+        <div class="search-field dropdown">
+          <button type="button" class="search-trigger" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false">
+            <span class="search-label">투어 등급</span>
+            <span class="search-value" data-search-value="tour_level">모든 등급</span>
+          </button>
+          <div class="dropdown-menu search-menu">
+            <div class="search-menu-title">어느 등급으로 갈까요?</div>
+            <label class="search-option">
+              <input type="radio" name="tour_level" value="" data-text="모든 등급" checked>
+              <span class="opt-thumb opt-thumb-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+              <span class="opt-text"><strong>모든 등급</strong><small>클래식부터 프리미엄까지</small></span>
+            </label>
+            <label th:each="lv : ${siteLevels}" class="search-option">
+              <input type="radio" name="tour_level" th:value="${lv.code}" th:attr="data-text=${lv.label}">
+              <span class="opt-thumb opt-thumb-icon"><i th:class="|bi ${lv.icon}|" aria-hidden="true"></i></span>
+              <span class="opt-text"><strong th:text="${lv.label}">등급</strong><small th:text="${lv.summary}">요약</small></span>
+            </label>
+            <div class="search-menu-note">허니문·효도는 그랜드 이상만 있어요.</div>
+          </div>
+        </div>
+        <button class="search-btn" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span>검색</span></button>
+      </form>
+      <div class="home-links">
+        <th:block th:if="${m != null}">
+          <a th:href="@{/travel/products/}"><i class="bi bi-mic me-1" aria-hidden="true"></i>음성으로 찾기</a>
+          <button type="button" data-history-open><i class="bi bi-clock-history me-1" aria-hidden="true"></i>이전 여행 이력</button>
+          <a th:if="${myCount != null and myCount > 0}" th:href="@{/travel/applications/}" th:text="|진행 중인 신청 ${myCount}건|">진행 중인 신청</a>
+        </th:block>
+        <span th:if="${m == null}" class="text-muted">상품을 보려면 <a th:href="@{/members/login/}">로그인</a>하거나 <a th:href="@{/members/signup/}">회원가입</a>하세요.</span>
+      </div>
+    </div>
+  </section>
+  <section th:if="${m != null and m.staffMember}" class="mwt-page-head">
+    <div class="container">
+      <h1>직원 메뉴</h1>
+      <p th:text="|${m.name}님, 오늘의 상품과 기념품 재고를 확인하세요.|">오늘의 상품과 기념품 재고를 확인하세요.</p>
+    </div>
+  </section>
+</th:block>
+
+<th:block id="main" th:with="m=${currentMember}">
+  <th:block th:if="${m == null or m.customer}">
+    <!--/* ---------------------------------------------------------------- 테마 */-->
+    <section class="mwt-section" id="themes">
+      <div class="container">
+        <h2 class="section-title">테마로 둘러보기</h2>
+        <p class="section-sub">테마마다 연출·기념품·전용 차량이 다르고, 등급에 따라 호텔과 식사가 달라져요.</p>
+        <div class="row g-3 g-lg-4">
+          <div th:each="t : ${siteThemes}" class="col-6 col-lg-3">
+            <a class="theme-card" th:href="${m != null} ? @{/travel/products/(theme=${t.code})} : @{/members/login/}">
+              <div class="theme-photo"><img th:src="@{${t.photoSm}}" alt="" loading="lazy"></div>
+              <div class="theme-body">
+                <h3 th:text="${t.shortLabel}">테마</h3>
+                <p th:text="${t.tagline}">소개</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--/* ---------------------------------------------------------------- 곧 출발하는 상품 */-->
+    <section th:if="${featured != null and !featured.isEmpty()}" class="mwt-section pt-0">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+          <h2 class="section-title mb-0">곧 출발하는 여행</h2>
+          <a class="btn btn-link btn-sm" th:href="@{/travel/products/}">전체 보기 <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="row g-4">
+          <div th:each="p : ${featured}" class="col-sm-6 col-lg-4 col-xl-3">
+            <div th:replace="~{travel/customer/_product_card :: card(${p})}"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--/* ---------------------------------------------------------------- 이용 방법 */-->
+    <section class="mwt-section">
+      <div class="container">
+        <div class="border-top pt-5">
+          <h2 class="section-title mb-4">이용 안내</h2>
+          <dl class="guide-grid">
+            <div><i class="bi bi-mic" aria-hidden="true"></i><dt>화면이나 음성으로 고르기</dt>
+              <dd>"골프 그랜드", "몰디브"처럼 말해도 상품을 찾아 드립니다.</dd></div>
+            <div><i class="bi bi-sliders" aria-hidden="true"></i><dt>호텔·교통·식사 자유롭게</dt>
+              <dd>클래식 트레킹에 스테이크와 샴페인도 OK. 바꾸는 즉시 가격이 계산돼요.</dd></div>
+            <div><i class="bi bi-chat-dots" aria-hidden="true"></i><dt>출발 확정은 문자로</dt>
+              <dd>3명 이상 모이면 출발 확정! 최근 3년 3회 이상 여행한 단골은 10% 할인.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+  </th:block>
+
+  <!--/* ================================================================ 직원 메뉴 */-->
+  <div th:if="${m != null and m.staffMember}" class="container pb-4">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">등록 상품</div><div class="stat-value" th:text="${stats.products}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-airplane"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">여행 신청</div><div class="stat-value" th:text="${stats.applications}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-journal-check"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">출발 확정 상품</div><div class="stat-value" th:text="${stats.confirmed}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-flag"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">재고 부족 기념품</div><div th:class="|stat-value ${lowStock.isEmpty() ? '' : 'stock-low'}|" th:text="${lowStock.size()}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-box-seam"></i></div></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><a class="action-card" th:href="@{/travel/staff/products/new/}"><i class="bi bi-plus-square"></i>
+        <div><div class="fw-bold">상품 등록</div><div class="small opacity-75">기획한 여행 상품을 등록합니다.</div></div></a></div>
+      <div class="col-md-4"><a class="action-card" th:href="@{/travel/staff/products/}"><i class="bi bi-pencil-square"></i>
+        <div><div class="fw-bold">상품 관리</div><div class="small opacity-75">등록된 상품을 수정·삭제합니다.</div></div></a></div>
+      <div class="col-md-4"><a class="action-card" th:href="@{/souvenir/staff/stock/}"><i class="bi bi-box-arrow-in-down"></i>
+        <div><div class="fw-bold">기념품 입고</div><div class="small opacity-75">재고를 확인하고 입고를 기록합니다.</div></div></a></div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">최근 등록한 상품 <a class="small fw-normal" th:href="@{/travel/staff/products/}">전체 보기</a></div>
+          <div class="list-group list-group-flush">
+            <a th:each="r : ${recentProducts}" class="list-group-item list-group-item-action d-flex gap-3 align-items-center py-3"
+               th:href="@{/travel/staff/products/{id}/(id=${r.product.productId})}">
+              <img class="thumb" th:src="@{${r.product.photoSmUrl}}" alt="">
+              <div class="flex-grow-1 text-truncate">
+                <div class="fw-semibold text-truncate" th:text="${r.product.productName}">상품</div>
+                <div class="small text-muted" th:text="|${r.product.theme.label} · ${@mwt.date(r.product.departureDate, 'MM/dd')} 출발|">조건</div>
+              </div>
+              <span th:class="|tag ${r.applicationCount > 0 ? 'tag-accent' : 'tag-muted'}|" th:text="|신청 ${r.applicationCount}건|">신청</span>
+            </a>
+            <div th:if="${recentProducts.isEmpty()}" class="list-group-item text-muted py-4 text-center">등록된 상품이 없습니다.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">기념품 재고 <a class="small fw-normal" th:href="@{/souvenir/staff/stock/}">입고하기</a></div>
+          <div class="mwt-card-body">
+            <div th:each="s, st : ${souvenirs}" th:class="|d-flex justify-content-between align-items-center ${st.last ? '' : 'mb-3'}|">
+              <div><div class="fw-semibold" th:text="${s.souvenirName}">품목</div><div class="small text-muted" th:text="${s.theme.label}">테마</div></div>
+              <div class="text-end">
+                <span th:class="|fw-bold fs-5 ${s.stockQuantity < lowStockLimit ? 'stock-low' : ''}|" th:text="${s.stockQuantity}">0</span><span class="text-muted small">개</span>
+                <div th:if="${s.stockQuantity < lowStockLimit}" class="small stock-low">재고 부족</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+<script id="scripts">
+  // 홈 검색: 선택하면 막대에 선택값을 보여 주고 패널을 닫는다
+  document.querySelectorAll("#home-search .search-option input").forEach(input => {
+    input.addEventListener("change", () => {
+      document.querySelector(`[data-search-value="${input.name}"]`).textContent = input.dataset.text;
+      const field = input.closest(".search-field");
+      field.classList.toggle("has-value", input.value !== "");
+      bootstrap.Dropdown.getOrCreateInstance(field.querySelector(".search-trigger")).hide();
+    });
+  });
+</script>
+</body>
+</html>
