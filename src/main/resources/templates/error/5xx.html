@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{}, ~{::#main}, ~{})}">
+<head><title>일시적인 오류 | 미스터 월드 투어</title></head>
+<body>
+<!-- 예상하지 못한 서버 오류(5xx) 공통 화면. 업무별 실패 안내는 각 화면이 따로 한다. -->
+<div id="main" class="container pb-4">
+  <div class="empty-state my-5" id="server-error">
+    <i class="bi bi-cloud-slash" aria-hidden="true"></i>
+    <h1 class="h2 mt-3">일시적인 오류가 발생했습니다</h1>
+    <p class="text-muted">요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.<br>
+      신청·입고처럼 저장하던 중이었다면 '내 신청'이나 목록에서 반영 여부를 먼저 확인해 주세요.</p>
+    <div class="d-flex gap-2 justify-content-center">
+      <a class="btn btn-primary" href="">다시 시도</a>
+      <a class="btn btn-outline-primary" th:href="@{/}">홈으로</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

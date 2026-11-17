@@ -31,7 +31,7 @@ public class SMSMessage {
     public static final Duration STALE_PENDING = Duration.ofMinutes(5);
 
     public enum Status {
-        PENDING("발송 중"), SUCCESS("성공"), FAILURE("실패"), UNKNOWN("결과 확인 필요"), INVALID("정보 누락");
+        PENDING("발송 중"), SUCCESS("성공"), FAILURE("실패"), UNKNOWN("결과 확인 필요");
 
         private final String label;
 
@@ -175,12 +175,6 @@ public class SMSMessage {
      */
     public boolean canRetry() {
         return status == Status.FAILURE && !lastRejected && attemptCount - roundStartAttempts < MAX_ATTEMPTS;
-    }
-
-    /** 보낼 수 없는 대상(연락처·상품 정보 누락)으로 표시한다. */
-    public void markInvalid(String reason) {
-        status = Status.INVALID;
-        lastError = reason;
     }
 
     /** 보내지 않고 실패로 끝낸다 (시간 한도 등). 시도 횟수는 그대로. */

@@ -53,6 +53,7 @@
 </div>
 
 <script id="scripts" th:inline="javascript">
+// SouvenirStockView (설계 3.1·상태도 11.3): loadSouvenirs → selectSouvenir → recordSouvenirStockReceipt(준비 → 등록)
 (() => {
   const URLS = {
     list: /*[[@{/souvenir/staff/stock/list/}]]*/ "",
@@ -103,13 +104,13 @@
       col.querySelector("[data-theme]").textContent = s.theme;
       col.querySelector("[data-stock]").textContent = s.stock_quantity.toLocaleString();
       const tile = col.firstElementChild;
-      tile.addEventListener("click", () => select(s.id));
-      tile.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.id); } });
+      tile.addEventListener("click", () => selectSouvenir(s.id));
+      tile.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectSouvenir(s.id); } });
       rows.appendChild(col);
     }
   }
 
-  async function loadList() {
+  async function loadSouvenirs() {
     listError.hidden = true;
     try {
       const res = await fetch(URLS.list);
@@ -140,7 +141,7 @@
     selectedName.classList.remove("text-muted");
   }
 
-  function select(id) {
+  function selectSouvenir(id) {
     if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
     if (!souvenirs.some(x => x.id === id)) return;
     if (id !== selectedId) { qty.value = ""; result.hidden = true; }
@@ -173,7 +174,7 @@
     submit.textContent = on ? "처리 중…" : "입고 등록";
   }
 
-  async function record() {
+  async function recordSouvenirStockReceipt() {
     setBusy(true);
     try {
       const { res, data, authFailed } = await post(URLS.record, pending);
@@ -192,7 +193,7 @@
           render();
           showSelected();
         } else {
-          loadList();
+          loadSouvenirs();
         }
       } else if (data && data.status === "SAVE_FAILED") {
         // 저장 트랜잭션이 취소됨: 반영되지 않았음이 확실하다. 같은 키로 다시 시도할 수 있다.
@@ -231,14 +232,14 @@
     } finally {
       setBusy(false);
     }
-    await record();
+    await recordSouvenirStockReceipt();
   });
 
-  retry.addEventListener("click", () => { if (pending && !busy) record(); });
-  document.getElementById("reload").addEventListener("click", () => { if (!busy) loadList(); });
+  retry.addEventListener("click", () => { if (pending && !busy) recordSouvenirStockReceipt(); });
+  document.getElementById("reload").addEventListener("click", () => { if (!busy) loadSouvenirs(); });
   // 품목 등록 직후(?selected=id)에는 그 품목을 선택한 상태로 연다
   const preselect = Number(new URLSearchParams(location.search).get("selected"));
-  loadList().then(() => { if (preselect) select(preselect); });
+  loadSouvenirs().then(() => { if (preselect) selectSouvenir(preselect); });
 })();
 </script>
 </body>

@@ -158,8 +158,9 @@ class SMSDeliveryTest {
         assertThat(r.success()).isEqualTo(1);
         assertThat(r.failed()).isEqualTo(1);
         assertThat(ConsoleSMSClient.SENT).hasSize(1);
+        // 정보가 없는 대상은 SMSMessage(발송 기록)를 만들지 않는다 (설계 상태도 11.1)
         assertThat(jdbc.queryForList("SELECT status FROM sms_log ORDER BY id", String.class))
-                .containsExactly("INVALID", "SUCCESS");
+                .containsExactly("SUCCESS");
     }
 
     @Test
