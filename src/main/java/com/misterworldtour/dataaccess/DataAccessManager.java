@@ -1,7 +1,7 @@
 package com.misterworldtour.dataaccess;
 
-import com.misterworldtour.dataaccess.DataAccessAPI.ProductApplicationCount;
-import com.misterworldtour.dataaccess.DataAccessAPI.ProductFilter;
+import com.misterworldtour.travel.TravelDataAccessAPI.ProductApplicationCount;
+import com.misterworldtour.travel.TravelDataAccessAPI.ProductFilter;
 import com.misterworldtour.members.Member;
 import com.misterworldtour.sms.SMSMessage;
 import com.misterworldtour.souvenir.Souvenir;

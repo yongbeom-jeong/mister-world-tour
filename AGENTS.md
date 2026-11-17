@@ -30,14 +30,16 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 | `members` | Member Management (4장) | `MemberManagementAPI`, `MemberManager`(signUp·logIn), `Member`(checkPassword·getMemberId·getRole), `LoginSession` |
 | `travel` | Travel Management (5장) | `TravelManagementAPI`, `TravelManager`, `TravelProduct`(validateProduct·validateApplicationCapacity·updateDepartureStatus), `TravelConfiguration`(applyChanges·validateConfiguration), `TravelPriceCalculator`(calculateUnitPrice·isRegularCustomer·calculateApplicationPrice), `TravelApplication`(validateTravelers·getTravelerCount·confirmHoneymoonDeparture), `TravelHistory`(isCompletedWithinThreeYears) |
 | `souvenir` | Souvenir Management (6장) | `SouvenirManagementAPI`, `SouvenirManager`(loadSouvenirs·prepareStockReceipt·recordSouvenirStockReceipt), `Souvenir`, `StockReceipt`(validateReceipt·matchesRequest) / 추가 `StockIssue` |
-| `dataaccess` | Data Access (7장) | `DataAccessAPI`, `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
+| `dataaccess` | Data Access (7장) | `DataAccessAPI`(아래 저장 인터페이스 4개를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
 | `speech` | Speech Recognition Integration (8장) | `SpeechRecognitionAPI`, `SpeechRecognitionManager`(recognizeSelection), `SpeechServiceClient`(recognize), `VoiceSelectionInterpreter`(interpretSelection) |
 | `sms` | SMS Notification (9장) | `SMSNotificationAPI`, `SMSNotificationManager`(sendDepartureConfirmation), `SMSServiceClient`(sendSMS), `SMSMessage`(recordResult·canRetry, 상태 Pending/Success/Failure/Unknown) |
 | `common` | (설정) | `SecurityConfig`, `WebConfig`, `MwtProperties` |
 
-- 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → `DataAccessAPI`. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
+- 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → 자기 저장 인터페이스. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
+- 저장 인터페이스는 쓰는 쪽이 가진다 (의존성 역전, 설계 7장과 다름): `members.MemberDataAccessAPI`, `travel.TravelDataAccessAPI`, `souvenir.SouvenirDataAccessAPI`, `sms.SMSMessageDataAccessAPI`.
+  `dataaccess.DataAccessAPI` 는 이 넷을 묶고 `DataAccessManager` 가 구현한다. 의존은 dataaccess → 업무 한 방향뿐이며, 업무·ui·common 이 `dataaccess` 를 참조하면 `DataAccessDependencyTest` 가 실패한다
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다 (예: 신청은 회원을 `memberId` 로만)
-- 트랜잭션: 업무 메소드가 경계를 정하고 `DataAccessManager` 는 참여한다. 같은 상품을 잠그고 묶을 때는 `DataAccessAPI.runTravelTransaction(productId, work)`
+- 트랜잭션: 업무 메소드가 경계를 정하고 `DataAccessManager` 는 참여한다. 같은 상품을 잠그고 묶을 때는 `TravelDataAccessAPI.runTravelTransaction(productId, work)`
 - 로그인한 회원은 `LoginSession` (Spring Security 인증 주체). 설계처럼 회원 번호를 인자로 받지 않는 API 메소드(viewPreviousTravelHistory, reviewApplication, prepareStockReceipt 등)는 `LoginSession.current()` 로 확인한다. 테스트·데모용으로 회원 번호를 받는 같은 이름의 메소드도 둔다
 - 로그인 처리: Spring Security 폼 로그인 → `MemberAuthenticationProvider` → `MemberManager.logIn` → `LoginSession`
 - 역할 검사는 `members` 의 `@CustomerRequired` / `@StaffRoleRequired` 를 View 에 붙여 서버에서 한다. 직원 여부는 `Role` 로만 판단

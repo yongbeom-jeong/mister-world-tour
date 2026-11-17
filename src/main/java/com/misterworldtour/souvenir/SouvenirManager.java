@@ -1,6 +1,5 @@
 package com.misterworldtour.souvenir;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptException;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptPreparationResult;
@@ -24,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 기념품·재고 조회와 입고 준비·등록 (설계 6.1 SouvenirManager). 저장·조회는 {@link DataAccessAPI} 에 요청한다.
+ * 기념품·재고 조회와 입고 준비·등록 (설계 6.1 SouvenirManager). 저장·조회는 {@link SouvenirDataAccessAPI} 에 요청한다.
  *
  * <ul>
  *   <li>입고 준비: 직원 권한·품목·수량을 확인하고 요청 키와 최초 요청 시점을 서버에 보관한다. 저장하지 않는다.</li>
@@ -93,12 +92,12 @@ public class SouvenirManager implements SouvenirManagementAPI {
     public static class SouvenirNotFound extends RuntimeException {
     }
 
-    private final DataAccessAPI dataAccess;
+    private final SouvenirDataAccessAPI dataAccess;
     private final TransactionTemplate tx;
     /** 요청 키 → 입고 준비 정보 (오래된 순). */
     private final LinkedHashMap<String, PendingReceipt> pending = new LinkedHashMap<>();
 
-    SouvenirManager(DataAccessAPI dataAccess, PlatformTransactionManager transactionManager) {
+    SouvenirManager(SouvenirDataAccessAPI dataAccess, PlatformTransactionManager transactionManager) {
         this.dataAccess = dataAccess;
         this.tx = new TransactionTemplate(transactionManager);
     }

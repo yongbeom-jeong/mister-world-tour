@@ -1,6 +1,5 @@
 package com.misterworldtour.members;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 import com.misterworldtour.members.MemberManagementAPI.LoginInfo;
 import com.misterworldtour.members.MemberManagementAPI.LoginResult;
 import com.misterworldtour.members.MemberManagementAPI.SignUpResult;
@@ -19,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 회원가입과 로그인 처리 (설계 4.1 MemberManager). 회원 저장·조회는 {@link DataAccessAPI} 에 요청한다.
+ * 회원가입과 로그인 처리 (설계 4.1 MemberManager). 회원 저장·조회는 {@link MemberDataAccessAPI} 에 요청한다.
  *
  * <ul>
  *   <li>signUp: 입력·회원 유형·아이디 중복을 확인하고 비밀번호 해시와 역할을 담은 Member 를 저장한다.</li>
@@ -40,10 +39,10 @@ public class MemberManager implements MemberManagementAPI {
     public record Contact(String name, String contact) {
     }
 
-    private final DataAccessAPI dataAccess;
+    private final MemberDataAccessAPI dataAccess;
     private final PasswordPolicy passwordPolicy;
 
-    MemberManager(DataAccessAPI dataAccess, PasswordPolicy passwordPolicy) {
+    MemberManager(MemberDataAccessAPI dataAccess, PasswordPolicy passwordPolicy) {
         this.dataAccess = dataAccess;
         this.passwordPolicy = passwordPolicy;
     }

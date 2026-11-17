@@ -85,13 +85,13 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 | `members` | Member Management | `MemberManagementAPI`, `MemberManager`, `Member`, `LoginSession` |
 | `travel` | Travel Management | `TravelManagementAPI`, `TravelManager`, `TravelProduct`, `TravelConfiguration`, `TravelPriceCalculator`, `TravelApplication`, `TravelHistory` |
 | `souvenir` | Souvenir Management | `SouvenirManagementAPI`, `SouvenirManager`, `Souvenir`, `StockReceipt` (+ 출발 확정 차감 `StockIssue`) |
-| `dataaccess` | Data Access | `DataAccessAPI`, `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
+| `dataaccess` | Data Access | `DataAccessAPI`(업무별 저장 인터페이스를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
 | `speech` | Speech Recognition Integration | `SpeechRecognitionAPI`, `SpeechRecognitionManager`, `SpeechServiceClient`, `VoiceSelectionInterpreter` |
 | `sms` | SMS Notification | `SMSNotificationAPI`, `SMSNotificationManager`, `SMSServiceClient`, `SMSMessage` |
 | `common` | (설정) | 보안·로그인 설정, 웹 설정, 프로젝트 설정 값 |
 | `demo` | (데모) | 데모 데이터 `--seed-demo` |
 
-- 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 `DataAccessAPI` 로만 저장·조회한다.
+- 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 자기 패키지의 저장 인터페이스(`TravelDataAccessAPI` 등)로만 저장·조회한다. 이 인터페이스는 `DataAccessManager` 가 구현하므로 의존은 dataaccess → 업무 한 방향이다.
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다.
 
 ```

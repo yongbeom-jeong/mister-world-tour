@@ -1,7 +1,6 @@
 package com.misterworldtour.travel;
 
 import com.misterworldtour.TestDb;
-import com.misterworldtour.dataaccess.DataAccessAPI;
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.members.LoginSessionSupport;
 import com.misterworldtour.members.Role;
@@ -37,7 +36,7 @@ abstract class BookingTestBase {
     @Autowired
     SouvenirManager souvenirs;
     @Autowired
-    DataAccessAPI dataAccess;
+    TravelDataAccessAPI dataAccess;
     @Autowired
     LoginSessionSupport principals;
 

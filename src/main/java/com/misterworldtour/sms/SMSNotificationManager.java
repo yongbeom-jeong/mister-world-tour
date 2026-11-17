@@ -1,6 +1,5 @@
 package com.misterworldtour.sms;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 import com.misterworldtour.sms.SMSMessage.Recipient;
 import com.misterworldtour.sms.SMSMessage.SendResult;
 import com.misterworldtour.sms.SMSMessage.Status;
@@ -49,12 +48,12 @@ public class SMSNotificationManager implements SMSNotificationAPI {
         }
     }
 
-    private final DataAccessAPI dataAccess;
+    private final SMSMessageDataAccessAPI dataAccess;
     private final SMSServiceClient client;
     private final SMSProperties properties;
     private final TransactionTemplate tx;
 
-    SMSNotificationManager(DataAccessAPI dataAccess, SMSServiceClient client, SMSProperties properties,
+    SMSNotificationManager(SMSMessageDataAccessAPI dataAccess, SMSServiceClient client, SMSProperties properties,
                            PlatformTransactionManager transactionManager) {
         this.dataAccess = dataAccess;
         this.client = client;

@@ -1,6 +1,5 @@
 package com.misterworldtour.members;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +51,7 @@ class MemberWebTest {
     @Autowired
     JdbcTemplate jdbc;
     @Autowired
-    DataAccessAPI members;
+    MemberDataAccessAPI members;
     @Autowired
     PlatformTransactionManager transactionManager;
     @MockitoSpyBean

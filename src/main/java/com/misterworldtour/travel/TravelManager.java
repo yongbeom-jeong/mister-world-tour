@@ -1,7 +1,5 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
-import com.misterworldtour.dataaccess.DataAccessAPI.ProductFilter;
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.members.MemberManager;
 import com.misterworldtour.sms.SMSMessage.Recipient;
@@ -14,6 +12,7 @@ import com.misterworldtour.souvenir.SouvenirManager;
 import com.misterworldtour.souvenir.SouvenirManager.IssueItem;
 import com.misterworldtour.souvenir.SouvenirManager.SouvenirShortage;
 import com.misterworldtour.travel.TravelApplication.TravelerInput;
+import com.misterworldtour.travel.TravelDataAccessAPI.ProductFilter;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
 import com.misterworldtour.travel.TravelManagementAPI.ConfigurationResult;
@@ -46,7 +45,7 @@ import java.util.UUID;
  *
  * <ul>
  *   <li>상품 정보·구성·가격·신청·이력은 TravelProduct·TravelConfiguration·TravelPriceCalculator·TravelApplication·
- *       TravelHistory 가 맡고, 저장·조회는 {@link DataAccessAPI} 에 요청한다.</li>
+ *       TravelHistory 가 맡고, 저장·조회는 {@link TravelDataAccessAPI} 에 요청한다.</li>
  *   <li>신청은 상품을 잠근 트랜잭션(RunTravelTransaction) 안에서 정원·기념품 재고·금액을 다시 확인해 저장하고 출발을 판정한다.
  *       출발이 확정된 신청의 테마 기념품을 같은 트랜잭션에서 차감한다 (2026-11-11 팀 결정).</li>
  *   <li>신청 저장이 끝난 뒤 출발이 확정된 고객의 문자 발송을 SMS Notification 에 요청한다. 문자 실패는 신청을 되돌리지 않는다.</li>
@@ -124,14 +123,14 @@ public class TravelManager implements TravelManagementAPI {
     public record MyApplication(TravelApplication application, int travelerCount) {
     }
 
-    private final DataAccessAPI dataAccess;
+    private final TravelDataAccessAPI dataAccess;
     private final MemberManager members;
     private final SouvenirManager souvenirs;
     private final SMSNotificationManager sms;
     private final ProductImages images;
     private final Clock clock;
 
-    TravelManager(DataAccessAPI dataAccess, MemberManager members, SouvenirManager souvenirs,
+    TravelManager(TravelDataAccessAPI dataAccess, MemberManager members, SouvenirManager souvenirs,
                   SMSNotificationManager sms, ProductImages images, Clock clock) {
         this.dataAccess = dataAccess;
         this.members = members;

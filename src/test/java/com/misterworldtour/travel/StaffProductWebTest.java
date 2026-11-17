@@ -1,6 +1,5 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.members.Role;
 import com.misterworldtour.ui.ViewHelper;
@@ -65,7 +64,7 @@ class StaffProductWebTest extends BookingTestBase {
     }
 
     TravelProduct only() {
-        return dataAccess.findProducts(new DataAccessAPI.ProductFilter(null, null, null)).get(0);
+        return dataAccess.findProducts(new TravelDataAccessAPI.ProductFilter(null, null, null)).get(0);
     }
 
     static byte[] png(int w, int h) throws Exception {

@@ -1,6 +1,5 @@
 package com.misterworldtour.members;
 
-import com.misterworldtour.dataaccess.DataAccessAPI;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,9 +15,9 @@ public class LoginSessionSupport {
 
     public static final String PASSWORD = "Travel-2026!x";
 
-    private final DataAccessAPI dataAccess;
+    private final MemberDataAccessAPI dataAccess;
 
-    LoginSessionSupport(DataAccessAPI dataAccess) {
+    LoginSessionSupport(MemberDataAccessAPI dataAccess) {
         this.dataAccess = dataAccess;
     }
 

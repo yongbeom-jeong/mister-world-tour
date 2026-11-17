@@ -1,7 +1,7 @@
 package com.misterworldtour.dataaccess;
 
-import com.misterworldtour.dataaccess.DataAccessAPI.ProductApplicationCount;
-import com.misterworldtour.dataaccess.DataAccessAPI.ProductFilter;
+import com.misterworldtour.travel.TravelDataAccessAPI.ProductApplicationCount;
+import com.misterworldtour.travel.TravelDataAccessAPI.ProductFilter;
 import com.misterworldtour.travel.DepartureStatus;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TravelApplication;
