@@ -36,6 +36,10 @@ interface TravelApplicationRepository extends JpaRepository<TravelApplication, L
             where a.product.id = :productId and a.cancelledAt is null order by a.id""")
     List<Object[]> activeRowsForProduct(@Param("productId") Long productId);
 
+    @EntityGraph(attributePaths = {"product"})
+    @Query("select a from TravelApplication a where a.id in :ids")
+    List<TravelApplication> findAllWithProductByIdIn(@Param("ids") java.util.Collection<Long> ids);
+
     /** 신청별 여행자 수 (목록 표시용): [신청 id, 여행자 수]. */
     @Query("select a.id, size(a.travelers) from TravelApplication a where a.memberId = :memberId")
     List<Object[]> travelerCountsForMember(@Param("memberId") Long memberId);

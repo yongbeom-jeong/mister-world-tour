@@ -1,6 +1,8 @@
 package com.misterworldtour.common;
 
 import com.misterworldtour.members.MemberPrincipal;
+import com.misterworldtour.souvenir.Souvenir;
+import com.misterworldtour.souvenir.SouvenirService;
 import com.misterworldtour.travel.BookingService;
 import com.misterworldtour.travel.TravelService;
 import org.springframework.core.io.ClassPathResource;
@@ -23,16 +25,20 @@ class HomeController {
 
     private static final int FEATURED = 8;
     private static final int RECENT = 5;
+    /** 직원 대시보드에서 '재고 부족'으로 강조할 기준 (임시). */
+    static final int LOW_STOCK = 10;
 
     private final JsonMapper jsonMapper;
     private final BookingService booking;
     private final TravelService travel;
+    private final SouvenirService souvenirs;
     private volatile List<Map<String, String>> credits;
 
-    HomeController(JsonMapper jsonMapper, BookingService booking, TravelService travel) {
+    HomeController(JsonMapper jsonMapper, BookingService booking, TravelService travel, SouvenirService souvenirs) {
         this.jsonMapper = jsonMapper;
         this.booking = booking;
         this.travel = travel;
+        this.souvenirs = souvenirs;
     }
 
     /** 역할별 홈. 고객·비로그인은 테마 검색과 곧 출발하는 여행, 직원은 직원 메뉴(통계·최근 상품). */
@@ -45,8 +51,12 @@ class HomeController {
             model.addAttribute("myCount", booking.activeApplicationCount(member.getId()));
         }
         if (member != null && member.isStaffMember()) {
+            List<Souvenir> all = souvenirs.loadSouvenirs();
             model.addAttribute("stats", travel.staffDashboardCounts());
             model.addAttribute("recentProducts", travel.recentProducts(RECENT));
+            model.addAttribute("souvenirs", all);
+            model.addAttribute("lowStock", all.stream().filter(s -> s.getStockQuantity() < LOW_STOCK).toList());
+            model.addAttribute("lowStockLimit", LOW_STOCK);
         }
         return "home";
     }

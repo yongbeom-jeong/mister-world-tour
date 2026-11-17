@@ -71,6 +71,23 @@ public class TravelService {
         return products.save(product);
     }
 
+    /** 다른 패키지 화면(기념품 차감 내역 등)에 보여 줄 신청 요약. */
+    public record ApplicationSummary(long id, long memberId, String productName, LocalDate departureDate) {
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Map<Long, ApplicationSummary> applicationSummaries(java.util.Collection<Long> ids) {
+        java.util.Map<Long, ApplicationSummary> map = new java.util.HashMap<>();
+        if (ids.isEmpty()) {
+            return map;
+        }
+        for (TravelApplication a : applications.findAllWithProductByIdIn(ids)) {
+            map.put(a.getId(), new ApplicationSummary(a.getId(), a.getMemberId(), a.getProduct().getName(),
+                    a.getProduct().getDepartureDate()));
+        }
+        return map;
+    }
+
     /** 데모 데이터용 완료 이력. 같은 (회원, 식별값)이 있으면 만들지 않는다. 만들었으면 true. */
     @Transactional
     public boolean seedHistory(long memberId, String completedTravelId, String productName, TourLevel level,

@@ -129,8 +129,7 @@
     </section>
   </th:block>
 
-  <!--/* ================================================================ 직원 메뉴
-       TODO(기념품 이식 때): 재고 부족 기념품 통계 카드, 기념품 재고 카드 */-->
+  <!--/* ================================================================ 직원 메뉴 */-->
   <div th:if="${m != null and m.staffMember}" class="container pb-4">
     <div class="row g-3 mb-4">
       <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
@@ -142,6 +141,9 @@
       <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
         <div><div class="stat-label">출발 확정 상품</div><div class="stat-value" th:text="${stats.confirmed}">0</div></div>
         <div class="stat-icon"><i class="bi bi-flag"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">재고 부족 기념품</div><div th:class="|stat-value ${lowStock.isEmpty() ? '' : 'stock-low'}|" th:text="${lowStock.size()}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-box-seam"></i></div></div></div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -168,6 +170,20 @@
               <span th:class="|tag ${r.applicationCount > 0 ? 'tag-accent' : 'tag-muted'}|" th:text="|신청 ${r.applicationCount}건|">신청</span>
             </a>
             <div th:if="${recentProducts.isEmpty()}" class="list-group-item text-muted py-4 text-center">등록된 상품이 없습니다.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">기념품 재고 <a class="small fw-normal" th:href="@{/souvenir/staff/stock/}">입고하기</a></div>
+          <div class="mwt-card-body">
+            <div th:each="s, st : ${souvenirs}" th:class="|d-flex justify-content-between align-items-center ${st.last ? '' : 'mb-3'}|">
+              <div><div class="fw-semibold" th:text="${s.name}">품목</div><div class="small text-muted" th:text="${s.theme.label}">테마</div></div>
+              <div class="text-end">
+                <span th:class="|fw-bold fs-5 ${s.stockQuantity < lowStockLimit ? 'stock-low' : ''}|" th:text="${s.stockQuantity}">0</span><span class="text-muted small">개</span>
+                <div th:if="${s.stockQuantity < lowStockLimit}" class="small stock-low">재고 부족</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

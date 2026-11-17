@@ -20,6 +20,14 @@ interface SouvenirRepository extends JpaRepository<Souvenir, Long> {
 
     Optional<Souvenir> findByNameKey(String nameKey);
 
+    List<Souvenir> findAllByOrderByThemeAscNameAsc();
+
+    boolean existsByThemeAndActiveTrue(Theme theme);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from Souvenir s where s.id = :id and s.active = true")
+    Optional<Souvenir> findActiveForUpdate(@Param("id") Long id);
+
     /** 현재 재고를 DB 에서 바로 읽는다 (영속성 컨텍스트의 옛 값이 아니라). */
     @Query("select s.stockQuantity from Souvenir s where s.id = :id")
     int currentStock(@Param("id") Long id);
