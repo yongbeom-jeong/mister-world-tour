@@ -72,6 +72,14 @@ public class MemberService {
         return members.findById(memberId).map(m -> new Contact(m.getName(), m.getContact()));
     }
 
+    /** 회원 id → 성명 (다른 패키지 화면 표시용). 없는 회원은 빠진다. */
+    @Transactional(readOnly = true)
+    public java.util.Map<Long, String> namesByIds(java.util.Collection<Long> ids) {
+        java.util.Map<Long, String> map = new java.util.HashMap<>();
+        members.findAllById(ids).forEach(m -> map.put(m.getId(), m.getName()));
+        return map;
+    }
+
     /** 휴대전화 번호를 010-1234-5678 형식으로. 형식이 아니면 empty. */
     public static Optional<String> normalizeContact(String value) {
         Matcher m = CONTACT_RE.matcher(value == null ? "" : value.strip());

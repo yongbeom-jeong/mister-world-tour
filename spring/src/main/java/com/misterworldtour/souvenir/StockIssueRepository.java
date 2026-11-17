@@ -1,5 +1,8 @@
 package com.misterworldtour.souvenir;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,9 +20,13 @@ interface StockIssueRepository extends JpaRepository<StockIssue, Long> {
 
     boolean existsBySouvenirId(Long souvenirId);
 
-    List<StockIssue> findBySouvenirIdOrderByIssuedAtDescIdDesc(Long souvenirId);
+    long countBySouvenirId(Long souvenirId);
 
-    List<StockIssue> findAllByOrderByIssuedAtDescIdDesc();
+    /** 차감 내역 (최근 순). souvenirId 가 null 이면 전체. */
+    @EntityGraph(attributePaths = "souvenir")
+    @Query("select i from StockIssue i where (:souvenirId is null or i.souvenir.id = :souvenirId) "
+            + "order by i.issuedAt desc, i.id desc")
+    Page<StockIssue> search(@Param("souvenirId") Long souvenirId, Pageable pageable);
 
     List<StockIssue> findByApplicationId(Long applicationId);
 }
