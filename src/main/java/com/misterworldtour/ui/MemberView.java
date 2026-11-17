@@ -2,7 +2,7 @@ package com.misterworldtour.ui;
 
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.members.MemberManagementAPI.SignUpResult;
-import com.misterworldtour.members.MemberManager;
+import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.members.Role;
 import com.misterworldtour.ui.Messages.Level;
 
@@ -27,7 +27,7 @@ import java.util.Optional;
 
 /**
  * 회원가입·로그인 화면 (설계 3.1 MemberView). 가입·인증은 Member Management 에 요청한다.
- * 로그인 제출은 Spring Security 가 받아 {@code MemberAuthenticationProvider} → MemberManager.logIn 으로 처리하고,
+ * 로그인 제출은 Spring Security 가 받아 {@code MemberAuthenticationProvider} → MemberManagementAPI.logIn 으로 처리하고,
  * 성공하면 역할에 맞는 홈(MainView)으로, 고객이면 이전 여행 이력 팝업도 연다 ({@link LoginHandlers}).
  */
 @Controller
@@ -36,10 +36,10 @@ public class MemberView {
 
     private static final Logger log = LoggerFactory.getLogger(MemberView.class);
 
-    private final MemberManager memberManager;
+    private final MemberManagementAPI memberManager;
     private final SignUpFormValidator validator;
 
-    MemberView(MemberManager memberManager, SignUpFormValidator validator) {
+    MemberView(MemberManagementAPI memberManager, SignUpFormValidator validator) {
         this.memberManager = memberManager;
         this.validator = validator;
     }

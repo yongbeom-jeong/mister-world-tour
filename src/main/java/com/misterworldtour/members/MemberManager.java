@@ -32,12 +32,7 @@ public class MemberManager implements MemberManagementAPI {
 
     /** 아이디: 영문·숫자·밑줄 4~20자. */
     public static final Pattern ACCOUNT_RE = Pattern.compile("^[A-Za-z0-9_]{4,20}$");
-    public static final Pattern CONTACT_RE = Pattern.compile("^(01[016789])-?(\\d{3,4})-?(\\d{4})$");
     static final String REQUIRED = "필수 항목입니다.";
-
-    /** 문자 발송용 성명·연락처. */
-    public record Contact(String name, String contact) {
-    }
 
     private final MemberDataAccessAPI dataAccess;
     private final PasswordPolicy passwordPolicy;
@@ -66,7 +61,7 @@ public class MemberManager implements MemberManagementAPI {
         if (!errors.isEmpty()) {
             return new SignUpResult(null, errors);
         }
-        Member member = new Member(acc, Member.hashPassword(pw), nm, addr, normalizeContact(phone).orElseThrow(),
+        Member member = new Member(acc, Member.hashPassword(pw), nm, addr, MemberManagementAPI.normalizeContact(phone).orElseThrow(),
                 memberType);
         try {
             return new SignUpResult(dataAccess.saveMember(member), Map.of());
@@ -122,7 +117,7 @@ public class MemberManager implements MemberManagementAPI {
             errors.put("contact", REQUIRED);
         } else if (contact.length() > 20) {
             errors.put("contact", tooLong(20, contact));
-        } else if (normalizeContact(contact).isEmpty()) {
+        } else if (MemberManagementAPI.normalizeContact(contact).isEmpty()) {
             errors.put("contact", "휴대전화 번호 형식이 아닙니다. 예: 010-1234-5678");
         }
         return errors;
@@ -177,15 +172,6 @@ public class MemberManager implements MemberManagementAPI {
         Map<Long, String> map = new HashMap<>();
         dataAccess.findMembers(ids).forEach(m -> map.put(m.getMemberId(), m.getName()));
         return map;
-    }
-
-    /** 휴대전화 번호를 010-1234-5678 형식으로. 형식이 아니면 empty. */
-    public static Optional<String> normalizeContact(String value) {
-        Matcher m = CONTACT_RE.matcher(value == null ? "" : value.strip());
-        if (!m.matches()) {
-            return Optional.empty();
-        }
-        return Optional.of(m.group(1) + "-" + m.group(2) + "-" + m.group(3));
     }
 
     private static String strip(String s) {

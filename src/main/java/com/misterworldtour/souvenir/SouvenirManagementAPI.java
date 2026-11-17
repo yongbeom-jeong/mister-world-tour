@@ -1,12 +1,34 @@
 package com.misterworldtour.souvenir;
 
+import com.misterworldtour.travel.Theme;
+
+import org.springframework.data.domain.Page;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Souvenir Management 가 User Interface 에 제공하는 기념품·재고 조회와 입고 준비·등록 (설계 6.1 SouvenirManagementAPI).
  * 입고는 로그인한 직원만 할 수 있고, 준비(PrepareStockReceipt) → 등록(RecordSouvenirStockReceipt) 두 단계다.
  */
 public interface SouvenirManagementAPI {
+
+    /** 품목 입력 오류. errors 는 name·theme 별 안내. */
+    class SouvenirRegistrationException extends RuntimeException {
+        private final transient Map<String, String> errors;
+
+        public SouvenirRegistrationException(Map<String, String> errors) {
+            super(errors.toString());
+            this.errors = errors;
+        }
+
+        public Map<String, String> getErrors() {
+            return errors;
+        }
+    }
+
+    class SouvenirNotFound extends RuntimeException {
+    }
 
     /** 입고 결과 상태 (7가지). RESULT_UNKNOWN 은 서버가 아니라 화면 스크립트가 응답 불명일 때 판정한다. */
     enum StockReceiptStatus {
@@ -50,4 +72,25 @@ public interface SouvenirManagementAPI {
 
     /** 준비한 입고를 저장하고 재고를 늘린다. 같은 요청 키의 재시도는 재고를 다시 늘리지 않고 기존 결과를 돌려준다. */
     StockReceiptResponse recordSouvenirStockReceipt(String souvenirId, String quantity, String requestKey);
+
+    /** 숨긴 품목까지 포함한 전체 품목. */
+    List<Souvenir> loadAllSouvenirs();
+
+    boolean themeHasSouvenir(Theme theme);
+
+    Souvenir getSouvenir(long souvenirId);
+
+    long receiptCount(long souvenirId);
+
+    long issueCount(long souvenirId);
+
+    /** 차감 내역 (최근 순). souvenirId 가 null 이면 전체. */
+    Page<StockIssue> loadIssues(Long souvenirId, int page, int size);
+
+    Souvenir registerSouvenir(String name, Theme theme);
+
+    Souvenir updateSouvenir(long souvenirId, String name, Theme theme);
+
+    /** 내역이 없으면 삭제(true), 있으면 숨김(false). */
+    boolean deleteSouvenir(long souvenirId);
 }

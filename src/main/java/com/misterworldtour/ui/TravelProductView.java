@@ -5,7 +5,7 @@ import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.speech.SpeechRecognitionAPI.ProductCandidate;
 import com.misterworldtour.speech.SpeechRecognitionAPI.VoiceSelectionContext;
 import com.misterworldtour.speech.SpeechRecognitionAPI.VoiceSelectionResult;
-import com.misterworldtour.speech.SpeechRecognitionManager;
+import com.misterworldtour.speech.SpeechRecognitionAPI;
 import com.misterworldtour.speech.SpeechServiceClient;
 import com.misterworldtour.travel.BookingException;
 import com.misterworldtour.travel.DrinkOption;
@@ -13,7 +13,7 @@ import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
 import com.misterworldtour.travel.TravelConfiguration;
 import com.misterworldtour.travel.TravelManagementAPI.ConfigurationResult;
-import com.misterworldtour.travel.TravelManager;
+import com.misterworldtour.travel.TravelManagementAPI;
 import com.misterworldtour.travel.TravelPriceCalculator;
 import com.misterworldtour.travel.TravelProduct;
 import com.misterworldtour.travel.TravelRules;
@@ -74,11 +74,11 @@ public class TravelProductView {
     record OptionField(String field, String title, List<OptionChoice> choices) {
     }
 
-    private final TravelManager travelManager;
-    private final SpeechRecognitionManager speechRecognition;
+    private final TravelManagementAPI travelManager;
+    private final SpeechRecognitionAPI speechRecognition;
     private final JsonMapper json;
 
-    TravelProductView(TravelManager travelManager, SpeechRecognitionManager speechRecognition, JsonMapper json) {
+    TravelProductView(TravelManagementAPI travelManager, SpeechRecognitionAPI speechRecognition, JsonMapper json) {
         this.travelManager = travelManager;
         this.speechRecognition = speechRecognition;
         this.json = json;
@@ -195,11 +195,11 @@ public class TravelProductView {
             return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "잘못된 요청입니다."));
         }
         try {
-            ConfigurationResult result = travelManager.configureTravelProduct(product,
+            ConfigurationResult result = travelManager.configureTravelProduct(product.getProductId(),
                     product.getDefaultConfiguration().applyChanges(current), changes);
             return ResponseEntity.ok(Map.of("ok", true, "config", result.configuration().toMap(),
                     "described", result.configuration().describe(), "unit_price", result.unitPrice()));
-        } catch (TravelManager.ConfigurationException e) {
+        } catch (TravelManagementAPI.ConfigurationException e) {
             return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage(), "errors", e.getErrors()));
         }
     }
@@ -230,9 +230,9 @@ public class TravelProductView {
         try {
             Map<String, Object> current = asMap(json.readValue(config == null || config.isBlank() ? "{}" : config,
                     new TypeReference<Map<String, Object>>() { }));
-            chosen = travelManager.configureTravelProduct(product, product.getDefaultConfiguration().applyChanges(current),
+            chosen = travelManager.configureTravelProduct(product.getProductId(), product.getDefaultConfiguration().applyChanges(current),
                     Map.of()).configuration();
-        } catch (JacksonException | ClassCastException | TravelManager.ConfigurationException e) {
+        } catch (JacksonException | ClassCastException | TravelManagementAPI.ConfigurationException e) {
             Messages.flash(redirect, Level.ERROR, "여행 구성을 다시 확인해 주세요.");
             return "redirect:/travel/products/" + productId + "/";
         }

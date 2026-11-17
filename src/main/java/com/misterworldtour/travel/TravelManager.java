@@ -1,12 +1,12 @@
 package com.misterworldtour.travel;
 
 import com.misterworldtour.members.LoginSession;
-import com.misterworldtour.members.MemberManager;
+import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.sms.SMSMessage.Recipient;
 import com.misterworldtour.sms.SMSNotificationAPI.DepartureNotice;
+import com.misterworldtour.sms.SMSNotificationAPI.DeparturePlan;
 import com.misterworldtour.sms.SMSNotificationAPI.SMSBatchResult;
-import com.misterworldtour.sms.SMSNotificationManager;
-import com.misterworldtour.sms.SMSNotificationManager.DeparturePlan;
+import com.misterworldtour.sms.SMSNotificationAPI;
 import com.misterworldtour.travel.SouvenirStockAPI.IssueItem;
 import com.misterworldtour.travel.SouvenirStockAPI.SouvenirShortage;
 import com.misterworldtour.travel.SouvenirStockAPI.ThemeSouvenir;
@@ -57,80 +57,17 @@ public class TravelManager implements TravelManagementAPI {
 
     /** 신청에서 만든 이력의 completedTravelId 앞부분 (고객·상품마다 1건). */
     public static final String HISTORY_ID_PREFIX = "product-";
-    public static final String CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요.";
     private static final Logger log = LoggerFactory.getLogger(TravelManager.class);
 
-    /** 검토 이후 금액이 바뀌어 다시 확인이 필요함. */
-    public static class PriceChangedException extends BookingException {
-        public PriceChangedException(String message) {
-            super(message);
-        }
-    }
-
-    /** 상품이 없음 (삭제되었을 수 있음). */
-    public static class ProductNotFoundException extends BookingException {
-        public ProductNotFoundException() {
-            super("상품을 찾을 수 없습니다. 삭제되었을 수 있습니다.");
-        }
-    }
-
-    /** 신청이 한 건이라도 있는 상품은 수정·삭제할 수 없다. */
-    public static class ProductHasApplicationsException extends RuntimeException {
-    }
-
-    /** 상품 입력 오류. errors 는 항목별 안내. */
-    public static class ProductValidationException extends RuntimeException {
-        private final transient Map<String, String> errors;
-
-        public ProductValidationException(Map<String, String> errors) {
-            super(errors.toString());
-            this.errors = errors;
-        }
-
-        public Map<String, String> getErrors() {
-            return errors;
-        }
-    }
-
-    /** 구성 검사 실패. errors 는 항목(hotel_level 등)별 안내. */
-    public static class ConfigurationException extends RuntimeException {
-        private final transient Map<String, String> errors;
-
-        public ConfigurationException(Map<String, String> errors) {
-            super(String.join("; ", errors.values()));
-            this.errors = errors;
-        }
-
-        public Map<String, String> getErrors() {
-            return errors;
-        }
-    }
-
-    /** 직원 홈 통계: 상품 수, 취소 제외 신청 수, 출발 확정 상품 수. */
-    public record DashboardCounts(long products, long applications, long confirmed) {
-    }
-
-    /** 직원 홈: 최근 등록 상품과 신청 수. */
-    public record RecentProduct(TravelProduct product, long applicationCount) {
-    }
-
-    /** 다른 서브시스템 화면(기념품 차감 내역 등)에 보여 줄 신청 요약. */
-    public record ApplicationSummary(long id, long memberId, String productName, LocalDate departureDate) {
-    }
-
-    /** 내 신청 목록의 한 줄. */
-    public record MyApplication(TravelApplication application, int travelerCount) {
-    }
-
     private final TravelDataAccessAPI dataAccess;
-    private final MemberManager members;
+    private final MemberManagementAPI members;
     private final SouvenirStockAPI souvenirs;
-    private final SMSNotificationManager sms;
+    private final SMSNotificationAPI sms;
     private final ProductImages images;
     private final Clock clock;
 
-    TravelManager(TravelDataAccessAPI dataAccess, MemberManager members, SouvenirStockAPI souvenirs,
-                  SMSNotificationManager sms, ProductImages images, Clock clock) {
+    TravelManager(TravelDataAccessAPI dataAccess, MemberManagementAPI members, SouvenirStockAPI souvenirs,
+                  SMSNotificationAPI sms, ProductImages images, Clock clock) {
         this.dataAccess = dataAccess;
         this.members = members;
         this.souvenirs = souvenirs;
@@ -207,8 +144,8 @@ public class TravelManager implements TravelManagementAPI {
 
     /** 신청 화면 첫 행(신청 고객 본인)에 보여 줄 계정 성명·연락처. */
     @Transactional(readOnly = true)
-    public MemberManager.Contact applicantContact(long memberId) {
-        return members.getContact(memberId).orElse(new MemberManager.Contact("", ""));
+    public MemberManagementAPI.Contact applicantContact(long memberId) {
+        return members.getContact(memberId).orElse(new MemberManagementAPI.Contact("", ""));
     }
 
     // ---------------------------------------------------------------- LoadDefaultConfiguration (UC6·UC7)
@@ -325,7 +262,7 @@ public class TravelManager implements TravelManagementAPI {
 
     /** 첫 행을 신청 고객 본인(계정 성명·연락처)으로 바꾼 여행자 입력. */
     private List<TravelerInput> withApplicant(long memberId, List<TravelerInput> rows) {
-        MemberManager.Contact me = members.getContact(memberId)
+        MemberManagementAPI.Contact me = members.getContact(memberId)
                 .orElseThrow(() -> new BookingException("회원 정보를 찾을 수 없습니다. 다시 로그인해 주세요."));
         List<TravelerInput> out = new ArrayList<>();
         out.add(new TravelerInput(me.name(), me.contact(), true));

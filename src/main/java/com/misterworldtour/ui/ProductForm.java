@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * 직원 상품 등록·수정 화면의 입력 값 (TourProductAdminView). 화면 값은 문자열로 받고 {@link #validate} 는
- * 숫자·날짜·선택값 형식만 확인한다. 가격·기간·출발일 범위와 등급·기본 구성 규칙은 TravelManager 가
+ * 숫자·날짜·선택값 형식만 확인한다. 가격·기간·출발일 범위와 등급·기본 구성 규칙은 TravelManagementAPI 가
  * TravelProduct.validateProduct · TravelConfiguration.validateConfiguration 으로 검사한다.
  * 기본 구성(hotelLevel·meal·transport)은 테마·등급 기본값을 보여 주고 직원이 확인한 뒤 바꿀 수 있다. 비우면 기본값.
  */

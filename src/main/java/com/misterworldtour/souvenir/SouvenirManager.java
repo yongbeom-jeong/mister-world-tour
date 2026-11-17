@@ -46,23 +46,6 @@ public class SouvenirManager implements SouvenirManagementAPI, SouvenirStockAPI 
     record PendingReceipt(long employeeId, long souvenirId, int quantity, OffsetDateTime receivedAt) {
     }
 
-    /** 품목 입력 오류. errors 는 name·theme 별 안내. */
-    public static class SouvenirRegistrationException extends RuntimeException {
-        private final transient Map<String, String> errors;
-
-        public SouvenirRegistrationException(Map<String, String> errors) {
-            super(errors.toString());
-            this.errors = errors;
-        }
-
-        public Map<String, String> getErrors() {
-            return errors;
-        }
-    }
-
-    public static class SouvenirNotFound extends RuntimeException {
-    }
-
     private final SouvenirDataAccessAPI dataAccess;
     private final TransactionTemplate tx;
     /** 요청 키 → 입고 준비 정보 (오래된 순). */

@@ -2,8 +2,8 @@ package com.misterworldtour.ui;
 
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.souvenir.Souvenir;
-import com.misterworldtour.souvenir.SouvenirManager;
-import com.misterworldtour.travel.TravelManager;
+import com.misterworldtour.souvenir.SouvenirManagementAPI;
+import com.misterworldtour.travel.TravelManagementAPI;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,11 +32,11 @@ public class MainView {
     static final int LOW_STOCK = 10;
 
     private final JsonMapper jsonMapper;
-    private final TravelManager travel;
-    private final SouvenirManager souvenirs;
+    private final TravelManagementAPI travel;
+    private final SouvenirManagementAPI souvenirs;
     private volatile List<Map<String, String>> credits;
 
-    MainView(JsonMapper jsonMapper, TravelManager travel, SouvenirManager souvenirs) {
+    MainView(JsonMapper jsonMapper, TravelManagementAPI travel, SouvenirManagementAPI souvenirs) {
         this.jsonMapper = jsonMapper;
         this.travel = travel;
         this.souvenirs = souvenirs;

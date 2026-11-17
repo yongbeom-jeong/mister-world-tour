@@ -4,12 +4,12 @@ import com.misterworldtour.members.CustomerRequired;
 import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.travel.BookingException;
 import com.misterworldtour.travel.DepartureStatus;
-import com.misterworldtour.travel.TravelApplication;
 import com.misterworldtour.travel.TravelApplication.TravelerInput;
+import com.misterworldtour.travel.TravelApplication;
 import com.misterworldtour.travel.TravelConfiguration;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
-import com.misterworldtour.travel.TravelManager;
+import com.misterworldtour.travel.TravelManagementAPI;
 import com.misterworldtour.travel.TravelProduct;
 import com.misterworldtour.ui.Messages.Level;
 
@@ -66,9 +66,9 @@ public class TravelApplicationView {
     }
     private static final Logger log = LoggerFactory.getLogger(TravelApplicationView.class);
 
-    private final TravelManager travelManager;
+    private final TravelManagementAPI travelManager;
 
-    TravelApplicationView(TravelManager travelManager) {
+    TravelApplicationView(TravelManagementAPI travelManager) {
         this.travelManager = travelManager;
     }
 
@@ -133,7 +133,7 @@ public class TravelApplicationView {
         model.addAttribute("errors", Map.of());
         model.addAttribute("review", null);
         model.addAttribute("me", travelManager.applicantContact(memberId));
-        model.addAttribute("cancelRule", TravelManager.CANCEL_RULE);
+        model.addAttribute("cancelRule", TravelManagementAPI.CANCEL_RULE);
         return new ApplicationPage(draft, product, null);
     }
 
@@ -278,7 +278,7 @@ public class TravelApplicationView {
         model.addAttribute("described", app.getConfiguration().describe());
         model.addAttribute("status", app.currentDepartureStatus());
         model.addAttribute("cancelBlock", travelManager.cancelBlockReason(app));
-        model.addAttribute("cancelRule", TravelManager.CANCEL_RULE);
+        model.addAttribute("cancelRule", TravelManagementAPI.CANCEL_RULE);
         return "travel/customer/application_detail";
     }
 

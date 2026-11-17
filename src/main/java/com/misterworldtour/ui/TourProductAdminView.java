@@ -5,10 +5,10 @@ import com.misterworldtour.travel.ProductImages.InvalidImageException;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
 import com.misterworldtour.travel.TravelManagementAPI.ImageChange;
-import com.misterworldtour.travel.TravelManager;
-import com.misterworldtour.travel.TravelManager.ProductHasApplicationsException;
-import com.misterworldtour.travel.TravelManager.ProductNotFoundException;
-import com.misterworldtour.travel.TravelManager.ProductValidationException;
+import com.misterworldtour.travel.TravelManagementAPI.ProductHasApplicationsException;
+import com.misterworldtour.travel.TravelManagementAPI.ProductNotFoundException;
+import com.misterworldtour.travel.TravelManagementAPI.ProductValidationException;
+import com.misterworldtour.travel.TravelManagementAPI;
 import com.misterworldtour.travel.TravelProduct;
 import com.misterworldtour.ui.Messages.Level;
 
@@ -50,10 +50,10 @@ public class TourProductAdminView {
 
     private static final Logger log = LoggerFactory.getLogger(TourProductAdminView.class);
 
-    private final TravelManager travel;
+    private final TravelManagementAPI travel;
     private final Clock clock;
 
-    TourProductAdminView(TravelManager travel, Clock clock) {
+    TourProductAdminView(TravelManagementAPI travel, Clock clock) {
         this.travel = travel;
         this.clock = clock;
     }

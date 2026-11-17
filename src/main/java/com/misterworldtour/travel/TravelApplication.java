@@ -1,6 +1,6 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.members.MemberManager;
+import com.misterworldtour.members.MemberManagementAPI;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -150,7 +150,7 @@ public class TravelApplication {
             }
             String contact = "";
             if (!contactRaw.isEmpty()) {
-                Optional<String> normalized = MemberManager.normalizeContact(contactRaw);
+                Optional<String> normalized = MemberManagementAPI.normalizeContact(contactRaw);
                 if (normalized.isEmpty()) {
                     errors.put(key, (i + 1) + "번째 여행자의 연락처 형식이 올바르지 않습니다. 예: 010-1234-5678");
                     continue;

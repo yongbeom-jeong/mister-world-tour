@@ -3,6 +3,8 @@ package com.misterworldtour.sms;
 import com.misterworldtour.sms.SMSMessage.Recipient;
 import com.misterworldtour.sms.SMSMessage.Status;
 
+import org.springframework.data.domain.Page;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,16 @@ import java.util.List;
  * 출발 확정 여부와 수신 대상은 Travel Management 가 정해 넘긴다.
  */
 public interface SMSNotificationAPI {
+
+    /** 보내기 전에 발송 기록을 만들어 둔 출발 확정 문자 묶음. */
+    record DeparturePlan(DepartureNotice notice, List<SMSMessage> messages, List<Recipient> invalid) {
+    }
+
+    class ResendException extends RuntimeException {
+        public ResendException(String message) {
+            super(message);
+        }
+    }
 
     String SMS_PREFIX = "[미스터월드투어]";
     /** 단문 한도 (영문·숫자·공백 1byte, 한글 2byte). */
@@ -94,4 +106,20 @@ public interface SMSNotificationAPI {
 
     /** 고객별 문자를 만들어 보내고(재시도 포함) 결과를 기록해 돌려준다. */
     SMSBatchResult sendDepartureConfirmation(List<Recipient> recipients, DepartureNotice notice);
+
+    /** 신청 저장과 같은 트랜잭션에서 발송 기록을 '발송 중'으로 먼저 만든다. */
+    DeparturePlan prepareDepartureConfirmation(List<Recipient> recipients, DepartureNotice notice);
+
+    /** 발송 기록 없이 문자 묶음만 만든다 (기록 저장에 실패했을 때). */
+    DeparturePlan planWithoutLogs(List<Recipient> recipients, DepartureNotice notice);
+
+    /** 준비한 묶음을 보낸다 (신청 저장 뒤). */
+    SMSBatchResult sendDepartureConfirmation(DeparturePlan plan);
+
+    Page<SMSMessage> loadMessages(boolean problemsOnly, int page);
+
+    long problemCount();
+
+    /** 실패·결과 불명·멈춘 기록을 다시 보낸다. */
+    SMSMessage resendMessage(long messageId, long employeeId, boolean confirmDuplicate);
 }

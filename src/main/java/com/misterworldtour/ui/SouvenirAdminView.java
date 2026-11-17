@@ -1,15 +1,15 @@
 package com.misterworldtour.ui;
 
-import com.misterworldtour.members.MemberManager;
+import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.members.StaffRoleRequired;
 import com.misterworldtour.souvenir.Souvenir;
-import com.misterworldtour.souvenir.SouvenirManager;
-import com.misterworldtour.souvenir.SouvenirManager.SouvenirNotFound;
-import com.misterworldtour.souvenir.SouvenirManager.SouvenirRegistrationException;
+import com.misterworldtour.souvenir.SouvenirManagementAPI.SouvenirNotFound;
+import com.misterworldtour.souvenir.SouvenirManagementAPI.SouvenirRegistrationException;
+import com.misterworldtour.souvenir.SouvenirManagementAPI;
 import com.misterworldtour.souvenir.StockIssue;
 import com.misterworldtour.travel.Theme;
-import com.misterworldtour.travel.TravelManager;
-import com.misterworldtour.travel.TravelManager.ApplicationSummary;
+import com.misterworldtour.travel.TravelManagementAPI.ApplicationSummary;
+import com.misterworldtour.travel.TravelManagementAPI;
 import com.misterworldtour.ui.Messages.Level;
 
 import jakarta.servlet.http.HttpSession;
@@ -56,11 +56,11 @@ public class SouvenirAdminView {
     record IssueRow(StockIssue issue, ApplicationSummary application, String memberName) {
     }
 
-    private final SouvenirManager souvenirs;
-    private final TravelManager travel;
-    private final MemberManager members;
+    private final SouvenirManagementAPI souvenirs;
+    private final TravelManagementAPI travel;
+    private final MemberManagementAPI members;
 
-    SouvenirAdminView(SouvenirManager souvenirs, TravelManager travel, MemberManager members) {
+    SouvenirAdminView(SouvenirManagementAPI souvenirs, TravelManagementAPI travel, MemberManagementAPI members) {
         this.souvenirs = souvenirs;
         this.travel = travel;
         this.members = members;

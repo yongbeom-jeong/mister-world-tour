@@ -6,7 +6,7 @@ import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptException;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptPreparationResult;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptResponse;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptStatus;
-import com.misterworldtour.souvenir.SouvenirManager;
+import com.misterworldtour.souvenir.SouvenirManagementAPI;
 import com.misterworldtour.travel.Theme;
 
 import jakarta.servlet.http.HttpSession;
@@ -45,9 +45,9 @@ public class SouvenirStockView {
 
     private static final Logger log = LoggerFactory.getLogger(SouvenirStockView.class);
 
-    private final SouvenirManager souvenirManager;
+    private final SouvenirManagementAPI souvenirManager;
 
-    SouvenirStockView(SouvenirManager souvenirManager) {
+    SouvenirStockView(SouvenirManagementAPI souvenirManager) {
         this.souvenirManager = souvenirManager;
     }
 

@@ -2,7 +2,7 @@ package com.misterworldtour.ui;
 
 import com.misterworldtour.members.CustomerRequired;
 import com.misterworldtour.members.LoginSession;
-import com.misterworldtour.travel.TravelManager;
+import com.misterworldtour.travel.TravelManagementAPI;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -45,9 +45,9 @@ public class TravelHistoryView {
 
     private static final Logger log = LoggerFactory.getLogger(TravelHistoryView.class);
 
-    private final TravelManager travelManager;
+    private final TravelManagementAPI travelManager;
 
-    TravelHistoryView(TravelManager travelManager) {
+    TravelHistoryView(TravelManagementAPI travelManager) {
         this.travelManager = travelManager;
     }
 

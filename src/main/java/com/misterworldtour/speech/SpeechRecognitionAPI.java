@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public interface SpeechRecognitionAPI {
 
+
     enum Status { SUCCESS, RECOGNITION_FAILED, AMBIGUOUS, UNSUPPORTED }
 
     enum Kind {
@@ -56,4 +57,7 @@ public interface SpeechRecognitionAPI {
 
     /** 음성 입력과 현재 화면의 선택 정보를 받아 인식하고 선택 정보를 해석한다. 실패·모호·미지원은 결과로 알린다. */
     VoiceSelectionResult recognizeSelection(VoiceInput voiceInput, VoiceSelectionContext context);
+
+    /** 브라우저에서 끝난 인식 실패를 기록하고 안내 문구를 돌려준다. */
+    String recordBrowserFailure(String errorCode, Long memberId);
 }

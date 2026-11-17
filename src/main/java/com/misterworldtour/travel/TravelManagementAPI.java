@@ -1,13 +1,17 @@
 package com.misterworldtour.travel;
 
+import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.sms.SMSNotificationAPI.SMSBatchResult;
 import com.misterworldtour.travel.TravelApplication.TravelerInput;
 import com.misterworldtour.travel.TravelPriceCalculator.PriceBreakdown;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Travel Management 가 User Interface 에 제공하는 여행 관리 기능 (설계 5.1 TravelManagementAPI).
@@ -15,6 +19,71 @@ import java.util.Map;
  * 로그인한 회원은 LoginSession 으로 확인한다.
  */
 public interface TravelManagementAPI {
+
+    /** 신청 확인 화면 안내 문구. */
+    String CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요.";
+
+    /** 검토 이후 금액이 바뀌어 다시 확인이 필요함. */
+    class PriceChangedException extends BookingException {
+        public PriceChangedException(String message) {
+            super(message);
+        }
+    }
+
+    /** 상품이 없음 (삭제되었을 수 있음). */
+    class ProductNotFoundException extends BookingException {
+        public ProductNotFoundException() {
+            super("상품을 찾을 수 없습니다. 삭제되었을 수 있습니다.");
+        }
+    }
+
+    /** 신청이 한 건이라도 있는 상품은 수정·삭제할 수 없다. */
+    class ProductHasApplicationsException extends RuntimeException {
+    }
+
+    /** 상품 입력 오류. errors 는 항목별 안내. */
+    class ProductValidationException extends RuntimeException {
+        private final transient Map<String, String> errors;
+
+        public ProductValidationException(Map<String, String> errors) {
+            super(errors.toString());
+            this.errors = errors;
+        }
+
+        public Map<String, String> getErrors() {
+            return errors;
+        }
+    }
+
+    /** 구성 검사 실패. errors 는 항목(hotel_level 등)별 안내. */
+    class ConfigurationException extends RuntimeException {
+        private final transient Map<String, String> errors;
+
+        public ConfigurationException(Map<String, String> errors) {
+            super(String.join("; ", errors.values()));
+            this.errors = errors;
+        }
+
+        public Map<String, String> getErrors() {
+            return errors;
+        }
+    }
+
+    /** 직원 홈 통계: 상품 수, 취소 제외 신청 수, 출발 확정 상품 수. */
+    record DashboardCounts(long products, long applications, long confirmed) {
+    }
+
+    /** 직원 홈: 최근 등록 상품과 신청 수. */
+    record RecentProduct(TravelProduct product, long applicationCount) {
+    }
+
+    /** 다른 서브시스템 화면(기념품 차감 내역 등)에 보여 줄 신청 요약. */
+    record ApplicationSummary(long id, long memberId, String productName, LocalDate departureDate) {
+    }
+
+    /** 내 신청 목록의 한 줄. */
+    record MyApplication(TravelApplication application, int travelerCount) {
+    }
 
     /** 구성 변경 결과: 새 구성과 1인 가격. */
     record ConfigurationResult(TravelConfiguration configuration, int unitPrice) {
@@ -106,4 +175,44 @@ public interface TravelManagementAPI {
 
     /** 삭제한 상품 이름을 돌려준다. */
     String deleteTourProduct(long productId);
+
+    /** 상품의 남은 자리 (허니문은 정원 없음 → -1). */
+    int remainingSeats(TravelProduct product);
+
+    /** 상품 테마에 연결된 기념품 이름. */
+    List<String> themeSouvenirNames(TravelProduct product);
+
+    /** 신청 고객의 성명·연락처 (신청 화면 첫 행). */
+    MemberManagementAPI.Contact applicantContact(long memberId);
+
+    /** 구성의 1인 가격. */
+    int calculateUnitPrice(TravelProduct product, TravelConfiguration configuration);
+
+    /** 취소할 수 없는 이유 (취소 가능하면 null). */
+    String cancelBlockReason(TravelApplication app);
+
+    /** 출발 확정 전 신청을 취소한다. */
+    void cancelApplication(long memberId, long applicationId);
+
+    /** 같은 요청 키로 저장된 신청 번호 (신청 등록 결과가 불명할 때 다시 확인). */
+    Optional<Long> findSubmittedApplication(long memberId, String requestKey);
+
+    Optional<TravelApplication> getMyApplication(long memberId, long applicationId);
+
+    /** 고객의 취소하지 않은 신청 수. */
+    long activeApplicationCount(long memberId);
+
+    List<MyApplication> myApplications(long memberId);
+
+    DashboardCounts staffDashboardCounts();
+
+    List<RecentProduct> recentProducts(int limit);
+
+    boolean hasApplications(long productId);
+
+    /** 신청 번호 → 요약 (기념품 차감 내역 화면용). */
+    Map<Long, ApplicationSummary> applicationSummaries(Collection<Long> ids);
+
+    /** since 이후 같은 입력으로 등록된 상품 (등록 결과가 불명할 때 다시 확인). */
+    Optional<TravelProduct> findRegisteredSince(ProductInput input, OffsetDateTime since);
 }

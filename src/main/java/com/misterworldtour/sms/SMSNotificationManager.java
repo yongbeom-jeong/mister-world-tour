@@ -38,16 +38,6 @@ public class SMSNotificationManager implements SMSNotificationAPI {
     public static final int PAGE_SIZE = 30;
     private static final Logger log = LoggerFactory.getLogger(SMSNotificationManager.class);
 
-    /** 보내기 전에 발송 기록을 만들어 둔 출발 확정 문자 묶음. */
-    public record DeparturePlan(DepartureNotice notice, List<SMSMessage> messages, List<Recipient> invalid) {
-    }
-
-    public static class ResendException extends RuntimeException {
-        public ResendException(String message) {
-            super(message);
-        }
-    }
-
     private final SMSMessageDataAccessAPI dataAccess;
     private final SMSServiceClient client;
     private final SMSProperties properties;

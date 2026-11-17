@@ -4,7 +4,7 @@ import com.misterworldtour.members.LoginSession;
 import com.misterworldtour.travel.TravelApplication.TravelerInput;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
-import com.misterworldtour.travel.TravelManager.ConfigurationException;
+import com.misterworldtour.travel.TravelManagementAPI.ConfigurationException;
 
 import org.junit.jupiter.api.Test;
 

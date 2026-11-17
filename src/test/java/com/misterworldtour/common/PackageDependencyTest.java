@@ -50,6 +50,28 @@ class PackageDependencyTest {
         }
     }
 
+    /** 다른 서브시스템은 *API 로만 부른다: 다른 패키지의 *Manager 클래스를 참조하지 않는다 (데모 데이터 demo 는 제외). */
+    @Test
+    void otherSubsystemsUseApisNotManagers() throws IOException {
+        Pattern managerRef = Pattern.compile("com\\.misterworldtour\\.(\\w+)\\.(\\w+Manager)\\b");
+        List<String> offenders = new ArrayList<>();
+        try (Stream<Path> files = Files.walk(SOURCE_ROOT)) {
+            for (Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+                String pkg = SOURCE_ROOT.relativize(file).getName(0).toString();
+                if (pkg.equals("demo")) {
+                    continue;
+                }
+                Matcher m = managerRef.matcher(COMMENTS.matcher(read(file)).replaceAll(""));
+                while (m.find()) {
+                    if (!m.group(1).equals(pkg)) {
+                        offenders.add(file.getFileName() + " → " + m.group(1) + "." + m.group(2));
+                    }
+                }
+            }
+        }
+        assertThat(offenders).as("다른 서브시스템의 *Manager 직접 사용").isEmpty();
+    }
+
     /** start 로 돌아오는 경로를 찾으면 "a → b → a" 형태로 기록한다 (같은 순환은 가장 작은 패키지에서 시작한 것만). */
     private static void findCycle(Map<String, Set<String>> graph, String start, String current, List<String> path,
                                   List<String> cycles) {

@@ -1,7 +1,7 @@
 package com.misterworldtour.ui;
 
 import com.misterworldtour.common.MwtProperties;
-import com.misterworldtour.members.MemberManager;
+import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.members.Role;
 
 import org.springframework.stereotype.Component;
@@ -12,20 +12,20 @@ import java.util.Objects;
 
 /**
  * 회원가입 화면 입력 검사. 화면에만 있는 항목(비밀번호 확인, 직원 인증 코드)은 여기서 보고,
- * 회원 정보 자체(필수·형식·아이디 중복·비밀번호 정책)는 {@link MemberManager} 가 검사한 결과를 화면 항목에 옮긴다.
+ * 회원 정보 자체(필수·형식·아이디 중복·비밀번호 정책)는 {@link MemberManagementAPI} 가 검사한 결과를 화면 항목에 옮긴다.
  */
 @Component
 public class SignUpFormValidator {
 
     static final String REQUIRED = "필수 항목입니다.";
 
-    /** MemberManager 의 항목 이름 → 화면 입력 이름. */
+    /** MemberManagementAPI 의 항목 이름 → 화면 입력 이름. */
     private static final Map<String, String> FIELDS = Map.of("account", "username", "password", "password1");
 
-    private final MemberManager memberManager;
+    private final MemberManagementAPI memberManager;
     private final MwtProperties properties;
 
-    SignUpFormValidator(MemberManager memberManager, MwtProperties properties) {
+    SignUpFormValidator(MemberManagementAPI memberManager, MwtProperties properties) {
         this.memberManager = memberManager;
         this.properties = properties;
     }
@@ -65,7 +65,7 @@ public class SignUpFormValidator {
         });
     }
 
-    /** MemberManager 가 돌려준 항목별 안내를 화면 입력 칸에 붙인다. 비밀번호 정책은 줄마다 따로 표시한다. */
+    /** MemberManagementAPI 가 돌려준 항목별 안내를 화면 입력 칸에 붙인다. 비밀번호 정책은 줄마다 따로 표시한다. */
     public static void reject(Errors errors, String field, String message) {
         String formField = FIELDS.getOrDefault(field, field);
         for (String line : message.split("\n")) {
