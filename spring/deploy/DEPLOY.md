@@ -28,23 +28,30 @@ Django 판 안내 `deploy/DEPLOY.md` 의 1~3장과 같다 (Ubuntu 24.04, 보안 
 
 ## 4. 설치 (한 번 실행, 약 5~10분)
 
-저장소가 아직 없으면:
+Spring 판은 **`spring` 브랜치**를 받아 빌드한다 (`main` 은 Django 판 배포용).
+이식 PR(#20 → … → #25 → 배포 PR)이 `spring` 에 병합되기 전에는 `spring` 대신 `feat/spring-deploy` 를 쓴다.
+
+**A. Spring 판만 쓰는 서버** (저장소가 아직 없을 때):
 ```bash
 sudo mkdir -p /srv/mwt && sudo chown ubuntu:ubuntu /srv/mwt
-git clone -b feat/spring-deploy git@github.com:yongbeom-jeong/mister-world-tour.git /srv/mwt
-```
-Django 판을 이미 설치했다면 그 저장소에서 Spring 판이 있는 브랜치로 바꾼다 (Django 판도 같은 코드로 갱신된다):
-```bash
-BRANCH=feat/spring-deploy bash /srv/mwt/deploy/update.sh
-```
-그다음:
-```bash
+git clone -b spring git@github.com:yongbeom-jeong/mister-world-tour.git /srv/mwt
 bash /srv/mwt/spring/deploy/setup.sh
 ```
+
+**B. Django 판(`/srv/mwt`, main)이 이미 있는 서버**: Django 판 저장소의 브랜치는 건드리지 않고 Spring 판을 따로 받는다.
+`.env` 는 Django 판 파일을 링크해서 같이 쓴다 (스크립트는 링크를 따라가며 값을 고친다).
+```bash
+sudo mkdir -p /srv/mwt-spring && sudo chown ubuntu:ubuntu /srv/mwt-spring
+git clone -b spring git@github.com:yongbeom-jeong/mister-world-tour.git /srv/mwt-spring
+ln -s /srv/mwt/.env /srv/mwt-spring/.env
+bash /srv/mwt-spring/spring/deploy/setup.sh
+```
+B 의 경우 아래 명령의 `/srv/mwt/spring/...` 를 `/srv/mwt-spring/spring/...` 로 바꿔 읽는다.
+
 하는 일: Java 21(`openjdk-21-jdk-headless`)·PostgreSQL 18·Nginx 설치 → `.env` 확인(없으면 새로 만듦) → DB `mwt_spring` 생성
 → `mvnw package`(테스트 포함, 메모리 H2) → Nginx(`/media/` 는 직접 제공, 나머지는 Spring 으로 프록시)
 → HTTPS 인증서 → `mwt-spring` 서비스 → 데모 데이터(`--seed-demo`).
-끝나면 접속 주소, 데모 계정, 직원 가입 코드가 출력된다. PR 이 main 에 병합된 뒤에는 `feat/spring-deploy` 대신 main 을 쓴다.
+끝나면 접속 주소, 데모 계정, 직원 가입 코드가 출력된다.
 
 바꿀 수 있는 값 (예: `SKIP_TESTS=1 bash /srv/mwt/spring/deploy/setup.sh`)
 
@@ -69,7 +76,7 @@ bash /srv/mwt/spring/deploy/setup.sh
 | 하고 싶은 것 | 명령 (서버에서) |
 |---|---|
 | 코드 갱신 (git push 후) | `bash /srv/mwt/spring/deploy/update.sh` (빌드 테스트 생략, `RUN_TESTS=1` 이면 실행) |
-| PR 병합 후 main 으로 전환 | `BRANCH=main bash /srv/mwt/spring/deploy/update.sh` |
+| PR 병합 후 `spring` 브랜치로 전환 | `BRANCH=spring bash /srv/mwt/spring/deploy/update.sh` |
 | 로그 보기 (가짜 문자 발송 포함) | `sudo journalctl -u mwt-spring -f` |
 | 재시작 | `sudo systemctl restart mwt-spring` |
 | 완료 여행 이력 일괄 반영 | `bash /srv/mwt/spring/deploy/run.sh --complete-trips` |

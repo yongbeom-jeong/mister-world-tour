@@ -2,7 +2,7 @@
 # 서버의 Spring 판 코드를 최신으로 갱신하고 재시작한다. 표 변경은 시작할 때 Flyway 가 반영한다.
 #
 #   bash /srv/mwt/spring/deploy/update.sh               # 지금 브랜치의 최신 코드
-#   BRANCH=main bash /srv/mwt/spring/deploy/update.sh   # 다른 브랜치로 바꿔서 (PR 병합 후)
+#   BRANCH=spring bash /srv/mwt/spring/deploy/update.sh # 다른 브랜치로 바꿔서 (PR 병합 후. main 은 Django 판)
 #   RUN_TESTS=1 bash /srv/mwt/spring/deploy/update.sh   # 빌드 때 테스트도 실행
 
 set -euo pipefail

@@ -62,8 +62,8 @@ fi
 # ---------------------------------------------------------------- 2. .env
 step "2/7 .env (저장소 루트, Django 판과 같은 파일. 비밀값은 서버에서 무작위 생성)"
 ENV_FILE="$APP_DIR/.env"
-set_env() {  # set_env KEY VALUE : .env 의 값을 바꾸거나 추가
-  if grep -q "^$1=" "$ENV_FILE"; then sed -i "s|^$1=.*|$1=$2|" "$ENV_FILE"; else echo "$1=$2" >> "$ENV_FILE"; fi
+set_env() {  # set_env KEY VALUE : .env 의 값을 바꾸거나 추가 (.env 가 Django 판 파일로의 링크여도 원본을 고친다)
+  if grep -q "^$1=" "$ENV_FILE"; then sed -i --follow-symlinks "s|^$1=.*|$1=$2|" "$ENV_FILE"; else echo "$1=$2" >> "$ENV_FILE"; fi
 }
 if [ ! -f "$ENV_FILE" ]; then
   cp "$APP_DIR/.env.example" "$ENV_FILE"
