@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,13 @@ public class TravelService {
 
     private final TravelProductRepository products;
     private final TravelApplicationRepository applications;
+    private final TravelHistoryRepository histories;
 
-    TravelService(TravelProductRepository products, TravelApplicationRepository applications) {
+    TravelService(TravelProductRepository products, TravelApplicationRepository applications,
+                  TravelHistoryRepository histories) {
         this.products = products;
         this.applications = applications;
+        this.histories = histories;
     }
 
     /** 직원 홈 통계: 상품 수, 취소 제외 신청 수, 출발 확정 상품 수. */
@@ -65,6 +69,18 @@ public class TravelService {
             throw new IllegalArgumentException(error);
         }
         return products.save(product);
+    }
+
+    /** 데모 데이터용 완료 이력. 같은 (회원, 식별값)이 있으면 만들지 않는다. 만들었으면 true. */
+    @Transactional
+    public boolean seedHistory(long memberId, String completedTravelId, String productName, TourLevel level,
+                               int travelDays, int price, LocalDate completedAt) {
+        if (histories.existsByMemberIdAndCompletedTravelId(memberId, completedTravelId)) {
+            return false;
+        }
+        histories.save(new TravelHistory(memberId, completedTravelId, productName, level, travelDays, price,
+                completedAt != null, completedAt));
+        return true;
     }
 
     /** 상품 대표 사진 경로를 바꾼다 (데모 데이터·직원 사진 업로드). */
