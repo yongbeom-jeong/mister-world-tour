@@ -36,6 +36,25 @@ interface TravelApplicationRepository extends JpaRepository<TravelApplication, L
             where a.product.id = :productId and a.cancelledAt is null order by a.id""")
     List<Object[]> activeRowsForProduct(@Param("productId") Long productId);
 
+    /**
+     * 출발이 확정된(허니문은 신청 상태, 그 외는 상품 상태) 취소하지 않은 신청 중 출발일이 today 이전인 것.
+     * memberId 가 null 이면 전체.
+     */
+    @Query("""
+            select a from TravelApplication a join fetch a.product p
+            where a.cancelledAt is null and p.departureDate < :today
+              and (:memberId is null or a.memberId = :memberId)
+              and ((p.theme = com.misterworldtour.travel.Theme.HONEYMOON
+                    and a.departureStatus = com.misterworldtour.travel.DepartureStatus.CONFIRMED)
+                or (p.theme <> com.misterworldtour.travel.Theme.HONEYMOON
+                    and p.departureStatus = com.misterworldtour.travel.DepartureStatus.CONFIRMED))
+            order by a.id""")
+    List<TravelApplication> findConfirmedDepartedBefore(@Param("today") java.time.LocalDate today,
+                                                        @Param("memberId") Long memberId);
+
+    @Query("select a.product.id from TravelApplication a where a.id = :id and a.memberId = :memberId")
+    Optional<Long> productIdOf(@Param("id") Long id, @Param("memberId") Long memberId);
+
     @EntityGraph(attributePaths = {"product"})
     @Query("select a from TravelApplication a where a.id in :ids")
     List<TravelApplication> findAllWithProductByIdIn(@Param("ids") java.util.Collection<Long> ids);

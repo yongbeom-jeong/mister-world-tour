@@ -18,6 +18,10 @@ spring:
       ddl-auto: validate   # 표는 Flyway(db/migration)로만 만든다
   thymeleaf:
     cache: false
+  servlet:
+    multipart:
+      max-file-size: 6MB      # 상품 사진은 5MB 이하 (넘으면 화면에서 안내)
+      max-request-size: 8MB
   web:
     resources:
       cache:

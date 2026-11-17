@@ -37,7 +37,11 @@
               <input type="hidden" name="request_key" th:value="${review.requestKey}">
               <button class="btn btn-primary btn-lg w-100" id="submit-btn">이 내용으로 신청 확정</button>
             </form>
-            <div class="small text-muted mt-3 text-center">여행자 정보를 고치면 금액을 다시 확인해야 합니다.</div>
+            <div class="alert alert-warning small py-2 mt-3 mb-0" id="cancel-notice">
+              <i class="bi bi-exclamation-triangle me-1"></i><th:block th:text="${cancelRule}">안내</th:block>
+              <th:block th:text="${product.honeymoon} ? '허니문은 신청과 함께 출발이 확정되므로 신청 후에는 취소할 수 없습니다.' : '출발 인원 3명이 모이기 전까지만 \'내 신청\'에서 취소할 수 있습니다.'">안내</th:block>
+            </div>
+            <div class="small text-muted mt-2 text-center">여행자 정보를 고치면 금액을 다시 확인해야 합니다.</div>
           </div>
         </div>
         <div class="mwt-card mb-3">

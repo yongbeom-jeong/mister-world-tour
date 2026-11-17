@@ -27,8 +27,9 @@ class LayoutModelInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView mv) {
-        if (mv == null || mv.getView() instanceof RedirectView
-                || (mv.getViewName() != null && mv.getViewName().startsWith("redirect:"))) {
+        String view = mv == null ? null : mv.getViewName();
+        if (mv == null || mv.getView() instanceof RedirectView || (view != null && view.startsWith("redirect:"))
+                || (view != null && view.contains("/_"))) { // 이동 응답이나 화면 조각(_로 시작)에는 레이아웃 값이 필요 없다
             return;
         }
         MemberPrincipal member = currentMember();
