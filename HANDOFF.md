@@ -21,6 +21,8 @@
     `/srv/mwt`·DB `mwt`·`/etc/nginx/sites-available/mwt` 는 남겨 둠 (되돌리기: `mwt-spring` 링크 제거 → `mwt` 링크 복구 → `sudo systemctl enable --now mwt` → nginx reload)
   - 접속: `ssh -i ~/.ssh/mwt-key.pem ubuntu@3.35.38.138` (키는 정용범 PC 에만, 보안 그룹 SSH 는 정용범 집 IP 만 허용)
   - 코드 갱신: 서버에서 `bash /srv/mwt-spring/deploy/update.sh`
+  - 백업(계획서 위험 분석): `mwt-backup.timer` 가 매일 04:00 KST 에 DB 덤프 + `.env`·사진을 `/var/backups/mwt` 에 14일 보관. 복원 시험 완료.
+    전환 직전 Django DB 도 `django-mwt-before-spring-20261117.dump` 로 한 번 남김. 같은 디스크라 인스턴스를 잃으면 함께 사라진다
 
 ## 2. 환경 메모 (비밀값은 각 PC·서버의 `.env`에만)
 

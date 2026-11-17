@@ -204,6 +204,34 @@ for _ in $(seq 1 90); do
 done
 ok "실행 중: $(systemctl is-active $SERVICE)"
 
+# 매일 04:00(KST) DB·.env·업로드 사진 백업 (/var/backups/mwt, 14일 보관)
+sudo install -m 755 "$SPRING_DIR/deploy/backup.sh" /usr/local/bin/mwt-backup
+sudo tee /etc/systemd/system/mwt-backup.service >/dev/null <<UNIT
+[Unit]
+Description=Mister World Tour backup (DB, .env, media)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+Environment=APP_DIR=$SPRING_DIR
+Environment=DB_NAME=$DB_NAME
+ExecStart=/usr/local/bin/mwt-backup
+UNIT
+sudo tee /etc/systemd/system/mwt-backup.timer >/dev/null <<UNIT
+[Unit]
+Description=Daily Mister World Tour backup
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 Asia/Seoul
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+sudo systemctl daemon-reload
+sudo systemctl enable --now mwt-backup.timer >/dev/null
+ok "백업 타이머: 매일 04:00 KST → /var/backups/mwt (sudo systemctl start mwt-backup 으로 바로 실행)"
+
 code="$(curl -s -o /dev/null -w '%{http_code}' "$SCHEME://$HOST/")"
 step "완료"
 echo "    주소          : $SCHEME://$HOST/   (응답 $code)"
