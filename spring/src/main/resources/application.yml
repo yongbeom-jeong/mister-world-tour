@@ -31,3 +31,12 @@ server:
 
 mwt:
   staff-signup-code: ${STAFF_SIGNUP_CODE:MWT-STAFF-2026}
+  # 문자: .env 의 Django 판과 같은 이름. SMS_CLIENT 는 Console(기본, 로그만) / FlakyDemo / Solapi
+  sms:
+    client: ${SMS_CLIENT:Console}
+    solapi-api-key: ${SOLAPI_API_KEY:}
+    solapi-api-secret: ${SOLAPI_API_SECRET:}
+    solapi-sender: ${SOLAPI_SENDER:}
+    timeout: ${SMS_TIMEOUT:10}                     # 외부 호출 1회 대기 (초)
+    batch-time-limit: ${SMS_BATCH_TIME_LIMIT:40}   # 신청 1건의 문자 묶음 전체 한도 (초)
+    allowed-numbers: ${SMS_ALLOWED_NUMBERS:}       # 쉼표 구분. 있으면 이 번호로만 실제 발송

@@ -87,7 +87,8 @@ class ApplyFlowWebTest extends BookingTestBase {
         mvc.perform(get("/travel/applications/{id}/", appId).session(session).with(user(alice))
                         .flashAttrs(submitted.getFlashMap()))
                 .andExpect(content().string(containsString("출발 확정")))
-                .andExpect(content().string(containsString("허니문 2인 신청으로 출발이 확정되었습니다")));
+                .andExpect(content().string(containsString("허니문 2인 신청으로 출발이 확정되었습니다")))
+                .andExpect(content().string(containsString("출발 확정 문자: 성공 1건")));
 
         // 뒤로 가기 후 같은 키로 다시 제출: 중복 저장 없이 기존 신청으로 안내
         mvc.perform(post("/travel/apply/").session(session).with(user(alice)).with(csrf())
