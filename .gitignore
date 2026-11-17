@@ -20,3 +20,7 @@ media/
 .DS_Store
 Thumbs.db
 
+
+# Spring (spring/)
+spring/target/
+spring/data/
