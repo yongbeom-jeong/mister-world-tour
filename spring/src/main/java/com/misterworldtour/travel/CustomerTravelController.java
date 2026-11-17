@@ -380,7 +380,11 @@ class CustomerTravelController {
         } else {
             Messages.flash(redirect, Level.INFO, "아직 출발 인원(3명)이 모이지 않아 출발 미확정 상태입니다. 확정되면 문자로 알려 드립니다.");
         }
-        // TODO(문자 이식 때): 출발 확정 문자 결과 안내
+        if (result.sms() != null) {
+            boolean problem = result.sms().failed() > 0 || result.sms().unknown() > 0;
+            Messages.flash(redirect, problem ? Level.WARNING : Level.INFO, result.sms().summary()
+                    + (problem ? " (신청과 출발 확정은 정상 저장되었습니다.)" : ""));
+        }
     }
 
     @GetMapping("/applications/{applicationId}/")

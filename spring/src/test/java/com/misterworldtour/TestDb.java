@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public final class TestDb {
 
     private static final String[] TABLES = {
-            "stock_issue", "stock_receipt",
+            "sms_log", "stock_issue", "stock_receipt",
             "traveler", "travel_application", "travel_history", "travel_product", "member",
     };
 

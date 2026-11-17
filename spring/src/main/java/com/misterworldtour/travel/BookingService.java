@@ -7,8 +7,13 @@ import com.misterworldtour.souvenir.SouvenirService.IssueItem;
 import com.misterworldtour.souvenir.SouvenirService.SouvenirShortage;
 import com.misterworldtour.travel.Pricing.PriceBreakdown;
 import com.misterworldtour.travel.Review.TravelerInput;
+import com.misterworldtour.sms.SmsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -34,15 +39,23 @@ import java.util.UUID;
 public class BookingService {
 
     static final int MAX_NAME = 50;
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
     /** 구성 변경 결과. */
     public record Configured(TravelConfig config, int unitPrice) {
     }
 
-    /** 신청 등록 결과. recipientMemberIds 는 출발 확정 문자를 받을 회원 (없으면 빈 목록). */
+    /**
+     * 신청 등록 결과. recipientMemberIds 는 출발 확정 문자를 받을 회원 (없으면 빈 목록),
+     * sms 는 문자 발송 결과 (보낼 문자가 없었으면 null).
+     */
     public record ApplicationResult(long applicationId, boolean honeymoon, DepartureStatus departureStatus,
                                     boolean newlyConfirmed, boolean duplicate, int souvenirsIssued,
-                                    List<Long> recipientMemberIds) {
+                                    List<Long> recipientMemberIds, SmsService.BatchResult sms) {
+        ApplicationResult withSms(SmsService.BatchResult result) {
+            return new ApplicationResult(applicationId, honeymoon, departureStatus, newlyConfirmed, duplicate,
+                    souvenirsIssued, recipientMemberIds, result);
+        }
     }
 
     /** 검토 이후 금액이 바뀌어 다시 확인이 필요함. */
@@ -62,18 +75,22 @@ public class BookingService {
     private final TravelHistoryRepository histories;
     private final MemberService members;
     private final SouvenirService souvenirs;
+    private final SmsService sms;
     private final Clock clock;
+    private final TransactionTemplate tx;
 
     BookingService(TravelProductRepository products, TravelApplicationRepository applications,
                    TravelerRepository travelers, TravelHistoryRepository histories, MemberService members,
-                   SouvenirService souvenirs, Clock clock) {
+                   SouvenirService souvenirs, SmsService sms, Clock clock, PlatformTransactionManager transactionManager) {
         this.products = products;
         this.applications = applications;
         this.travelers = travelers;
         this.histories = histories;
         this.members = members;
         this.souvenirs = souvenirs;
+        this.sms = sms;
         this.clock = clock;
+        this.tx = new TransactionTemplate(transactionManager);
     }
 
     LocalDate today() {
@@ -269,8 +286,31 @@ public class BookingService {
         return savedTravelers.equals(review.travelers());
     }
 
-    @Transactional
+    /** 저장 트랜잭션의 결과: 화면에 돌려줄 결과와, 저장 뒤 보낼 문자 묶음. */
+    private record Saved(ApplicationResult result, SmsService.DeparturePlan plan, List<SmsService.Recipient> recipients) {
+    }
+
+    /**
+     * 신청 등록. 저장(트랜잭션)이 끝난 뒤 출발 확정 문자를 보낸다.
+     * 문자 실패는 저장된 신청·출발 상태를 되돌리지 않는다 (기록은 '발송 중'으로 남아 직원이 재발송).
+     */
     public ApplicationResult submitTravelApplication(long memberId, Review review) {
+        Saved saved = tx.execute(status -> save(memberId, review));
+        ApplicationResult result = saved.result();
+        if (saved.plan() == null) {
+            return result;
+        }
+        SmsService.BatchResult sms;
+        try {
+            sms = this.sms.deliverDepartureConfirmation(saved.plan());
+        } catch (RuntimeException e) { // 문자 모듈 자체 오류도 신청 성공을 바꾸지 않음
+            log.error("문자 요청 실패 application={}", result.applicationId(), e);
+            sms = SmsService.BatchResult.allInvalid(saved.recipients());
+        }
+        return result.withSms(sms);
+    }
+
+    private Saved save(long memberId, Review review) {
         if (review.memberId() != memberId) {
             throw new BookingException("다른 고객의 신청 내용입니다. 다시 검토해 주세요.");
         }
@@ -284,8 +324,8 @@ public class BookingService {
             if (!sameRequest(e, memberId, product, review)) {
                 throw new BookingException("이미 다른 내용으로 처리된 신청 요청입니다.");
             }
-            return new ApplicationResult(e.getId(), product.isHoneymoon(), e.currentDepartureStatus(), false, true, 0,
-                    List.of());
+            return new Saved(new ApplicationResult(e.getId(), product.isHoneymoon(), e.currentDepartureStatus(), false,
+                    true, 0, List.of(), null), null, List.of());
         }
 
         if (!product.getDepartureDate().isAfter(today())) {
@@ -343,9 +383,26 @@ public class BookingService {
         } catch (SouvenirShortage e) {
             throw new BookingException(shortageMessage(count, e.getName(), e.getNeeded(), e.getStock()));
         }
-        // TODO(문자 이식 때): 문자 대상과 발송 기록('발송 중')을 같은 트랜잭션에서 만들고, 저장 뒤 발송
-        return new ApplicationResult(app.getId(), product.isHoneymoon(), app.currentDepartureStatus(), newlyConfirmed,
-                false, issued, recipients);
+        // 문자 대상과 발송 기록('발송 중')을 신청과 같은 트랜잭션에서 만든다 (보내기 전 중단 대비, 설계 05장 §2.2).
+        // 실제 발송은 저장이 끝난 뒤에 한다. 기록 준비에 실패해도 신청은 저장한다.
+        List<SmsService.Recipient> smsRecipients = new ArrayList<>();
+        SmsService.DeparturePlan plan = null;
+        if (!recipients.isEmpty()) {
+            for (Long mid : new TreeSet<>(recipients)) {
+                members.getContact(mid).ifPresent(info ->
+                        smsRecipients.add(new SmsService.Recipient(mid, info.name(), info.contact())));
+            }
+            SmsService.DepartureNotice notice = new SmsService.DepartureNotice(product.getId(), product.getName(),
+                    product.getDepartureDate());
+            try {
+                plan = sms.prepareDepartureConfirmation(smsRecipients, notice);
+            } catch (RuntimeException e) {
+                log.error("문자 발송 기록 준비 실패 application={}", app.getId(), e);
+                plan = sms.planWithoutLogs(smsRecipients, notice);
+            }
+        }
+        return new Saved(new ApplicationResult(app.getId(), product.isHoneymoon(), app.currentDepartureStatus(),
+                newlyConfirmed, false, issued, recipients, null), plan, smsRecipients);
     }
 
     // ---------------------------------------------------------------- 내 신청
