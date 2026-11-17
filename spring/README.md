@@ -4,6 +4,7 @@ Django 판(저장소 루트)과 같은 기능을 Spring Boot 4.1 + Thymeleaf 로
 
 ## 실행 (spring/ 폴더에서)
 - 실행: `mvnw.cmd spring-boot:run` → http://localhost:8080 (`PORT` 환경변수로 바꿀 수 있음)
+- 데모 데이터와 함께 실행: `mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--seed-demo` (여러 번 해도 중복 없음, 비밀번호 `demo1234!`)
 - 테스트: `mvnw.cmd test`
 - 배포 서버: `--spring.profiles.active=prod` (PostgreSQL, `.env`의 `POSTGRES_*`)
 
@@ -27,6 +28,6 @@ URL 은 Django 판과 같게 둔다 (끝의 `/` 포함).
 ## 이식 현황
 - [x] 뼈대: 공통 레이아웃, 홈(테마·이용 안내), 사진 출처, 403·404 화면
 - [x] 회원(UC1 가입, UC2 로그인·로그아웃, 역할 검사)
-- [ ] 상품 조회 (홈의 '곧 출발하는 여행', 직원 통계 포함)
+- [x] 상품 조회 (목록·상세, 홈의 '곧 출발하는 여행', 직원 통계), 데모 데이터(`--seed-demo`)
 - [ ] 구성·가격·신청·출발 판정
 - [ ] 기념품, 문자, 음성, 취소·완료 이력, 직원 화면, seed_demo, 배포

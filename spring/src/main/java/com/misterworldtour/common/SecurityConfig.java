@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD).permitAll()
                         .requestMatchers("/", "/credits/", "/members/**", "/error").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/media/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/members/login/")
