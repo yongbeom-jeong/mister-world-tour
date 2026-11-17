@@ -1,6 +1,7 @@
 # 미스터 월드 투어: Spring Boot 이식판
 
-Django 판(저장소 루트)과 같은 기능을 Spring Boot 4.1 + Thymeleaf 로 옮기는 중이다. Java 21 필요.
+Django 판(`main` 브랜치)과 같은 기능을 Spring Boot 4.1 + Thymeleaf 로 옮겼다. Java 21 필요.
+프로젝트 소개·실행 안내는 저장소 루트 `README.md`, 여기서는 Django 판과의 대응을 정리한다.
 
 ## 실행 (spring/ 폴더에서)
 - 실행: `mvnw.cmd spring-boot:run` → http://localhost:8080 (`PORT` 환경변수로 바꿀 수 있음)
