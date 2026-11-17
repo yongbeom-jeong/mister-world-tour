@@ -263,7 +263,7 @@ class SouvenirWebTest {
                 + "subtotal, final_amount, request_key, submitted_at) VALUES (?, ?, 'STAR4', 'LUXURY_VAN_10', 'LOCAL', "
                 + "1, 1, 1, 'k', CURRENT_TIMESTAMP)", customer.getMemberId(), productId);
         long appId = jdbc.queryForObject("SELECT id FROM travel_application", Long.class);
-        souvenirs.issueForDeparture(Theme.GOLF, java.util.List.of(new SouvenirManager.IssueItem(appId, 3)));
+        souvenirs.issueForDeparture(Theme.GOLF, java.util.List.of(new com.misterworldtour.travel.SouvenirStockAPI.IssueItem(appId, 3)));
         mvc.perform(get("/souvenir/staff/souvenirs/issues/").param("souvenir", String.valueOf(golfBall)).with(login(staff)))
                 .andExpect(content().string(containsString("다낭 골프")))
                 .andExpect(content().string(containsString("#" + appId + " 이름cust")))

@@ -7,10 +7,9 @@ import com.misterworldtour.sms.SMSNotificationAPI.DepartureNotice;
 import com.misterworldtour.sms.SMSNotificationAPI.SMSBatchResult;
 import com.misterworldtour.sms.SMSNotificationManager;
 import com.misterworldtour.sms.SMSNotificationManager.DeparturePlan;
-import com.misterworldtour.souvenir.Souvenir;
-import com.misterworldtour.souvenir.SouvenirManager;
-import com.misterworldtour.souvenir.SouvenirManager.IssueItem;
-import com.misterworldtour.souvenir.SouvenirManager.SouvenirShortage;
+import com.misterworldtour.travel.SouvenirStockAPI.IssueItem;
+import com.misterworldtour.travel.SouvenirStockAPI.SouvenirShortage;
+import com.misterworldtour.travel.SouvenirStockAPI.ThemeSouvenir;
 import com.misterworldtour.travel.TravelApplication.TravelerInput;
 import com.misterworldtour.travel.TravelDataAccessAPI.ProductFilter;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
@@ -125,12 +124,12 @@ public class TravelManager implements TravelManagementAPI {
 
     private final TravelDataAccessAPI dataAccess;
     private final MemberManager members;
-    private final SouvenirManager souvenirs;
+    private final SouvenirStockAPI souvenirs;
     private final SMSNotificationManager sms;
     private final ProductImages images;
     private final Clock clock;
 
-    TravelManager(TravelDataAccessAPI dataAccess, MemberManager members, SouvenirManager souvenirs,
+    TravelManager(TravelDataAccessAPI dataAccess, MemberManager members, SouvenirStockAPI souvenirs,
                   SMSNotificationManager sms, ProductImages images, Clock clock) {
         this.dataAccess = dataAccess;
         this.members = members;
@@ -295,15 +294,15 @@ public class TravelManager implements TravelManagementAPI {
         if (problem != null) {
             throw new BookingException(problem, Map.of("travelers", problem));
         }
-        List<Souvenir> themeSouvenirs = souvenirs.souvenirsForTheme(product.getTheme());
+        List<ThemeSouvenir> themeSouvenirs = souvenirs.themeSouvenirs(product.getTheme());
         if (themeSouvenirs.isEmpty()) {
             throw new BookingException("이 테마의 기념품 정보가 없어 신청할 수 없습니다. 고객센터에 문의해 주세요.");
         }
         int needed = souvenirsNeeded(product, travelerCount, currentCount); // 테마 기념품마다 여행자 1인당 1개
-        for (Souvenir s : themeSouvenirs) {
-            if (s.getStockQuantity() < needed) {
-                throw new BookingException(shortageMessage(travelerCount, s.getSouvenirName(), needed,
-                        s.getStockQuantity()));
+        for (ThemeSouvenir s : themeSouvenirs) {
+            if (s.stockQuantity() < needed) {
+                throw new BookingException(shortageMessage(travelerCount, s.souvenirName(), needed,
+                        s.stockQuantity()));
             }
         }
     }

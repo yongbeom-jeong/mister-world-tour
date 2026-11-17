@@ -1,7 +1,5 @@
 package com.misterworldtour.common;
 
-import com.misterworldtour.ui.LoginHandlers;
-
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -22,6 +22,9 @@ import java.util.Set;
  *
  * <p>로그인만 필요한지는 여기서, 고객/직원 역할은 각 컨트롤러의
  * {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 검사한다 .
+ *
+ * <p>로그인 성공·실패 처리는 User Interface 가 빈으로 제공하고(ui.LoginHandlers), 여기서는 스프링 인터페이스 타입으로만
+ * 받는다. 그래서 common 은 ui 를 참조하지 않는다.
  */
 @Configuration
 @EnableMethodSecurity
@@ -38,7 +41,8 @@ public class SecurityConfig {
             "{\"ok\":false,\"status\":\"PERMISSION_DENIED\",\"message\":\"로그인이 만료되었거나 권한이 없습니다. 다시 로그인해 주세요.\"}";
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationSuccessHandler loginSuccess,
+                                           AuthenticationFailureHandler loginFailure) throws Exception {
         RequestMatcher staffJson = request -> STAFF_JSON_PATHS.contains(pathOf(request));
         LoginUrlAuthenticationEntryPoint loginPage = new LoginUrlAuthenticationEntryPoint("/members/login/");
         http
@@ -50,8 +54,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/members/login/")
                         .loginProcessingUrl("/members/login/")
-                        .successHandler(new LoginHandlers.Success())
-                        .failureHandler(new LoginHandlers.Failure())
+                        .successHandler(loginSuccess)
+                        .failureHandler(loginFailure)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/members/logout/")

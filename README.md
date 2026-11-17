@@ -83,7 +83,7 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 |---|---|---|
 | `ui` | User Interface | `MainView`, `MemberView`, `TravelHistoryView`, `TravelProductView`, `TravelApplicationView`, `TourProductAdminView`, `SouvenirStockView` (+ 추가 화면 `SouvenirAdminView`, `SMSLogView`) |
 | `members` | Member Management | `MemberManagementAPI`, `MemberManager`, `Member`, `LoginSession` |
-| `travel` | Travel Management | `TravelManagementAPI`, `TravelManager`, `TravelProduct`, `TravelConfiguration`, `TravelPriceCalculator`, `TravelApplication`, `TravelHistory` |
+| `travel` | Travel Management | `TravelManagementAPI`, `TravelManager`, `TravelProduct`, `TravelConfiguration`, `TravelPriceCalculator`, `TravelApplication`, `TravelHistory`, `SouvenirStockAPI`(기념품 재고, souvenir 가 구현) |
 | `souvenir` | Souvenir Management | `SouvenirManagementAPI`, `SouvenirManager`, `Souvenir`, `StockReceipt` (+ 출발 확정 차감 `StockIssue`) |
 | `dataaccess` | Data Access | `DataAccessAPI`(업무별 저장 인터페이스를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
 | `speech` | Speech Recognition Integration | `SpeechRecognitionAPI`, `SpeechRecognitionManager`, `SpeechServiceClient`, `VoiceSelectionInterpreter` |

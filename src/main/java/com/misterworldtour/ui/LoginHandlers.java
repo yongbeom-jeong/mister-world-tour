@@ -9,12 +9,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
 
-/** UC2 로그인 성공·실패 처리. */
+/** UC2 로그인 성공·실패 처리. 두 처리기는 빈으로 등록되어 common.SecurityConfig 가 주입받는다. */
 public final class LoginHandlers {
 
     /** 고객 로그인 직후 처음 그리는 화면에서 이력 팝업을 한 번 연다 (UC2 (4)). */
@@ -29,6 +30,7 @@ public final class LoginHandlers {
     }
 
     /** 고객이면 이력 팝업 표시를 남기고, next(로그인 전 보던 화면) → 저장된 요청 → 홈 순으로 이동한다. */
+    @Component
     public static class Success extends SavedRequestAwareAuthenticationSuccessHandler {
 
         public Success() {
@@ -52,6 +54,7 @@ public final class LoginHandlers {
     }
 
     /** 빈 칸이면 '모두 입력', 아니면 '아이디 또는 비밀번호가 올바르지 않음'으로 안내한다 (입력한 아이디는 다시 채움). */
+    @Component
     public static class Failure implements AuthenticationFailureHandler {
 
         @Override

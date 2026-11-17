@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * </ul>
  * 화면을 그릴 때만 넣는다. 다른 화면으로 이동(redirect)하는 응답에서는 팝업 표시를 꺼내지 않는다.
  */
+@Component
 public class LayoutModelInterceptor implements HandlerInterceptor {
 
     @Override

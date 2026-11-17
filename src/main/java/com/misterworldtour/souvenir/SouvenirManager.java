@@ -5,6 +5,7 @@ import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptException;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptPreparationResult;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptResponse;
 import com.misterworldtour.souvenir.SouvenirManagementAPI.StockReceiptStatus;
+import com.misterworldtour.travel.SouvenirStockAPI;
 import com.misterworldtour.travel.Theme;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,7 +34,7 @@ import java.util.UUID;
  * 설계 이후 추가: 직원의 품목 등록·수정·삭제, 출발 확정 시 테마 기념품 차감(Travel Management 가 호출).
  */
 @Service
-public class SouvenirManager implements SouvenirManagementAPI {
+public class SouvenirManager implements SouvenirManagementAPI, SouvenirStockAPI {
 
     /** 한 번에 입고할 수 있는 최대 수량 (임시 정책: 오입력 방지). */
     public static final int MAX_QUANTITY = 10_000;
@@ -43,36 +44,6 @@ public class SouvenirManager implements SouvenirManagementAPI {
 
     /** 서버에 보관하는 입고 준비 정보. */
     record PendingReceipt(long employeeId, long souvenirId, int quantity, OffsetDateTime receivedAt) {
-    }
-
-    /** 출발 확정에 필요한 기념품이 모자람. 호출자 트랜잭션이 취소되어 앞의 차감도 되돌아간다. */
-    public static class SouvenirShortage extends RuntimeException {
-        private final String name;
-        private final int needed;
-        private final int stock;
-
-        public SouvenirShortage(String name, int needed, int stock) {
-            super(name + ": needed=" + needed + " stock=" + stock);
-            this.name = name;
-            this.needed = needed;
-            this.stock = stock;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getNeeded() {
-            return needed;
-        }
-
-        public int getStock() {
-            return stock;
-        }
-    }
-
-    /** 차감할 신청 하나: 신청 번호와 여행자 수. */
-    public record IssueItem(long applicationId, int travelerCount) {
     }
 
     /** 품목 입력 오류. errors 는 name·theme 별 안내. */
@@ -277,6 +248,14 @@ public class SouvenirManager implements SouvenirManagementAPI {
         return dataAccess.findSouvenirsByTheme(theme);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ThemeSouvenir> themeSouvenirs(Theme theme) {
+        return souvenirsForTheme(theme).stream()
+                .map(s -> new ThemeSouvenir(s.getSouvenirName(), s.getStockQuantity())).toList();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<String> souvenirNamesForTheme(Theme theme) {
         return souvenirsForTheme(theme).stream().map(Souvenir::getSouvenirName).toList();
@@ -389,6 +368,7 @@ public class SouvenirManager implements SouvenirManagementAPI {
      * {@link SouvenirShortage} 를 낸다. (품목, 신청)마다 한 번만 차감하고, 재고 감소는 '재고 >= 필요 수량'
      * 조건부 UPDATE 라 음수가 되지 않는다. 반환값은 차감한 총 개수 (모든 품목 합계).
      */
+    @Override
     @Transactional
     public int issueForDeparture(Theme theme, List<IssueItem> items) {
         if (items.isEmpty()) {
