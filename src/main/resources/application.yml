@@ -30,7 +30,7 @@ server:
   port: ${PORT:8080}
   servlet:
     session:
-      timeout: 14d   # Django 기본 세션 기간(2주)과 같게
+      timeout: 14d   # 로그인 유지 2주
 
 mwt:
   staff-signup-code: ${STAFF_SIGNUP_CODE:MWT-STAFF-2026}

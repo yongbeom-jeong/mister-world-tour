@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 동시 신청 (test_concurrency.py). 상품 행 잠금으로 정원·재고가 넘지 않는지.
- * Django 판의 SQLite 와 달리 H2 는 행 잠금을 지키므로 개발 PC 에서도 확인할 수 있다.
+ * 동시 신청. 상품 행 잠금으로 정원·재고가 넘지 않는지.
+ * H2 는 행 잠금을 지키므로 개발 PC 에서도 확인할 수 있다.
  */
 class BookingConcurrencyTest extends BookingTestBase {
 

@@ -91,7 +91,7 @@ public class TravelProductView {
     String loadProducts(@RequestParam(required = false) String theme,
                          @RequestParam(name = "tour_level", required = false) String tourLevel,
                          Model model, HttpServletResponse response) {
-        Theme t = Theme.parse(theme);          // 잘못된 값은 조건 없음으로 (Django 판 폼 검사와 같음)
+        Theme t = Theme.parse(theme);          // 잘못된 값은 조건 없음으로
         TourLevel lv = TourLevel.parse(tourLevel);
         String notice = null;
         boolean loadFailed = false;

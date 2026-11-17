@@ -2,7 +2,7 @@ package com.misterworldtour.ui;
 
 /**
  * UC1 회원가입 입력 6개(유형·아이디·비밀번호·성명·주소·연락처) + 확인용 입력.
- * 검사는 {@link SignUpFormValidator} 가 한다 (Django 판 SignUpForm 과 같은 규칙).
+ * 검사는 {@link SignUpFormValidator} 가 한다.
  */
 public class SignUpForm {
 

@@ -12,7 +12,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
 /**
- * 템플릿 도구 (Django 판 {@code {% load mwt %}}). 템플릿에서 {@code ${@mwt.won(값)}} 처럼 쓴다.
+ * 템플릿 도구. 템플릿에서 {@code ${@mwt.won(값)}} 처럼 쓴다.
  */
 @Component("mwt")
 public class ViewHelper {

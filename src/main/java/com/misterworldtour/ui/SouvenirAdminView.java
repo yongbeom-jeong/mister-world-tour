@@ -3,13 +3,13 @@ package com.misterworldtour.ui;
 import com.misterworldtour.members.MemberManager;
 import com.misterworldtour.members.StaffRoleRequired;
 import com.misterworldtour.souvenir.Souvenir;
+import com.misterworldtour.souvenir.SouvenirManager;
 import com.misterworldtour.souvenir.SouvenirManager.SouvenirNotFound;
 import com.misterworldtour.souvenir.SouvenirManager.SouvenirRegistrationException;
-import com.misterworldtour.souvenir.SouvenirManager;
 import com.misterworldtour.souvenir.StockIssue;
 import com.misterworldtour.travel.Theme;
-import com.misterworldtour.travel.TravelManager.ApplicationSummary;
 import com.misterworldtour.travel.TravelManager;
+import com.misterworldtour.travel.TravelManager.ApplicationSummary;
 import com.misterworldtour.ui.Messages.Level;
 
 import jakarta.servlet.http.HttpSession;
@@ -181,7 +181,7 @@ public class SouvenirAdminView {
         Long selected = souvenir != null && souvenir.matches("\\d{1,18}") ? Long.valueOf(souvenir) : null;
         int pageNumber = page != null && page.matches("\\d{1,9}") ? Math.max(Integer.parseInt(page), 1) : 1;
         Page<StockIssue> result = souvenirs.loadIssues(selected, pageNumber - 1, ISSUES_PER_PAGE);
-        if (pageNumber > Math.max(result.getTotalPages(), 1)) { // 없는 페이지는 마지막 페이지 (Django get_page 와 같음)
+        if (pageNumber > Math.max(result.getTotalPages(), 1)) { // 없는 페이지는 마지막 페이지
             pageNumber = Math.max(result.getTotalPages(), 1);
             result = souvenirs.loadIssues(selected, pageNumber - 1, ISSUES_PER_PAGE);
         }

@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 역할 검사 어노테이션이 Django 판 데코레이터처럼 동작하는지 (비로그인 → 로그인 화면, 다른 역할 → 403). */
+/** 역할 검사 어노테이션이 동작하는지 (비로그인 → 로그인 화면, 다른 역할 → 403). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

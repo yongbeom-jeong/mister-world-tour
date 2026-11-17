@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * 모든 화면(레이아웃)에서 쓰는 값을 넣는다. Django 판의 context processor 들과 같은 역할.
+ * 모든 화면(레이아웃)에서 쓰는 값을 넣는다 (MainView 의 역할별 메뉴 표시에 필요한 currentRole 등).
  * <ul>
  *   <li>currentMember: 로그인한 회원 (없으면 null)</li>
  *   <li>siteThemes·siteLevels: 메뉴·홈 검색의 테마·등급</li>

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** 출발 확정 문자: 문구·재시도·결과 불명·정보 누락·시간 한도 (sms/tests.py). */
+/** 출발 확정 문자: 문구·재시도·결과 불명·정보 누락·시간 한도. */
 @SpringBootTest(properties = "mwt.sms.batch-time-limit=40")
 @ActiveProfiles("test")
 class SMSDeliveryTest {

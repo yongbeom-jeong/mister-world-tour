@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** 확정 업무 정책의 숫자·허용값 (Django 판 travel/choices.py). 바꿀 때는 AGENTS.md 와 함께. */
+/** 확정 업무 정책의 숫자·허용값. 바꿀 때는 AGENTS.md 와 함께. */
 public final class TravelRules {
 
     /** 허니문: 신청마다 정확히 2명. */

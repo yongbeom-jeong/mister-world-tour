@@ -1,6 +1,6 @@
 package com.misterworldtour.members;
 
-/** 회원 역할. 직원 여부는 이 값으로만 판단한다 (Django 판의 is_staff 관리자 권한과는 무관). */
+/** 회원 역할. 직원 여부는 이 값으로만 판단한다. */
 public enum Role {
     CUSTOMER("고객"),
     STAFF("직원");

@@ -1,6 +1,6 @@
 package com.misterworldtour.travel;
 
-/** 여행 테마와 테마별 기본 서비스·교통 (설계 01장 5.1, Django 판 THEME_DEFAULTS). */
+/** 여행 테마와 테마별 기본 서비스·교통 (계획서 1.다). */
 public enum Theme {
     HONEYMOON("허니문 낭만 투어", "2인 전용 로맨틱 룸 장식", TransportOption.LUXURY_CAR_2),
     FILIAL("효도 힐링 투어", "안마·지압 서비스", TransportOption.LUXURY_VAN_10),

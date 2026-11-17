@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** UC1 회원가입·UC2 로그인 (apps/members/tests.py 를 옮김). */
+/** UC1 회원가입·UC2 로그인. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

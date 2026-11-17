@@ -232,10 +232,6 @@ public class SMSMessage {
         return status == Status.UNKNOWN || isStalePending();
     }
 
-    public Recipient getRecipient() {
-        return new Recipient(memberId, recipientName, contact);
-    }
-
     public Long getId() {
         return id;
     }

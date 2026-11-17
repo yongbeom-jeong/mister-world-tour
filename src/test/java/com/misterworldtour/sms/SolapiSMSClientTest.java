@@ -19,7 +19,7 @@ import javax.net.ssl.SSLSession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** 솔라피 클라이언트 (외부 호출 없이 Transport 를 바꿔 확인, Django 판 SolapiClientTests). */
+/** 솔라피 클라이언트 (외부 호출 없이 Transport 를 바꿔 확인). */
 class SolapiSMSClientTest {
 
     static HttpResponse<String> response(int status, String body) {

@@ -1,6 +1,6 @@
 package com.misterworldtour.travel;
 
-/** 투어 등급과 등급별 기본 호텔·식사 (설계 01장 5.1, Django 판 LEVEL_DEFAULTS). */
+/** 투어 등급과 등급별 기본 호텔·식사 (계획서 1.다). */
 public enum TourLevel {
     CLASSIC("클래식", HotelLevel.STAR3, MealOption.LUNCHBOX),
     GRAND("그랜드", HotelLevel.STAR4, MealOption.LOCAL),

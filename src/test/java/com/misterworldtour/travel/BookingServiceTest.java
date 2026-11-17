@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** UC4 구성, UC5 검토·등록·출발 확정·기념품 차감 (test_booking.py). */
+/** UC4 구성, UC5 검토·등록·출발 확정·기념품 차감. */
 class BookingServiceTest extends BookingTestBase {
 
     // ---------------------------------------------------------------- 구성

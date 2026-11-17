@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 화면 위쪽 안내 문구 (Django 판 messages 프레임워크). 레이아웃이 {@code messages} 목록을 그린다.
+ * 화면 위쪽 안내 문구. 레이아웃이 {@code messages} 목록을 그린다.
  * <ul>
  *   <li>다른 화면으로 이동(redirect)한 뒤 보여 줄 때: {@link #flash}</li>
  *   <li>지금 그리는 화면에 보여 줄 때: {@link #now}</li>

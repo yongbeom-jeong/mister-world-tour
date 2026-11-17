@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 기념품 입고(UC8)·품목 등록·수정·삭제·차감 내역 (souvenir/tests.py). */
+/** 기념품 입고(UC8)·품목 등록·수정·삭제·차감 내역. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * 기념품·재고 조회와 입고 준비·등록 (설계 6.1 SouvenirManager). 저장·조회는 {@link DataAccessAPI} 에 요청한다.
@@ -421,12 +420,6 @@ public class SouvenirManager implements SouvenirManagementAPI {
         return total;
     }
 
-    /** 신청별 차감 수 (품목 합계). */
-    @Transactional(readOnly = true)
-    public int issuedFor(long applicationId) {
-        return dataAccess.findStockIssuesForApplication(applicationId).stream().mapToInt(StockIssue::getQuantity).sum();
-    }
-
     // ---------------------------------------------------------------- 데모 데이터
 
     /** 데모 데이터용 초기 재고 (입고 내역으로 기록). 같은 요청 키는 한 번만 반영된다. */
@@ -438,12 +431,5 @@ public class SouvenirManager implements SouvenirManagementAPI {
         }
         return dataAccess.saveStockReceipt(new StockReceipt(s, employeeId, quantity, OffsetDateTime.now(), requestKey))
                 .isPresent();
-    }
-
-    /** 품목별 현재 재고 (이름 → 재고). */
-    @Transactional(readOnly = true)
-    public Map<String, Integer> stockByName() {
-        return dataAccess.findAllSouvenirs().stream().collect(Collectors.toMap(Souvenir::getSouvenirName,
-                s -> dataAccess.findStockQuantity(s.getSouvenirId())));
     }
 }

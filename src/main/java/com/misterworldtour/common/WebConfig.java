@@ -26,14 +26,14 @@ class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LayoutModelInterceptor());
     }
 
-    /** 직원이 올린 상품 사진 (Django 판 MEDIA_URL). */
+    /** 직원이 올린 상품 사진 (/media/ 로 제공). */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String location = Path.of(properties.mediaRoot()).toAbsolutePath().toUri().toString();
         registry.addResourceHandler("/media/**").addResourceLocations(location.endsWith("/") ? location : location + "/");
     }
 
-    /** 오늘 날짜의 기준 (Django 판 TIME_ZONE=Asia/Seoul). 테스트에서는 고정 시계로 바꾼다. */
+    /** 오늘 날짜의 기준 (Asia/Seoul). 테스트에서는 고정 시계로 바꾼다. */
     @Bean
     Clock clock() {
         return Clock.system(ZoneId.of(properties.timeZone()));

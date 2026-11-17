@@ -19,11 +19,11 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 /**
- * 비밀번호 규칙. Django 판의 AUTH_PASSWORD_VALIDATORS 4개를 같은 방식으로 옮겼다.
+ * 비밀번호 규칙 4가지 (임시 정책).
  * <ul>
  *   <li>아이디·성명과 비슷함 (UserAttributeSimilarityValidator, 유사도 0.7)</li>
  *   <li>8자 이상 (MinimumLengthValidator)</li>
- *   <li>흔한 비밀번호 금지 (CommonPasswordValidator, Django 와 같은 목록 약 2만 개)</li>
+ *   <li>흔한 비밀번호 금지 (공개된 흔한 비밀번호 목록 약 2만 개)</li>
  *   <li>숫자로만 된 비밀번호 금지 (NumericPasswordValidator)</li>
  * </ul>
  */
@@ -77,7 +77,7 @@ public class PasswordPolicy {
         return false;
     }
 
-    /** 비밀번호가 비교 값보다 훨씬 길면 유사도 검사를 건너뛴다 (Django 와 같은 기준). */
+    /** 비밀번호가 비교 값보다 훨씬 길면 유사도 검사를 건너뛴다. */
     private static boolean exceedsMaximumLengthRatio(String password, String value) {
         int pwdLen = password.length();
         double lengthBoundSimilarity = MAX_SIMILARITY / 2 * pwdLen;

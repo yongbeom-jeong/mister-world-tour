@@ -9,7 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
- * 다녀온 여행을 한꺼번에 완료 이력으로 만든다 (Django 판 {@code manage.py complete_trips}).
+ * 다녀온 여행을 한꺼번에 완료 이력으로 만든다.
  * 이력 조회·신청 금액 계산 직전에도 그 고객 것을 반영하므로, 이 명령은 일괄 정리용이다.
  *
  * <pre>mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--complete-trips</pre>

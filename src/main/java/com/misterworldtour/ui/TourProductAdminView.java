@@ -5,10 +5,10 @@ import com.misterworldtour.travel.ProductImages.InvalidImageException;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
 import com.misterworldtour.travel.TravelManagementAPI.ImageChange;
+import com.misterworldtour.travel.TravelManager;
 import com.misterworldtour.travel.TravelManager.ProductHasApplicationsException;
 import com.misterworldtour.travel.TravelManager.ProductNotFoundException;
 import com.misterworldtour.travel.TravelManager.ProductValidationException;
-import com.misterworldtour.travel.TravelManager;
 import com.misterworldtour.travel.TravelProduct;
 import com.misterworldtour.ui.Messages.Level;
 
