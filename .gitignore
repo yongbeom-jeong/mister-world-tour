@@ -24,3 +24,4 @@ Thumbs.db
 # Spring (spring/)
 spring/target/
 spring/data/
+spring/media/

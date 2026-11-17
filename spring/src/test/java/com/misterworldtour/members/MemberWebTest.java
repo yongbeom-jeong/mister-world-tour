@@ -59,7 +59,7 @@ class MemberWebTest {
 
     @BeforeEach
     void clean() {
-        jdbc.update("DELETE FROM member");
+        com.misterworldtour.TestDb.clean(jdbc);
     }
 
     static MultiValueMap<String, String> signupData(String... overrides) {

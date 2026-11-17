@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
 <head><title>미스터 월드 투어 · 특별한 날의 테마 여행</title></head>
 <body>
 <th:block id="page-head" th:with="m=${currentMember}">
@@ -61,6 +61,7 @@
         <th:block th:if="${m != null}">
           <a th:href="@{/travel/products/}"><i class="bi bi-mic me-1" aria-hidden="true"></i>음성으로 찾기</a>
           <button type="button" data-history-open><i class="bi bi-clock-history me-1" aria-hidden="true"></i>이전 여행 이력</button>
+          <a th:if="${myCount != null and myCount > 0}" th:href="@{/travel/applications/}" th:text="|진행 중인 신청 ${myCount}건|">진행 중인 신청</a>
         </th:block>
         <span th:if="${m == null}" class="text-muted">상품을 보려면 <a th:href="@{/members/login/}">로그인</a>하거나 <a th:href="@{/members/signup/}">회원가입</a>하세요.</span>
       </div>
@@ -95,7 +96,20 @@
       </div>
     </section>
 
-    <!--/* TODO(travel 이식 후): 곧 출발하는 여행 8개 (_product_card) */-->
+    <!--/* ---------------------------------------------------------------- 곧 출발하는 상품 */-->
+    <section th:if="${featured != null and !featured.isEmpty()}" class="mwt-section pt-0">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+          <h2 class="section-title mb-0">곧 출발하는 여행</h2>
+          <a class="btn btn-link btn-sm" th:href="@{/travel/products/}">전체 보기 <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="row g-4">
+          <div th:each="p : ${featured}" class="col-sm-6 col-lg-4 col-xl-3">
+            <div th:replace="~{travel/customer/_product_card :: card(${p})}"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!--/* ---------------------------------------------------------------- 이용 방법 */-->
     <section class="mwt-section">
@@ -116,8 +130,20 @@
   </th:block>
 
   <!--/* ================================================================ 직원 메뉴
-       TODO(travel·souvenir 이식 후): 통계 카드 4개, 최근 등록한 상품, 기념품 재고 */-->
+       TODO(기념품 이식 때): 재고 부족 기념품 통계 카드, 기념품 재고 카드 */-->
   <div th:if="${m != null and m.staffMember}" class="container pb-4">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">등록 상품</div><div class="stat-value" th:text="${stats.products}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-airplane"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">여행 신청</div><div class="stat-value" th:text="${stats.applications}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-journal-check"></i></div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card d-flex justify-content-between">
+        <div><div class="stat-label">출발 확정 상품</div><div class="stat-value" th:text="${stats.confirmed}">0</div></div>
+        <div class="stat-icon"><i class="bi bi-flag"></i></div></div></div>
+    </div>
+
     <div class="row g-3 mb-4">
       <div class="col-md-4"><a class="action-card" th:href="@{/travel/staff/products/new/}"><i class="bi bi-plus-square"></i>
         <div><div class="fw-bold">상품 등록</div><div class="small opacity-75">기획한 여행 상품을 등록합니다.</div></div></a></div>
@@ -126,7 +152,38 @@
       <div class="col-md-4"><a class="action-card" th:href="@{/souvenir/staff/stock/}"><i class="bi bi-box-arrow-in-down"></i>
         <div><div class="fw-bold">기념품 입고</div><div class="small opacity-75">재고를 확인하고 입고를 기록합니다.</div></div></a></div>
     </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="mwt-card h-100">
+          <div class="mwt-card-head">최근 등록한 상품 <a class="small fw-normal" th:href="@{/travel/staff/products/}">전체 보기</a></div>
+          <div class="list-group list-group-flush">
+            <a th:each="r : ${recentProducts}" class="list-group-item list-group-item-action d-flex gap-3 align-items-center py-3"
+               th:href="@{/travel/staff/products/{id}/(id=${r.product.id})}">
+              <img class="thumb" th:src="@{${r.product.photoSmUrl}}" alt="">
+              <div class="flex-grow-1 text-truncate">
+                <div class="fw-semibold text-truncate" th:text="${r.product.name}">상품</div>
+                <div class="small text-muted" th:text="|${r.product.theme.label} · ${@mwt.date(r.product.departureDate, 'MM/dd')} 출발|">조건</div>
+              </div>
+              <span th:class="|tag ${r.applicationCount > 0 ? 'tag-accent' : 'tag-muted'}|" th:text="|신청 ${r.applicationCount}건|">신청</span>
+            </a>
+            <div th:if="${recentProducts.isEmpty()}" class="list-group-item text-muted py-4 text-center">등록된 상품이 없습니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </th:block>
+<script id="scripts">
+  // 홈 검색: 선택하면 막대에 선택값을 보여 주고 패널을 닫는다
+  document.querySelectorAll("#home-search .search-option input").forEach(input => {
+    input.addEventListener("change", () => {
+      document.querySelector(`[data-search-value="${input.name}"]`).textContent = input.dataset.text;
+      const field = input.closest(".search-field");
+      field.classList.toggle("has-value", input.value !== "");
+      bootstrap.Dropdown.getOrCreateInstance(field.querySelector(".search-trigger")).hide();
+    });
+  });
+</script>
 </body>
 </html>

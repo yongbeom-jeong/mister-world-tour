@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
+<head><title>여행 상품 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head pb-0 text-center">
+  <div class="container">
+    <h1 th:text="${theme != null} ? ${theme.label} : '여행 상품'">여행 상품</h1>
+    <p th:text="${theme != null} ? ${@mwt.theme(theme).tagline} : '취향에 맞는 테마와 등급으로 여행을 찾아보세요.'">안내</p>
+  </div>
+</section>
+
+<div id="main" class="container pb-4">
+  <!--/* TODO(speech 이식 때): 음성·문장으로 찾기 (SelectByVoice) 검색창 */-->
+
+  <div class="catalog-toolbar">
+    <!--/* 테마·등급 필터 */-->
+    <form method="get" id="filter-form" class="catalog-filters">
+      <div class="chip-group" role="radiogroup" aria-label="테마">
+        <input type="radio" class="btn-check" name="theme" id="theme-all" value="" th:checked="${theme == null}">
+        <label class="btn btn-sm" for="theme-all">모든 테마</label>
+        <th:block th:each="t : ${themes}">
+          <input type="radio" class="btn-check" name="theme" th:id="|theme-${t.name()}|" th:value="${t.name()}" th:checked="${theme == t}">
+          <label class="btn btn-sm" th:for="|theme-${t.name()}|"><i th:class="|bi ${@mwt.theme(t).icon} me-1|" aria-hidden="true"></i><th:block th:text="${t.shortLabel}">테마</th:block></label>
+        </th:block>
+      </div>
+      <span class="divider d-none d-md-block" aria-hidden="true"></span>
+      <div class="chip-group" role="radiogroup" aria-label="투어 등급">
+        <input type="radio" class="btn-check" name="tour_level" id="level-all" value="" th:checked="${level == null}">
+        <label class="btn btn-sm" for="level-all">모든 등급</label>
+        <th:block th:each="lv : ${siteLevels}">
+          <input type="radio" class="btn-check" name="tour_level" th:id="|level-${lv.code}|" th:value="${lv.code}" th:checked="${level != null and level.name() == lv.code}">
+          <label class="btn btn-sm" th:for="|level-${lv.code}|" th:title="${lv.summary}" th:text="${lv.label}">등급</label>
+        </th:block>
+      </div>
+    </form>
+  </div>
+
+  <div th:if="${notice}" class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i><th:block th:text="${notice}">안내</th:block></div>
+  <div th:if="${loadFailed}" class="alert alert-danger d-flex justify-content-between align-items-center gap-2" id="load-error">
+    <span><i class="bi bi-exclamation-octagon-fill me-1"></i>상품 목록을 불러오지 못했습니다. 잠시 후 다시 조회해 주세요.</span>
+    <a class="btn btn-sm btn-outline-danger text-nowrap" href="">다시 조회</a>
+  </div>
+
+  <div th:if="${!loadFailed and !products.isEmpty()}" class="catalog-count" th:text="|${products.size()}개 상품 · 출발일이 가까운 순|">상품 수</div>
+
+  <div class="row g-4 catalog-grid">
+    <div th:each="p : ${products}" class="col-sm-6 col-lg-4 col-xl-3">
+      <div th:replace="~{travel/customer/_product_card :: card(${p})}"></div>
+    </div>
+    <div th:if="${products.isEmpty() and notice == null and !loadFailed}" class="col-12">
+      <div class="empty-state">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <p th:if="${filtered}" class="mt-2 mb-0 text-muted">조건에 맞는 상품이 없습니다. 다른 테마나 등급을 골라 보세요.</p>
+        <p th:unless="${filtered}" class="mt-2 mb-0 text-muted">지금 신청할 수 있는 여행 상품이 없습니다. 새 상품이 등록되면 이곳에 표시됩니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="scripts">
+  // 테마·등급을 바꾸면 바로 목록을 새로 조회한다
+  document.querySelectorAll("#filter-form input[type=radio]").forEach(r =>
+    r.addEventListener("change", () => document.getElementById("filter-form").submit()));
+</script>
+</body>
+</html>

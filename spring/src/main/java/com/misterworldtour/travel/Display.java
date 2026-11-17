@@ -54,6 +54,18 @@ public final class Display {
         return "/img/photos/" + (small ? "sm/" : "") + name + ".jpg";
     }
 
+    /** 직원이 올린 사진, 없으면 테마 기본 사진. */
+    public static String productPhoto(TravelProduct product, boolean small) {
+        if (product.getImage() != null && !product.getImage().isBlank()) {
+            return "/media/" + product.getImage();
+        }
+        return photoUrl(THEME_INFO.get(product.getTheme()).photo(), small);
+    }
+
+    public static ThemeView theme(Theme theme) {
+        return THEMES.get(theme.ordinal());
+    }
+
     public static List<ThemeView> themes() {
         return THEMES;
     }

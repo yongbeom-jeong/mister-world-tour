@@ -27,4 +27,14 @@ public enum TourLevel {
     public MealOption getDefaultMeal() {
         return defaultMeal;
     }
+
+    /** 요청 값(문자열)을 등급으로. 없거나 잘못된 값이면 null. */
+    public static TourLevel parse(String value) {
+        for (TourLevel lv : values()) {
+            if (lv.name().equals(value)) {
+                return lv;
+            }
+        }
+        return null;
+    }
 }
