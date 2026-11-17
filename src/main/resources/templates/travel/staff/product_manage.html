@@ -38,7 +38,11 @@
               <div class="small text-muted" th:text="|${p.theme.shortLabel} · ${p.tourLevel.label} · ${@mwt.date(p.departureDate, 'MM/dd')}|">조건</div>
             </div>
           </a>
-          <div th:if="${products.isEmpty()}" class="list-group-item text-muted text-center py-4">조건에 맞는 상품이 없습니다.</div>
+          <div th:if="${loadFailed}" class="list-group-item text-center py-4" id="load-error">
+            <div class="text-danger mb-2"><i class="bi bi-exclamation-octagon-fill me-1"></i>상품 목록을 불러오지 못했습니다.</div>
+            <a class="btn btn-sm btn-outline-danger" href="">다시 조회</a>
+          </div>
+          <div th:if="${!loadFailed and products.isEmpty()}" class="list-group-item text-muted text-center py-4">조건에 맞는 상품이 없습니다.</div>
         </div>
       </div>
     </div>

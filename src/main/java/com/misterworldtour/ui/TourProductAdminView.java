@@ -35,6 +35,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -147,10 +148,20 @@ public class TourProductAdminView {
 
     // ---------------------------------------------------------------- 상품 관리 (UC7)
 
+    /** 관리 목록. 조회 실패는 '상품 없음'과 구분해 안내하고 다시 조회하게 한다 (UC7 2a). */
     private void manageContext(Model model, String theme, String level, HttpServletRequest request) {
         Theme t = Theme.parse(theme);
         TourLevel lv = TourLevel.parse(level);
-        model.addAttribute("products", travel.loadProducts(t, lv));
+        List<TravelProduct> products = List.of();
+        boolean loadFailed = false;
+        try {
+            products = travel.loadProducts(t, lv);
+        } catch (DataAccessException e) {
+            log.error("직원 상품 목록 조회 실패 theme={} level={}", t, lv, e);
+            loadFailed = true;
+        }
+        model.addAttribute("products", products);
+        model.addAttribute("loadFailed", loadFailed);
         model.addAttribute("filterTheme", t);
         model.addAttribute("filterLevel", lv);
         model.addAttribute("query", request.getQueryString() == null ? "" : "?" + request.getQueryString());
