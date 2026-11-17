@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
+<head><title>여행 신청 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container">
+    <a th:href="@{/travel/products/{id}/(id=${product.id})}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i>구성 다시 고르기</a>
+    <h1>여행 신청</h1>
+    <p>함께 떠날 여행자를 입력하고 최종 금액을 확인하세요.</p>
+  </div>
+</section>
+
+<div id="main" class="container pb-4">
+  <ol class="stepper">
+    <li class="done">상품 선택</li>
+    <li class="done">구성 변경</li>
+    <li th:class="${review != null} ? 'done' : 'current'">여행자 입력</li>
+    <li th:class="${review != null} ? 'current' : ''">금액 확인·신청</li>
+  </ol>
+
+  <div class="row g-4">
+    <!--/* ---------------------------------------------------------------- 요약 */-->
+    <div class="col-lg-5 order-2">
+      <div class="application-summary">
+        <div th:if="${review != null}" class="review-panel" id="review-panel" th:with="b=${review.breakdown}">
+          <div class="mwt-card-head px-4 pt-4 pb-3 fw-bold fs-5">신청 금액 확인</div>
+          <div class="mwt-card-body">
+            <table class="table price-table mb-2">
+              <tr><td th:text="|1인 ${@mwt.won(b.unitPrice)} × ${b.travelerCount}명|">1인</td><td class="text-end" th:text="${@mwt.won(b.subtotal)}">0원</td></tr>
+              <tr th:if="${b.regular}" class="text-success"><td><i class="bi bi-award"></i> 단골 할인 10% <div class="small text-muted">최근 3년 완료 여행 3회 이상</div></td><td class="text-end" th:text="|−${@mwt.won(b.discountAmount)}|">0원</td></tr>
+              <tr class="total"><td>최종 금액</td><td class="text-end" th:text="${@mwt.won(b.finalAmount)}">0원</td></tr>
+            </table>
+            <div class="small text-muted mb-3"><i class="bi bi-people"></i> <th:block th:each="t, st : ${review.travelers}" th:text="${t.name} + (${st.last} ? '' : ', ')">이름</th:block></div>
+            <form method="post" th:action="@{/travel/apply/}">
+              <input type="hidden" name="action" value="submit">
+              <input type="hidden" name="request_key" th:value="${review.requestKey}">
+              <button class="btn btn-primary btn-lg w-100" id="submit-btn">이 내용으로 신청 확정</button>
+            </form>
+            <div class="small text-muted mt-3 text-center">여행자 정보를 고치면 금액을 다시 확인해야 합니다.</div>
+          </div>
+        </div>
+        <div class="mwt-card mb-3">
+          <div class="mwt-card-body">
+            <div class="application-summary-heading">
+              <img th:src="@{${product.photoSmUrl}}" alt="" class="application-summary-photo">
+              <div>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="tag" th:text="${product.theme.shortLabel}">테마</span>
+                  <span class="tag" th:text="${product.tourLevel.label}">등급</span>
+                </div>
+                <h2 class="h5 mb-0" th:text="${product.name}">상품</h2>
+              </div>
+            </div>
+            <dl class="info-list small">
+              <dt>출발일</dt><dd th:text="|${@mwt.date(product.departureDate, 'yyyy년 M월 d일')} · ${product.travelDays}일|">출발일</dd>
+              <dt>호텔</dt><dd th:text="${described.hotel_level}">호텔</dd>
+              <dt>교통</dt><dd th:text="${described.transport}">교통</dd>
+              <dt>식사</dt><dd th:text="${described.meal}">식사</dd>
+              <dt>음료</dt><dd th:text="${described.drinks}">음료</dd>
+              <dt>1인 가격</dt><dd th:text="${@mwt.won(unitPrice)}">0원</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--/* ---------------------------------------------------------------- 여행자 입력 */-->
+    <div class="col-lg-7 order-1">
+      <form method="post" th:action="@{/travel/apply/}" id="traveler-form" class="mwt-card" novalidate>
+        <input type="hidden" name="action" value="review">
+        <div class="mwt-card-head">
+          <span>실제 여행자</span>
+          <span class="small text-muted fw-normal" th:text="${product.honeymoon} ? '신청 고객 + 동반 1명, 정확히 2명' : |최대 ${remaining}명까지 신청 가능|">안내</span>
+        </div>
+        <div class="mwt-card-body">
+          <div th:if="${errors.get('travelers') != null}" class="alert alert-danger py-2 small" th:text="${errors.get('travelers')}">오류</div>
+
+          <div id="rows">
+            <!--/* 첫 행: 신청 고객 본인 (계정 정보 사용) */-->
+            <div class="row g-2 mb-2 traveler-row align-items-center">
+              <div class="col-5 col-md-6"><input class="form-control bg-light" name="traveler_name" th:value="${me.name}" readonly aria-label="신청 고객 성명"></div>
+              <div class="col-5"><input class="form-control bg-light" name="traveler_contact" th:value="${me.contact}" readonly aria-label="신청 고객 연락처"></div>
+              <div class="col-2 col-md-1 text-center px-0"><span class="tag tag-dark">본인</span></div>
+            </div>
+            <th:block th:each="t, st : ${travelers}">
+              <div th:unless="${st.first}" class="row g-2 mb-2 traveler-row align-items-center">
+                <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명" th:value="${t.name}"></div>
+                <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)" th:value="${t.contact}"></div>
+                <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
+              </div>
+            </th:block>
+          </div>
+          <th:block th:each="e : ${errors}"><div th:if="${e.key != 'travelers'}" class="text-danger small"><i class="bi bi-exclamation-circle"></i> <th:block th:text="${e.value}">오류</th:block></div></th:block>
+
+          <template id="row-template">
+            <div class="row g-2 mb-2 traveler-row align-items-center">
+              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명"></div>
+              <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)"></div>
+              <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
+            </div>
+          </template>
+          <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="add-row"><i class="bi bi-person-plus"></i> 동반 여행자 추가</button>
+          <div class="form-text mt-3"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
+          <button th:class="|btn ${review != null ? 'btn-outline-primary' : 'btn-dark'} btn-lg w-100 mt-3|" th:text="${review != null} ? '다시 금액 확인' : '금액 확인'">금액 확인</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script id="scripts" th:inline="javascript">
+(() => {
+  const HONEYMOON = /*[[${product.honeymoon}]]*/ false;
+  const MAX = HONEYMOON ? 2 : /*[[${remaining}]]*/ 10;
+  const rows = document.getElementById("rows");
+  const addBtn = document.getElementById("add-row");
+  const tpl = document.getElementById("row-template");
+
+  function count() { return rows.querySelectorAll(".traveler-row").length; }
+  function sync() { addBtn.disabled = count() >= MAX; addBtn.hidden = HONEYMOON && count() >= 2; }
+  function invalidateReview() {
+    // 여행자 정보가 바뀌면 이전 검토 금액으로 확정하지 못하게 한다
+    const panel = document.getElementById("review-panel");
+    if (panel) panel.remove();
+    document.querySelectorAll(".stepper li")[2].className = "current";
+    document.querySelectorAll(".stepper li")[3].className = "";
+  }
+  function addRow() { if (count() < MAX) { rows.appendChild(tpl.content.cloneNode(true)); sync(); invalidateReview(); } }
+
+  addBtn.addEventListener("click", addRow);
+  rows.addEventListener("click", e => {
+    const btn = e.target.closest(".remove-row");
+    if (btn) { btn.closest(".traveler-row").remove(); sync(); invalidateReview(); }
+  });
+  rows.addEventListener("input", invalidateReview);
+  if (HONEYMOON && count() < 2) addRow();   // 허니문은 동반 1명 입력란을 바로 보여준다
+  sync();
+
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) submitBtn.closest("form").addEventListener("submit", () => {
+    submitBtn.disabled = true; submitBtn.textContent = "처리 중…";   // 반복 클릭 방지
+  });
+})();
+</script>
+</body>
+</html>

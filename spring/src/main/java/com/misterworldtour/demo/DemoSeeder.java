@@ -3,8 +3,13 @@ package com.misterworldtour.demo;
 import com.misterworldtour.common.MwtProperties;
 import com.misterworldtour.members.MemberService;
 import com.misterworldtour.members.Role;
+import com.misterworldtour.souvenir.SouvenirService;
+import com.misterworldtour.travel.BookingService;
+import com.misterworldtour.travel.Review;
+import com.misterworldtour.travel.Review.TravelerInput;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
+import com.misterworldtour.travel.TravelConfig;
 import com.misterworldtour.travel.TravelProduct;
 import com.misterworldtour.travel.TravelService;
 import org.slf4j.Logger;
@@ -21,7 +26,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 데모·시험용 더미 데이터 (Django 판 {@code manage.py seed_demo}).
@@ -76,14 +83,49 @@ class DemoSeeder implements ApplicationRunner {
             new DemoProduct("한라산·올레길 트레킹", "제주도", Theme.TREKKING, TourLevel.CLASSIC, 590_000, 3, 15,
                     "성판악 코스 정상 등반과 올레 7코스.", "hallasan"));
 
+    /** 초기 기념품 재고 (입고 내역으로 기록). */
+    static final Map<String, Integer> STOCK = Map.of("커플 기념티", 20, "건강 인삼", 30, "골프공", 50, "기념품 스카프", 40);
+
+    record DemoHistory(String productName, TourLevel level, int days, int price, int daysAgo) {
+    }
+
+    /** 아이디 → 완료 이력. regular1 은 3년 내 3회(단골), customer2 는 3년 내 2회 + 오래된 1회(단골 아님). */
+    static final Map<String, List<DemoHistory>> HISTORIES = Map.of(
+            "regular1", List.of(
+                    new DemoHistory("오사카 미식 효도 여행", TourLevel.GRAND, 4, 1_100_000, 120),
+                    new DemoHistory("괌 가족 휴양", TourLevel.GRAND, 5, 1_500_000, 400),
+                    new DemoHistory("다낭 골프 챌린지", TourLevel.CLASSIC, 5, 1_300_000, 800),
+                    new DemoHistory("푸껫 골프 챌린지", TourLevel.CLASSIC, 5, 1_200_000, 1_500)), // 3년 지남
+            "customer2", List.of(
+                    new DemoHistory("제주 힐링 효도 여행", TourLevel.GRAND, 3, 850_000, 200),
+                    new DemoHistory("한라산·올레길 트레킹", TourLevel.CLASSIC, 3, 550_000, 600),
+                    new DemoHistory("홋카이도 설경 트레킹", TourLevel.GRAND, 6, 1_900_000, 1_400)));
+
+    record DemoApplication(String username, String productName, List<String> companions) {
+    }
+
+    /**
+     * 미리 넣어 둘 신청. 실제 신청 처리(검토 → 등록)를 그대로 쓴다.
+     * 다낭 골프 2명(1명 더 오면 출발 확정), 제주 효도 8명(이미 확정, 남은 자리 2명).
+     */
+    static final List<DemoApplication> APPLICATIONS = List.of(
+            new DemoApplication("customer2", "다낭 골프 챌린지", List.of("이동반")),
+            new DemoApplication("customer2", "제주 힐링 효도 여행",
+                    List.of("이부모", "이모친", "김이모", "김삼촌", "박사촌", "박조카", "최할매")));
+
     private final MemberService members;
     private final TravelService travel;
+    private final BookingService booking;
+    private final SouvenirService souvenirs;
     private final MwtProperties properties;
     private final Clock clock;
 
-    DemoSeeder(MemberService members, TravelService travel, MwtProperties properties, Clock clock) {
+    DemoSeeder(MemberService members, TravelService travel, BookingService booking, SouvenirService souvenirs,
+               MwtProperties properties, Clock clock) {
         this.members = members;
         this.travel = travel;
+        this.booking = booking;
+        this.souvenirs = souvenirs;
         this.properties = properties;
         this.clock = clock;
     }
@@ -114,7 +156,46 @@ class DemoSeeder implements ApplicationRunner {
             travel.setProductImage(p.getId(), copyPhoto(d.photo()));
             newProducts++;
         }
-        log.info("데모 데이터 준비 완료: 계정 {}개·상품 {}개 신규 (비밀번호 모두 {})", newMembers, newProducts, PASSWORD);
+        long staffId = memberId("staff1");
+        STOCK.forEach((name, qty) -> souvenirs.seedStock(name, qty, staffId, "seed-" + name));
+
+        int newHistories = 0;
+        for (Map.Entry<String, List<DemoHistory>> e : HISTORIES.entrySet()) {
+            long mid = memberId(e.getKey());
+            for (int i = 0; i < e.getValue().size(); i++) {
+                DemoHistory h = e.getValue().get(i);
+                if (travel.seedHistory(mid, "seed-" + e.getKey() + "-" + i, h.productName(), h.level(), h.days(),
+                        h.price(), today.minusDays(h.daysAgo()))) {
+                    newHistories++;
+                }
+            }
+        }
+
+        int newApps = 0;
+        for (int i = 0; i < APPLICATIONS.size(); i++) {
+            DemoApplication a = APPLICATIONS.get(i);
+            String key = "seed-application-" + i;
+            long mid = memberId(a.username());
+            if (booking.findSubmittedApplication(mid, key).isPresent()) {
+                continue;
+            }
+            TravelProduct product = travel.findByName(a.productName()).orElse(null);
+            if (product == null) {
+                continue;
+            }
+            List<TravelerInput> rows = new ArrayList<>();
+            rows.add(new TravelerInput("", "", true)); // 첫 행은 신청 고객 본인 (계정 정보로 채움)
+            a.companions().forEach(n -> rows.add(new TravelerInput(n, "", false)));
+            Review review = booking.reviewApplication(mid, product.getId(), TravelConfig.defaultOf(product), rows);
+            booking.submitTravelApplication(mid, review.withRequestKey(key));
+            newApps++;
+        }
+        log.info("데모 데이터 준비 완료: 계정 {}개·상품 {}개·이력 {}건·신청 {}건 신규 (비밀번호 모두 {})",
+                newMembers, newProducts, newHistories, newApps, PASSWORD);
+    }
+
+    private long memberId(String username) {
+        return members.findByUsername(username).orElseThrow().getId();
     }
 
     /** 데모 상품 사진을 업로드 사진처럼 media 폴더에 복사한다. 반환값은 media 기준 경로. */

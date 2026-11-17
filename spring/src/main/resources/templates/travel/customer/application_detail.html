@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+<head><title>신청 내역 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container">
+    <a th:href="@{/travel/applications/}" class="mwt-back"><i class="bi bi-chevron-left" aria-hidden="true"></i>내 신청 목록</a>
+    <div class="d-flex gap-3 align-items-center">
+      <img th:src="@{${app.product.photoSmUrl}}" alt="" class="application-summary-photo d-none d-sm-block">
+      <div>
+        <h1 class="mb-2" th:text="${app.product.name}">상품</h1>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <span th:if="${app.cancelled}" class="tag tag-danger"><i class="bi bi-x-circle" aria-hidden="true"></i> <th:block th:text="|취소한 신청 · ${@mwt.date(app.cancelledAt, 'yyyy-MM-dd HH:mm')}|">취소</th:block></span>
+          <span th:if="${!app.cancelled and status != null and status.name() == 'CONFIRMED'}" class="tag tag-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> 출발 확정</span>
+          <span th:if="${!app.cancelled and (status == null or status.name() != 'CONFIRMED')}" class="tag tag-muted"><i class="bi bi-hourglass-split" aria-hidden="true"></i> 출발 미확정 · 3명이 모이면 확정</span>
+          <span class="small text-muted" th:text="|신청 번호 #${app.id}|">신청 번호</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="main" class="container pb-4">
+  <ol class="stepper mt-2">
+    <li class="done">상품 선택</li><li class="done">구성 변경</li><li class="done">여행자 입력</li><li class="done">신청 완료</li>
+  </ol>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="mwt-card mwt-card-body h-100">
+        <h2 class="h5 mb-3">여행 정보</h2>
+        <dl class="info-list">
+          <dt>여행지</dt><dd th:text="${app.product.destination}">여행지</dd>
+          <dt>출발일</dt><dd th:text="|${@mwt.date(app.product.departureDate, 'yyyy년 M월 d일')} (${app.product.travelDays}일)|">출발일</dd>
+          <dt>호텔</dt><dd th:text="${described.hotel_level}">호텔</dd>
+          <dt>교통</dt><dd th:text="${described.transport}">교통</dd>
+          <dt>식사</dt><dd th:text="${described.meal}">식사</dd>
+          <dt>음료</dt><dd th:text="${described.drinks}">음료</dd>
+          <dt>신청 시각</dt><dd th:text="${@mwt.date(app.submittedAt, 'yyyy-MM-dd HH:mm')}">시각</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mwt-card mwt-card-body h-100">
+        <h2 class="h5 mb-3">금액</h2>
+        <table class="table price-table">
+          <tr><td th:text="|1인 ${@mwt.won(app.unitPrice)} × ${travelers.size()}명|">1인</td><td class="text-end" th:text="${@mwt.won(app.subtotal)}">0원</td></tr>
+          <tr th:if="${app.discountAmount > 0}" class="text-success"><td>단골 할인 10%</td><td class="text-end" th:text="|−${@mwt.won(app.discountAmount)}|">0원</td></tr>
+          <tr class="total"><td>최종 금액</td><td class="text-end" th:text="${@mwt.won(app.finalAmount)}">0원</td></tr>
+        </table>
+        <h3 class="h6 mt-4">여행자</h3>
+        <ul class="list-unstyled small mb-0">
+          <li th:each="t : ${travelers}" class="py-1 d-flex align-items-center gap-2"><i class="bi bi-person"></i><th:block th:text="${t.name}">이름</th:block>
+            <span th:if="${t.applicant}" class="tag tag-dark">본인</span>
+            <span th:if="${!#strings.isEmpty(t.contact)}" class="text-muted" th:text="${t.contact}">연락처</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!--/* TODO(신청 취소 이식 때): 출발 확정 전 신청 취소 */-->
+  <div class="text-center mt-4">
+    <a class="btn btn-outline-primary" th:href="@{/travel/products/}">다른 여행 둘러보기</a>
+  </div>
+</div>
+</body>
+</html>
