@@ -11,7 +11,7 @@ SPRING_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SERVICE=mwt-spring
 cd "$SPRING_DIR"
 
-# 서비스에 설정한 POSTGRES_DB 를 그대로 쓴다 (.env 의 값은 Django 판 DB)
+# 서비스에 설정한 POSTGRES_DB 를 그대로 쓴다 (.env 의 POSTGRES_DB 보다 우선)
 DB_NAME="$(systemctl show -p Environment $SERVICE | grep -o 'POSTGRES_DB=[^ ]*' | cut -d= -f2)"
 POSTGRES_DB="${DB_NAME:-mwt_spring}" exec java -jar run/mwt.jar --spring.profiles.active=prod \
   --server.port=0 --server.address=127.0.0.1 "$@"

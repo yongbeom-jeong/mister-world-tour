@@ -60,19 +60,18 @@ if [ "$(swapon --show | wc -l)" -eq 0 ]; then
 fi
 
 # ---------------------------------------------------------------- 2. .env
-step "2/7 .env (저장소 루트, Django 판과 같은 파일. 비밀값은 서버에서 무작위 생성)"
+step "2/7 .env (저장소 루트. 비밀값은 서버에서 무작위 생성)"
 ENV_FILE="$APP_DIR/.env"
-set_env() {  # set_env KEY VALUE : .env 의 값을 바꾸거나 추가 (.env 가 Django 판 파일로의 링크여도 원본을 고친다)
+set_env() {  # set_env KEY VALUE : .env 의 값을 바꾸거나 추가 (.env 가 다른 파일로의 링크여도 원본을 고친다)
   if grep -q "^$1=" "$ENV_FILE"; then sed -i --follow-symlinks "s|^$1=.*|$1=$2|" "$ENV_FILE"; else echo "$1=$2" >> "$ENV_FILE"; fi
 }
 if [ ! -f "$ENV_FILE" ]; then
   cp "$APP_DIR/.env.example" "$ENV_FILE"
-  set_env DJANGO_SECRET_KEY "$(openssl rand -base64 48 | tr -d '\n/+=')"
   set_env POSTGRES_PASSWORD "$(openssl rand -hex 16)"
   set_env STAFF_SIGNUP_CODE "MWT-STAFF-$(openssl rand -hex 3 | tr a-f A-F)"
   ok ".env 새로 만듦"
 else
-  ok "기존 .env 사용 (POSTGRES_DB 는 Django 판 값 그대로 두고, Spring 은 서비스에서 '$DB_NAME' 로 덮어쓴다)"
+  ok "기존 .env 사용 (DB 이름은 서비스 설정에서 '$DB_NAME' 로 정한다)"
 fi
 grep -q '^POSTGRES_PASSWORD=..*' "$ENV_FILE" || set_env POSTGRES_PASSWORD "$(openssl rand -hex 16)"
 set_env POSTGRES_USER "$DB_USER"
