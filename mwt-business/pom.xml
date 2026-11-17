@@ -10,13 +10,14 @@
     </parent>
 
     <artifactId>mwt-business</artifactId>
-    <description>Business Layer: members, travel, souvenir, speech, sms</description>
+    <packaging>pom</packaging>
+    <description>Business Layer (업무 서브시스템 묶음). 하위 모듈(패키지)을 묶기만 하고 jar 는 만들지 않는다</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>mwt-members</module>
+        <module>mwt-sms</module>
+        <module>mwt-travel</module>
+        <module>mwt-souvenir</module>
+        <module>mwt-speech</module>
+    </modules>
 </project>

@@ -10,5 +10,10 @@
     </parent>
 
     <artifactId>mwt-configuration</artifactId>
-    <description>Configuration: 보안·웹 설정과 프로젝트 설정 값 (common)</description>
+    <packaging>pom</packaging>
+    <description>Configuration (설정). 하위 모듈(패키지)을 묶기만 하고 jar 는 만들지 않는다</description>
+
+    <modules>
+        <module>mwt-common</module>
+    </modules>
 </project>

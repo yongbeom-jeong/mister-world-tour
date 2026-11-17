@@ -107,21 +107,29 @@ class PackageDependencyTest {
         return graph;
     }
 
-    /** 모든 모듈(mwt-*)의 com/misterworldtour 아래 패키지 폴더. */
+    /** 모든 모듈(mwt-*, 계층 폴더 안의 패키지 모듈 포함)의 com/misterworldtour 아래 패키지 폴더. */
     private static List<Path> packageDirs() throws IOException {
         List<Path> dirs = new ArrayList<>();
-        try (Stream<Path> modules = Files.list(Path.of(".."))) {
-            for (Path module : modules.filter(p -> p.getFileName().toString().startsWith("mwt-")).toList()) {
-                Path root = module.resolve("src/main/java/com/misterworldtour");
-                if (Files.isDirectory(root)) {
-                    try (Stream<Path> packages = Files.list(root)) {
-                        dirs.addAll(packages.filter(Files::isDirectory).toList());
-                    }
+        List<Path> modules = new ArrayList<>(mwtDirs(Path.of("..")));
+        for (Path layer : List.copyOf(modules)) {
+            modules.addAll(mwtDirs(layer));
+        }
+        for (Path module : modules) {
+            Path root = module.resolve("src/main/java/com/misterworldtour");
+            if (Files.isDirectory(root)) {
+                try (Stream<Path> packages = Files.list(root)) {
+                    dirs.addAll(packages.filter(Files::isDirectory).toList());
                 }
             }
         }
         assertThat(dirs).as("모듈의 패키지 폴더").hasSizeGreaterThan(5);
         return dirs;
+    }
+
+    private static List<Path> mwtDirs(Path parent) throws IOException {
+        try (Stream<Path> children = Files.list(parent)) {
+            return children.filter(p -> Files.isDirectory(p) && p.getFileName().toString().startsWith("mwt-")).toList();
+        }
     }
 
     private static String read(Path file) {

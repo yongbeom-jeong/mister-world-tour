@@ -29,8 +29,8 @@
 ## 구현 및 검증 참고
 
 - [요구사항·설계 자료](docs/)
-- [신청·출발 확정](mwt-business/src/main/java/com/misterworldtour/travel/TravelManager.java) · [신청 테스트](mwt-app/src/test/java/com/misterworldtour/travel/BookingServiceTest.java)
-- [문자 발송](mwt-business/src/main/java/com/misterworldtour/sms/SMSNotificationManager.java) · [문자 테스트](mwt-app/src/test/java/com/misterworldtour/sms/SMSDeliveryTest.java)
+- [신청·출발 확정](mwt-business/mwt-travel/src/main/java/com/misterworldtour/travel/TravelManager.java) · [신청 테스트](mwt-app/src/test/java/com/misterworldtour/travel/BookingServiceTest.java)
+- [문자 발송](mwt-business/mwt-sms/src/main/java/com/misterworldtour/sms/SMSNotificationManager.java) · [문자 테스트](mwt-app/src/test/java/com/misterworldtour/sms/SMSDeliveryTest.java)
 - [배포 가이드](deploy/DEPLOY.md)
 - [변경 이력 및 리뷰](../../pulls)
 
@@ -50,7 +50,7 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 
 - `--seed-demo` 는 데모 계정·상품·재고·이력·신청을 넣는다. 여러 번 실행해도 중복되지 않는다 (비밀번호 `demo1234!`).
   - `staff1` 직원 / `regular1` 단골 고객(3년 내 완료 3회) / `customer2` 비단골 / `newbie` 이력 없음
-- 표(테이블)는 시작할 때 Flyway 가 `mwt-persistence/src/main/resources/db/migration` 의 SQL 로 만든다.
+- 표(테이블)는 시작할 때 Flyway 가 `mwt-persistence/mwt-dataaccess/src/main/resources/db/migration` 의 SQL 로 만든다.
 - 포트를 바꾸려면 `PORT` 환경변수를 쓴다 (예: `$env:PORT=8081`).
 
 ## 자주 쓰는 명령 (저장소 루트에서)
@@ -93,17 +93,19 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 
 - 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 자기 패키지의 저장 인터페이스(`TravelDataAccessAPI` 등)로만 저장·조회한다. 이 인터페이스는 `DataAccessManager` 가 구현하므로 의존은 dataaccess → 업무 한 방향이다.
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다.
-- 구현 서브시스템(계층)마다 Maven 모듈이 하나다: 화면 `mwt-presentation` → 업무 `mwt-business` → 설정 `mwt-configuration`, 저장 `mwt-persistence` → 업무. 거꾸로 참조하면 컴파일되지 않는다.
+- 구현 서브시스템(계층)은 폴더, 그 안의 패키지마다 Maven 모듈(jar)이 하나다 (예: `mwt-business/mwt-travel`). 모듈 의존은 화면 → 업무 → 설정, 저장 → 업무 방향만 있고, 거꾸로 참조하면 컴파일되지 않는다.
 
 ```
 pom.xml, mvnw, mvnw.cmd       부모 Maven 설정 (Spring Boot 4.1, Java 21, 모듈 목록)과 Maven Wrapper
-mwt-configuration/            Configuration: common (보안·웹 설정, 설정 값)
-mwt-business/                 Business Layer: members, travel, souvenir, speech, sms
-mwt-persistence/              Persistence Layer: dataaccess, resources/db/migration (Flyway 표 생성 SQL)
-mwt-presentation/             Presentation Layer: ui, resources/templates (Thymeleaf), resources/static (CSS·JS·기본 사진,
+계층 폴더(묶음 pom) / 패키지 모듈(jar 하나씩)
+mwt-configuration/mwt-common/ Configuration: common (보안·웹 설정, 설정 값)
+mwt-business/                 Business Layer
+  mwt-members/ mwt-travel/ mwt-souvenir/ mwt-speech/ mwt-sms/
+mwt-persistence/mwt-dataaccess/   Persistence Layer: dataaccess, resources/db/migration (Flyway 표 생성 SQL)
+mwt-presentation/mwt-ui/      Presentation Layer: ui, resources/templates (Thymeleaf), resources/static (CSS·JS·기본 사진,
                               출처: static/img/photos/credits.json → 사이트 푸터 "사진 출처")
 mwt-app/                      실행 모듈: MwtApplication, demo, application*.yml, 테스트(src/test, JUnit 5·MockMvc)
-                              → 실행 jar mwt-app/target/mwt.jar (계층 모듈 jar 4개를 묶음)
+                              → 실행 jar mwt-app/target/mwt.jar (패키지 모듈 jar 8개를 묶음)
 deploy/                       서버 설치·갱신 스크립트와 배포 안내
 docs/                         계획서·요구분석·설계 산출물 (StarUML, Word, 한글)
 ```

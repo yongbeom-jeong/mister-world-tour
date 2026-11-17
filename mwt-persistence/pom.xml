@@ -10,13 +10,10 @@
     </parent>
 
     <artifactId>mwt-persistence</artifactId>
-    <description>Persistence Layer: dataaccess (저장 인터페이스 구현), db/migration</description>
+    <packaging>pom</packaging>
+    <description>Persistence Layer. 하위 모듈(패키지)을 묶기만 하고 jar 는 만들지 않는다</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-business</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>mwt-dataaccess</module>
+    </modules>
 </project>

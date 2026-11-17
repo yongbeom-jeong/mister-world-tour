@@ -10,27 +10,47 @@
     </parent>
 
     <artifactId>mwt-app</artifactId>
-    <description>실행 모듈: 계층 모듈을 묶어 실행 jar(mwt.jar)를 만든다. 데모 데이터(demo)와 설정 파일, 전체 테스트</description>
+    <description>실행 모듈: 패키지 모듈 8개를 묶어 실행 jar(mwt.jar)를 만든다. 데모 데이터(demo)와 설정 파일, 전체 테스트</description>
 
     <dependencies>
         <dependency>
             <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-configuration</artifactId>
+            <artifactId>mwt-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-business</artifactId>
+            <artifactId>mwt-members</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-persistence</artifactId>
+            <artifactId>mwt-sms</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-presentation</artifactId>
+            <artifactId>mwt-travel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.misterworldtour</groupId>
+            <artifactId>mwt-souvenir</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.misterworldtour</groupId>
+            <artifactId>mwt-speech</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.misterworldtour</groupId>
+            <artifactId>mwt-dataaccess</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.misterworldtour</groupId>
+            <artifactId>mwt-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
