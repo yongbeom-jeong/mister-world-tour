@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{})}">
+<head><title>상품 등록 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head">
+  <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <div>
+      <h1>상품 등록</h1>
+      <p>기획한 새 여행 상품을 입력합니다. 기존 상품의 수정·삭제는 상품 관리에서 합니다.</p>
+    </div>
+    <a class="btn btn-outline-primary btn-sm" th:href="@{/travel/staff/products/}"><i class="bi bi-list-ul me-1"></i>상품 관리로</a>
+  </div>
+</section>
+<div id="main" class="container pb-4">
+  <form method="post" th:action="@{/travel/staff/products/new/}" enctype="multipart/form-data" novalidate class="mwt-card">
+    <div class="mwt-card-body">
+      <th:block th:replace="~{travel/staff/_product_form :: fields('/img/photos/sm/hero.jpg', false)}"></th:block>
+    </div>
+    <div class="mwt-card-head border-top border-bottom-0 justify-content-end">
+      <button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>등록</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

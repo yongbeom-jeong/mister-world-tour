@@ -76,12 +76,14 @@ public class BookingService {
     private final MemberService members;
     private final SouvenirService souvenirs;
     private final SmsService sms;
+    private final TravelService travel;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     BookingService(TravelProductRepository products, TravelApplicationRepository applications,
                    TravelerRepository travelers, TravelHistoryRepository histories, MemberService members,
-                   SouvenirService souvenirs, SmsService sms, Clock clock, PlatformTransactionManager transactionManager) {
+                   SouvenirService souvenirs, SmsService sms, TravelService travel, Clock clock,
+                   PlatformTransactionManager transactionManager) {
         this.products = products;
         this.applications = applications;
         this.travelers = travelers;
@@ -89,6 +91,7 @@ public class BookingService {
         this.members = members;
         this.souvenirs = souvenirs;
         this.sms = sms;
+        this.travel = travel;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactionManager);
     }
@@ -250,7 +253,7 @@ public class BookingService {
     }
 
     private PriceBreakdown price(TravelProduct product, long memberId, TravelConfig config, int travelerCount) {
-        // TODO(완료 이력 이식 때): 다녀온 여행을 이력에 먼저 반영한 뒤 단골 여부 판단 (complete_finished_trips)
+        travel.completeFinishedTrips(memberId, today()); // 다녀온 여행을 이력에 반영한 뒤 단골 여부 판단
         int unit = Pricing.calculateUnitPrice(product, config);
         return Pricing.calculateApplicationPrice(unit, travelerCount, histories.findByMemberId(memberId), today());
     }
@@ -403,6 +406,43 @@ public class BookingService {
         }
         return new Saved(new ApplicationResult(app.getId(), product.isHoneymoon(), app.currentDepartureStatus(),
                 newlyConfirmed, false, issued, recipients, null), plan, smsRecipients);
+    }
+
+    // ---------------------------------------------------------------- 신청 취소 (2026-11-12 결정)
+
+    public static final String CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요.";
+
+    /** 취소할 수 없는 이유. 취소할 수 있으면 null. (화면 표시와 실제 취소에서 같은 규칙을 쓴다) */
+    public String cancelBlockReason(TravelApplication app) {
+        if (app.isCancelled()) {
+            return "이미 취소한 신청입니다.";
+        }
+        if (app.currentDepartureStatus() == DepartureStatus.CONFIRMED) {
+            return "출발이 확정된 신청은 취소할 수 없습니다.";
+        }
+        if (!app.getProduct().getDepartureDate().isAfter(today())) {
+            return "출발일이 지난 신청은 취소할 수 없습니다.";
+        }
+        return null;
+    }
+
+    /**
+     * 출발 확정 전 신청을 취소한다. 확정 판정과 겹치지 않게 상품을 잠근 뒤 다시 검사한다.
+     * 확정 전에는 기념품을 차감하지 않으므로 되돌릴 재고가 없다.
+     */
+    @Transactional
+    public void cancelApplication(long memberId, long applicationId) {
+        // 엔티티를 읽기 전에 상품부터 잠근다 (먼저 읽으면 잠그기 전의 출발 상태가 남을 수 있음)
+        Long productId = applications.productIdOf(applicationId, memberId)
+                .orElseThrow(() -> new BookingException("신청을 찾을 수 없습니다."));
+        products.findForUpdate(productId); // 같은 상품의 신청·확정과 순서 맞춤
+        TravelApplication fresh = applications.findById(applicationId).orElseThrow();
+        String reason = cancelBlockReason(fresh);
+        if (reason != null) {
+            throw new BookingException(reason);
+        }
+        fresh.cancel();
+        log.info("신청 취소 application={} member={}", applicationId, memberId);
     }
 
     // ---------------------------------------------------------------- 내 신청

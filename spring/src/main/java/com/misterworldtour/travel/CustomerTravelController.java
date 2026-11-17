@@ -69,10 +69,12 @@ class CustomerTravelController {
     }
 
     private final BookingService booking;
+    private final TravelService travel;
     private final JsonMapper json;
 
-    CustomerTravelController(BookingService booking, JsonMapper json) {
+    CustomerTravelController(BookingService booking, TravelService travel, JsonMapper json) {
         this.booking = booking;
+        this.travel = travel;
         this.json = json;
     }
 
@@ -304,6 +306,7 @@ class CustomerTravelController {
         model.addAttribute("errors", Map.of());
         model.addAttribute("review", null);
         model.addAttribute("me", booking.applicantContact(memberId));
+        model.addAttribute("cancelRule", BookingService.CANCEL_RULE);
 
         if ("review".equals(action)) {
             List<TravelerInput> rows = travelerRows(names, contacts);
@@ -398,7 +401,40 @@ class CustomerTravelController {
         model.addAttribute("travelers", app.getTravelers());
         model.addAttribute("described", ConfigurationRules.describe(config));
         model.addAttribute("status", app.currentDepartureStatus());
+        model.addAttribute("cancelBlock", booking.cancelBlockReason(app));
+        model.addAttribute("cancelRule", BookingService.CANCEL_RULE);
         return "travel/customer/application_detail";
+    }
+
+    /** 출발 확정 전 신청 취소 (2026-11-12 결정). */
+    @PostMapping("/applications/{applicationId}/cancel/")
+    String cancelApplication(@AuthenticationPrincipal MemberPrincipal me, @PathVariable long applicationId,
+                             RedirectAttributes redirect) {
+        if (booking.getMyApplication(me.getId(), applicationId).isEmpty()) {
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "신청을 찾을 수 없습니다.");
+        }
+        try {
+            booking.cancelApplication(me.getId(), applicationId);
+            Messages.flash(redirect, Level.SUCCESS, "신청을 취소했습니다.");
+        } catch (BookingException e) {
+            Messages.flash(redirect, Level.ERROR, e.getMessage());
+        }
+        return "redirect:/travel/applications/" + applicationId + "/";
+    }
+
+    // ---------------------------------------------------------------- 이전 여행 이력 (UC3)
+
+    /** 팝업이 fetch 로 불러가는 HTML 조각. 조회 실패는 '이력 없음'과 구분해 실패로 응답. */
+    @GetMapping("/history/")
+    String historyPartial(@AuthenticationPrincipal MemberPrincipal me, Model model, HttpServletResponse response) {
+        try {
+            model.addAttribute("histories", travel.viewPreviousTravelHistory(me.getId()));
+            return "travel/_history_list";
+        } catch (RuntimeException e) {
+            log.error("여행 이력 조회 실패 member={}", me.getId(), e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return "travel/_history_error";
+        }
     }
 
     @GetMapping("/applications/")

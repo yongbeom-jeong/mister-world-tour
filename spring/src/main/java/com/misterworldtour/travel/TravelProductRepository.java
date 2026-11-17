@@ -40,4 +40,7 @@ interface TravelProductRepository extends JpaRepository<TravelProduct, Long> {
     boolean existsByName(String name);
 
     Optional<TravelProduct> findFirstByName(String name);
+
+    Optional<TravelProduct> findFirstByNameAndThemeAndDepartureDateAndCreatedAtGreaterThanEqualOrderByIdDesc(
+            String name, Theme theme, LocalDate departureDate, java.time.OffsetDateTime since);
 }

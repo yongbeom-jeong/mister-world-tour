@@ -145,7 +145,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script th:src="@{/js/mwt-ui.js(v='20261113-4')}"></script>
-  <!--/* TODO(travel 이식 후): 고객이면 이전 여행 이력 팝업(_history_modal) 포함, showHistoryPopup 이면 바로 열기 */-->
+  <th:block th:if="${m != null and m.customer}">
+    <th:block th:replace="~{travel/_history_modal :: modal(${showHistoryPopup})}"></th:block>
+  </th:block>
   <th:block th:replace="${scripts}"></th:block>
 </body>
 </html>
