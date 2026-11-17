@@ -70,7 +70,8 @@ public class SMSNotificationManager implements SMSNotificationAPI {
     }
 
     /**
-     * 고객별 SMSMessage 를 만들고 발송 기록을 Pending(정보 누락은 INVALID)으로 먼저 저장한다. 외부 호출은 하지 않는다.
+     * 고객별 SMSMessage 를 만들고 발송 기록을 Pending 으로 먼저 저장한다. 외부 호출은 하지 않는다.
+     * 연락처나 상품 정보가 없는 대상은 SMSMessage 를 만들지 않고 입력 오류로 기록해 결과의 invalid 목록에 넣는다 (상태도 11.1).
      * 신청 저장과 같은 트랜잭션에서 부르면 신청과 기록이 함께 저장되어, 보내기 전에 서버가 멈춰도 기록이 남고
      * 직원 문자 기록 화면에서 다시 보낼 수 있다.
      */
@@ -80,15 +81,12 @@ public class SMSNotificationManager implements SMSNotificationAPI {
         for (Recipient r : recipients) {
             boolean missing = r.contact() == null || r.contact().isBlank() || notice.productName() == null
                     || notice.productName().isBlank() || notice.departureDate() == null;
-            String text = notice.departureDate() == null ? "" : notice.message(r);
-            SMSMessage msg = new SMSMessage(r, text, notice.productId(), notice.productName());
             if (missing) {
-                log.warn("문자 대상 정보 누락 product={} member={}", notice.productId(), r.memberId());
-                msg.markInvalid("연락처 또는 상품 정보 누락");
-                insertLog(msg);
+                log.warn("문자 대상 정보 누락(입력 오류) product={} member={}", notice.productId(), r.memberId());
                 invalid.add(r);
                 continue;
             }
+            SMSMessage msg = new SMSMessage(r, notice.message(r), notice.productId(), notice.productName());
             insertLog(msg);
             messages.add(msg);
         }

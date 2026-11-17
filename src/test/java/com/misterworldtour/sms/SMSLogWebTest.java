@@ -118,7 +118,8 @@ class SMSLogWebTest {
         long id = logId();
         mvc.perform(get("/sms/staff/logs/").param("filter", "problems").with(login(staff)))
                 .andExpect(content().string(containsString("다시 보내기")))
-                .andExpect(content().string(containsString("다낭 골프")));
+                .andExpect(content().string(containsString("다낭 골프")))
+                .andExpect(content().string(containsString("class=\"tag tag-danger\">실패</span>")));
         mvc.perform(post("/sms/staff/logs/{id}/resend/", id).with(login(staff)).with(csrf())
                         .param("next", "/sms/staff/logs/?filter=problems"))
                 .andExpect(redirectedUrl("/sms/staff/logs/?filter=problems"));
