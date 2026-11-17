@@ -25,10 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   <li>Data Access → 업무 서브시스템 한 방향만: 업무·ui·common 은 dataaccess 를 참조하지 않는다
  *       (저장 인터페이스는 쓰는 쪽이 가진다).</li>
  * </ul>
+ * 소스는 모든 모듈(mwt-*)에서 읽는다. 테스트는 mwt-app 폴더에서 실행된다.
  */
 class PackageDependencyTest {
 
-    private static final Path SOURCE_ROOT = Path.of("src/main/java/com/misterworldtour");
     private static final Pattern REFERENCE = Pattern.compile("com\\.misterworldtour\\.(\\w+)\\.");
     private static final Pattern COMMENTS = Pattern.compile("/\\*.*?\\*/|//[^\\n]*", Pattern.DOTALL);
 
@@ -55,16 +55,18 @@ class PackageDependencyTest {
     void otherSubsystemsUseApisNotManagers() throws IOException {
         Pattern managerRef = Pattern.compile("com\\.misterworldtour\\.(\\w+)\\.(\\w+Manager)\\b");
         List<String> offenders = new ArrayList<>();
-        try (Stream<Path> files = Files.walk(SOURCE_ROOT)) {
-            for (Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {
-                String pkg = SOURCE_ROOT.relativize(file).getName(0).toString();
-                if (pkg.equals("demo")) {
-                    continue;
-                }
-                Matcher m = managerRef.matcher(COMMENTS.matcher(read(file)).replaceAll(""));
-                while (m.find()) {
-                    if (!m.group(1).equals(pkg)) {
-                        offenders.add(file.getFileName() + " → " + m.group(1) + "." + m.group(2));
+        for (Path dir : packageDirs()) {
+            String pkg = dir.getFileName().toString();
+            if (pkg.equals("demo")) {
+                continue;
+            }
+            try (Stream<Path> files = Files.walk(dir)) {
+                for (Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+                    Matcher m = managerRef.matcher(COMMENTS.matcher(read(file)).replaceAll(""));
+                    while (m.find()) {
+                        if (!m.group(1).equals(pkg)) {
+                            offenders.add(file.getFileName() + " → " + m.group(1) + "." + m.group(2));
+                        }
                     }
                 }
             }
@@ -88,24 +90,38 @@ class PackageDependencyTest {
 
     private static Map<String, Set<String>> dependencyGraph() throws IOException {
         Map<String, Set<String>> graph = new TreeMap<>();
-        try (Stream<Path> packages = Files.list(SOURCE_ROOT)) {
-            for (Path dir : packages.filter(Files::isDirectory).toList()) {
-                String pkg = dir.getFileName().toString();
-                Set<String> deps = new TreeSet<>();
-                try (Stream<Path> files = Files.walk(dir)) {
-                    files.filter(p -> p.toString().endsWith(".java")).forEach(file -> {
-                        Matcher m = REFERENCE.matcher(COMMENTS.matcher(read(file)).replaceAll(""));
-                        while (m.find()) {
-                            if (!m.group(1).equals(pkg)) {
-                                deps.add(m.group(1));
-                            }
+        for (Path dir : packageDirs()) {
+            String pkg = dir.getFileName().toString();
+            Set<String> deps = graph.computeIfAbsent(pkg, k -> new TreeSet<>());
+            try (Stream<Path> files = Files.walk(dir)) {
+                files.filter(p -> p.toString().endsWith(".java")).forEach(file -> {
+                    Matcher m = REFERENCE.matcher(COMMENTS.matcher(read(file)).replaceAll(""));
+                    while (m.find()) {
+                        if (!m.group(1).equals(pkg)) {
+                            deps.add(m.group(1));
                         }
-                    });
-                }
-                graph.put(pkg, deps);
+                    }
+                });
             }
         }
         return graph;
+    }
+
+    /** 모든 모듈(mwt-*)의 com/misterworldtour 아래 패키지 폴더. */
+    private static List<Path> packageDirs() throws IOException {
+        List<Path> dirs = new ArrayList<>();
+        try (Stream<Path> modules = Files.list(Path.of(".."))) {
+            for (Path module : modules.filter(p -> p.getFileName().toString().startsWith("mwt-")).toList()) {
+                Path root = module.resolve("src/main/java/com/misterworldtour");
+                if (Files.isDirectory(root)) {
+                    try (Stream<Path> packages = Files.list(root)) {
+                        dirs.addAll(packages.filter(Files::isDirectory).toList());
+                    }
+                }
+            }
+        }
+        assertThat(dirs).as("모듈의 패키지 폴더").hasSizeGreaterThan(5);
+        return dirs;
     }
 
     private static String read(Path file) {

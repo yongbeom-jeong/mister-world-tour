@@ -8,12 +8,13 @@ AI 코딩 도구(Claude Code, Codex 등) 공용 프로젝트 안내. 도구별 �
 Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 않는다. 최종 발표 2026-11-24.
 
 ## 명령 (Windows, 저장소 루트에서)
-- 실행: `.\mvnw.cmd spring-boot:run` (http://localhost:8080, 포트는 `PORT` 환경변수)
+- 실행: `.\mvnw.cmd spring-boot:run` (http://localhost:8080, 포트는 `PORT` 환경변수). 실행 모듈 `mwt-app` 만 뜨고, 작업 폴더는 저장소 루트(`.env`·`data/`·`media/`)
 - 데모 데이터와 함께: `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--seed-demo"` (여러 번 실행해도 중복 없음, 비밀번호 `demo1234!`)
   - `staff1` 직원 / `regular1` 단골 고객(3년 내 완료 3회) / `customer2` 비단골(3년 내 2회) / `newbie` 이력 없음
-- 테스트: `.\mvnw.cmd test` (메모리 H2, `.env` 와 무관. 1분 내외)
+- 테스트: `.\mvnw.cmd test` (메모리 H2, `.env` 와 무관. 1분 내외). 테스트는 모두 `mwt-app/src/test`
+- jar: `.\mvnw.cmd package` → `mwt-app/target/mwt.jar`
 - 완료 이력 일괄: `--complete-trips`, 시험 문자: `--send-test-sms=010-1234-5678` (위와 같이 `spring-boot.run.arguments` 로)
-- 엔티티 변경 시 `src/main/resources/db/migration` 에 새 `V번호__설명.sql` 추가 (이미 올린 SQL 은 고치지 않음). DB 열 이름은 그대로 두고 Java 필드만 설계 이름을 쓴다
+- 엔티티 변경 시 `mwt-persistence/src/main/resources/db/migration` 에 새 `V번호__설명.sql` 추가 (이미 올린 SQL 은 고치지 않음). DB 열 이름은 그대로 두고 Java 필드만 설계 이름을 쓴다
 - DB: 개발 PC 는 H2 파일 DB(`data/`), 배포 서버만 PostgreSQL 18 (`--spring.profiles.active=prod`, `.env` 의 `POSTGRES_*`)
   - H2 도 행 잠금을 지키므로 동시성(정원·재고) 테스트 `BookingConcurrencyTest` 가 개발 PC 에서도 돈다
 - 배포: `deploy/DEPLOY.md` (서버 `/srv/mwt-spring`, systemd 서비스 `mwt-spring`, 설치 `deploy/setup.sh`, 갱신 `deploy/update.sh`). `deploy/`·`*.sh`·`mvnw` 는 LF 줄바꿈 유지
@@ -23,6 +24,19 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 문서(계획서·요구분석서·설계서, `docs/`)에 맞춰 구현한다. 패키지·클래스·메소드 이름은 설계서 클래스도의 이름을 그대로 쓴다
 (설계의 PascalCase 메소드는 Java 관례대로 camelCase: `SignUp` → `signUp`). **문서대로 하면 동작에 문제가 생기는 경우에만 구현을 바르게 하고
 문서를 고친다** (문서·구현 대조는 팀이 따로 한다).
+
+### Maven 모듈 (구현 서브시스템 = 계층마다 모듈 하나)
+| 모듈 | 구현 서브시스템 | 패키지·자원 | 의존 모듈 |
+|---|---|---|---|
+| `mwt-configuration` | Configuration | `common` | 없음 |
+| `mwt-business` | Business Layer | `members`, `travel`, `souvenir`, `speech`, `sms` (+ `members/common-passwords.txt.gz`) | configuration |
+| `mwt-persistence` | Persistence Layer | `dataaccess`, `db/migration` | business |
+| `mwt-presentation` | Presentation Layer | `ui`, `templates`, `static` | business, configuration |
+| `mwt-app` | (실행 모듈) | `MwtApplication`, `demo`, `application*.yml`, 전체 테스트 | 위 네 모듈 |
+- 모듈 의존은 위 방향만 가능하다 (거꾸로 참조하면 컴파일이 안 된다). 업무 계층은 저장 계층·화면을 모르고, 저장 계층은 업무 계층의 저장 인터페이스를 구현한다
+- 실행 jar 는 `mwt-app/target/mwt.jar` 하나이고, 그 안에 계층 모듈 jar 4개(`BOOT-INF/lib/mwt-*.jar`)가 들어 있다
+- 패키지 이름은 그대로 `com.misterworldtour.<패키지>` 라서 컴포넌트 스캔·엔티티 스캔은 설정 없이 모든 모듈에 닿는다
+
 
 | 패키지 | 서브시스템 (설계 장) | 클래스 |
 |---|---|---|
@@ -107,7 +121,7 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 - 데모 신청: customer2가 다낭 골프 2명(1명 더 오면 확정), 제주 효도 8명(확정, 남은 2자리)
 
 ## 화면 디자인
-- 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `src/main/resources/static/css/mwt.css` 하나에서 관리
+- 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `mwt-presentation/src/main/resources/static/css/mwt.css` 하나에서 관리
 - 색: 흰 바탕, 글자 `--mwt-ink`(#222), 보조 `--mwt-muted`, 선 `--mwt-line`. 강조색은 딥 틸 `--mwt-accent`(#0F766E) 하나만, 주요 버튼(`.btn-primary`)·선택 상태·현재 단계에만 쓴다
   - 상태 배지만 의미 색: `.tag-success`(출발 확정·성공), `.tag-warning`(확인 필요), `.tag-danger`(취소·실패), `.tag-muted`(미확정). 그 외 `.tag-accent`, `.tag-dark`(본인)
   - 버튼: `.btn-primary`(주요, 강조색) / `.btn-dark`(보조) / `.btn-outline-primary`(일반, 회색 테두리). 모서리 8px, 카드·사진 12px

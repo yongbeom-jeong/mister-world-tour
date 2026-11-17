@@ -99,7 +99,7 @@ MVN_ARGS=(-q -B package)
 [ "${SKIP_TESTS:-0}" = 1 ] && MVN_ARGS+=(-DskipTests)
 ./mvnw "${MVN_ARGS[@]}"
 mkdir -p run media
-BUILT="$(ls target/mwt-*.jar | grep -v plain | head -1)"
+BUILT="mwt-app/target/mwt.jar"   # 실행 모듈(mwt-app)이 계층 모듈을 묶어 만든 실행 jar
 cp "$BUILT" run/mwt.jar.new && mv run/mwt.jar.new "$JAR"   # 새 파일로 바꿔치기 (실행 중인 jar 를 덮어쓰지 않음)
 ok "$JAR ($(du -h "$JAR" | cut -f1))"
 

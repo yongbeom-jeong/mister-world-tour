@@ -50,7 +50,8 @@ bash /srv/mwt-spring/deploy/setup.sh
   (`application-prod.yml` 은 보안 쿠키라 HTTP 에서는 로그인이 유지되지 않음). 인증서를 받으면 `setup.sh` 를 다시 실행한다.
 - Nginx 가 `X-Forwarded-Proto`·`X-Forwarded-For` 를 넘기고, `application-prod.yml` 의 `forward-headers-strategy: native` 가
   이를 받아 https 주소·리디렉트를 올바르게 만든다.
-- CSS·JS·기본 사진(`src/main/resources/static/`)은 jar 에 들어 있어 Spring 이 제공한다.
+- CSS·JS·기본 사진(`mwt-presentation/src/main/resources/static/`)은 jar 에 들어 있어 Spring 이 제공한다.
+- 빌드 결과는 `mwt-app/target/mwt.jar` (계층 모듈 jar 4개를 묶은 실행 jar). 스크립트가 `run/mwt.jar` 로 복사해 실행한다.
 
 ## 3. 운영
 
