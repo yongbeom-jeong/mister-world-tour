@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.misterworldtour</groupId>
+        <artifactId>mwt-parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
+    <artifactId>mwt-business</artifactId>
+    <packaging>pom</packaging>
+    <description>Business Layer (업무 서브시스템 묶음). 하위 모듈(패키지)을 묶기만 하고 jar 는 만들지 않는다</description>
+
+    <modules>
+        <module>mwt-members</module>
+        <module>mwt-sms</module>
+        <module>mwt-travel</module>
+        <module>mwt-souvenir</module>
+        <module>mwt-speech</module>
+    </modules>
+</project>

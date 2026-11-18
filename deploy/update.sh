@@ -22,7 +22,7 @@ MVN_ARGS=(-q -B package)
 chmod +x mvnw
 ./mvnw "${MVN_ARGS[@]}"
 mkdir -p run
-BUILT="$(ls target/mwt-*.jar | grep -v plain | head -1)"
+BUILT="mwt-app/target/mwt.jar"   # 실행 모듈(mwt-app)이 계층 모듈을 묶어 만든 실행 jar
 cp "$BUILT" run/mwt.jar.new && mv run/mwt.jar.new run/mwt.jar   # 실행 중인 jar 를 덮어쓰지 않고 바꿔치기
 
 sudo systemctl restart $SERVICE

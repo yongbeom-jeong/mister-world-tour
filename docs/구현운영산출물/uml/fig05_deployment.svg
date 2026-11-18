@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="820" viewBox="0 0 1540 820" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<path d="M60,60 L76,44 L356,44 L340,60 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M340,60 L356,44 L356,144 L340,160 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="60" y="60" width="280" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="200.0" y="110.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">음성 인식 서비스</text>
+<text x="200.0" y="130.0" font-size="13" text-anchor="middle" fill="#000">(Chrome·Edge 제공)</text>
+<path d="M470,60 L486,44 L816,44 L800,60 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M800,60 L816,44 L816,144 L800,160 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="470" y="60" width="330" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="635.0" y="92.0" font-size="12" text-anchor="middle" fill="#000">«device»</text>
+<text x="635.0" y="110.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">고객 PC / 휴대폰</text>
+<text x="635.0" y="130.0" font-size="13" text-anchor="middle" fill="#000">웹 브라우저</text>
+<path d="M930,60 L946,44 L1276,44 L1260,60 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1260,60 L1276,44 L1276,144 L1260,160 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="930" y="60" width="330" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="1095.0" y="92.0" font-size="12" text-anchor="middle" fill="#000">«device»</text>
+<text x="1095.0" y="110.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">직원 PC</text>
+<text x="1095.0" y="130.0" font-size="13" text-anchor="middle" fill="#000">웹 브라우저</text>
+<path d="M1290,520 L1306,504 L1506,504 L1490,520 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1490,520 L1506,504 L1506,604 L1490,620 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="1290" y="520" width="200" height="100" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="1390.0" y="570.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">Solapi</text>
+<text x="1390.0" y="590.0" font-size="13" text-anchor="middle" fill="#000">(문자 발송)</text>
+<path d="M260,300 L276,284 L1266,284 L1250,300 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1250,300 L1266,284 L1266,744 L1250,760 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="260" y="300" width="990" height="460" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="1050.0" y="326.0" font-size="12" text-anchor="middle" fill="#000">«device»</text>
+<text x="1050.0" y="346.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">mwt-server</text>
+<text x="1050.0" y="366.0" font-size="13" text-anchor="middle" fill="#000">AWS EC2 · Ubuntu 24.04</text>
+<path d="M300,440 L316,424 L566,424 L550,440 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M550,440 L566,424 L566,544 L550,560 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="300" y="440" width="250" height="120" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="425.0" y="482.0" font-size="12" text-anchor="middle" fill="#000">«execution environment»</text>
+<text x="425.0" y="500.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">Nginx</text>
+<text x="425.0" y="520.0" font-size="13" text-anchor="middle" fill="#000">HTTPS 443, /media/</text>
+<path d="M640,440 L656,424 L976,424 L960,440 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M960,440 L976,424 L976,694 L960,710 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="640" y="440" width="320" height="270" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="800.0" y="466.0" font-size="12" text-anchor="middle" fill="#000">«execution environment»</text>
+<text x="800.0" y="486.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">Java 21 (JVM)</text>
+<text x="800.0" y="506.0" font-size="13" text-anchor="middle" fill="#000">systemd 서비스 mwt-spring</text>
+<path d="M1040,440 L1056,424 L1226,424 L1210,440 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1210,440 L1226,424 L1226,544 L1210,560 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="1040" y="440" width="170" height="120" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="1125.0" y="482.0" font-size="12" text-anchor="middle" fill="#000">«execution environment»</text>
+<text x="1125.0" y="500.0" font-size="16" text-anchor="middle" fill="#000" font-weight="bold">PostgreSQL 18</text>
+<text x="1125.0" y="520.0" font-size="13" text-anchor="middle" fill="#000">DB mwt_spring</text>
+<path d="M775.0,560 L811.0,560 L825.0,574 L825.0,624 L775.0,624 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M811.0,560 L811.0,574 L825.0,574" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="800.0" y="644.0" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">mwt.jar</text>
+<text x="800.0" y="666.0" font-size="13" text-anchor="middle" fill="#000">127.0.0.1:8080</text>
+<path d="M340.0,110.0 L470.0,110.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="405.0" y="100.0" font-size="13" text-anchor="middle" fill="#000">HTTPS</text>
+<path d="M600.0,160.0 L400.0,440.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="515.0" y="250.0" font-size="13" text-anchor="end" fill="#000">HTTPS</text>
+<path d="M1060.0,160.0 L470.0,440.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="930.0" y="225.0" font-size="13" text-anchor="start" fill="#000">HTTPS</text>
+<path d="M550.0,500.0 L640.0,500.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="595.0" y="490.0" font-size="13" text-anchor="middle" fill="#000">HTTP</text>
+<path d="M960.0,500.0 L1040.0,500.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1000.0" y="490.0" font-size="13" text-anchor="middle" fill="#000">JDBC</text>
+<path d="M960.0,640.0 L1290.0,580.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1150.0" y="595.0" font-size="13" text-anchor="middle" fill="#000">HTTPS</text>
+</svg>

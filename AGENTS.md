@@ -8,12 +8,13 @@ AI 코딩 도구(Claude Code, Codex 등) 공용 프로젝트 안내. 도구별 �
 Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 않는다. 최종 발표 2026-11-24.
 
 ## 명령 (Windows, 저장소 루트에서)
-- 실행: `.\mvnw.cmd spring-boot:run` (http://localhost:8080, 포트는 `PORT` 환경변수)
+- 실행: `.\mvnw.cmd spring-boot:run` (http://localhost:8080, 포트는 `PORT` 환경변수). 실행 모듈 `mwt-app` 만 뜨고, 작업 폴더는 저장소 루트(`.env`·`data/`·`media/`)
 - 데모 데이터와 함께: `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--seed-demo"` (여러 번 실행해도 중복 없음, 비밀번호 `demo1234!`)
   - `staff1` 직원 / `regular1` 단골 고객(3년 내 완료 3회) / `customer2` 비단골(3년 내 2회) / `newbie` 이력 없음
-- 테스트: `.\mvnw.cmd test` (메모리 H2, `.env` 와 무관. 1분 내외)
+- 테스트: `.\mvnw.cmd test` (메모리 H2, `.env` 와 무관. 1분 내외). 테스트는 모두 `mwt-app/src/test`
+- jar: `.\mvnw.cmd package` → `mwt-app/target/mwt.jar`
 - 완료 이력 일괄: `--complete-trips`, 시험 문자: `--send-test-sms=010-1234-5678` (위와 같이 `spring-boot.run.arguments` 로)
-- 엔티티 변경 시 `src/main/resources/db/migration` 에 새 `V번호__설명.sql` 추가 (이미 올린 SQL 은 고치지 않음). DB 열 이름은 그대로 두고 Java 필드만 설계 이름을 쓴다
+- 엔티티 변경 시 `mwt-persistence/mwt-dataaccess/src/main/resources/db/migration` 에 새 `V번호__설명.sql` 추가 (이미 올린 SQL 은 고치지 않음). DB 열 이름은 그대로 두고 Java 필드만 설계 이름을 쓴다
 - DB: 개발 PC 는 H2 파일 DB(`data/`), 배포 서버만 PostgreSQL 18 (`--spring.profiles.active=prod`, `.env` 의 `POSTGRES_*`)
   - H2 도 행 잠금을 지키므로 동시성(정원·재고) 테스트 `BookingConcurrencyTest` 가 개발 PC 에서도 돈다
 - 배포: `deploy/DEPLOY.md` (서버 `/srv/mwt-spring`, systemd 서비스 `mwt-spring`, 설치 `deploy/setup.sh`, 갱신 `deploy/update.sh`). `deploy/`·`*.sh`·`mvnw` 는 LF 줄바꿈 유지
@@ -24,20 +25,42 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 (설계의 PascalCase 메소드는 Java 관례대로 camelCase: `SignUp` → `signUp`). **문서대로 하면 동작에 문제가 생기는 경우에만 구현을 바르게 하고
 문서를 고친다** (문서·구현 대조는 팀이 따로 한다).
 
+### Maven 모듈 (구현 서브시스템 = 계층 폴더, 컴포넌트 = 패키지 모듈)
+| 계층 폴더 (묶음 pom) | 패키지 모듈 (jar) | 의존 모듈 |
+|---|---|---|
+| `mwt-business` | `mwt-members` (+ `common-passwords.txt.gz`), `mwt-sms` | 없음 |
+| | `mwt-travel` | members, sms |
+| | `mwt-souvenir` | members, travel (travel 의 `SouvenirStockAPI` 구현) |
+| | `mwt-speech` | travel |
+| `mwt-persistence` | `mwt-dataaccess` (+ `db/migration`) | members, sms, souvenir, travel |
+| `mwt-presentation` | `mwt-ui` (+ `templates`, `static`) | members, sms, souvenir, speech, travel |
+| `mwt-app` (실행 모듈) | `MwtApplication`, `demo`, `application*.yml`, `Clock` 빈, 전체 테스트 | 패키지 모듈 7개 |
+- 소스 위치 예: `mwt-business/mwt-travel/src/main/java/com/misterworldtour/travel/TravelManager.java`
+- 모듈 의존은 표의 방향만 가능하다 (거꾸로 참조하면 컴파일이 안 된다). 새 패키지 간 의존이 필요하면 그 모듈 pom 에 추가하되 순환은 만들지 않는다
+- 실행 jar 는 `mwt-app/target/mwt.jar` 하나이고, 그 안에 패키지 모듈 jar 7개(`BOOT-INF/lib/mwt-*.jar`)가 들어 있다
+- 패키지 이름은 그대로 `com.misterworldtour.<패키지>` 라서 컴포넌트 스캔·엔티티 스캔은 설정 없이 모든 모듈에 닿는다
+
+
 | 패키지 | 서브시스템 (설계 장) | 클래스 |
 |---|---|---|
 | `ui` | User Interface (3장) | `MainView`, `MemberView`, `TravelHistoryView`, `TravelProductView`, `TravelApplicationView`, `TourProductAdminView`, `SouvenirStockView` / 설계 이후 추가 화면 `SouvenirAdminView`, `SMSLogView` |
 | `members` | Member Management (4장) | `MemberManagementAPI`, `MemberManager`(signUp·logIn), `Member`(checkPassword·getMemberId·getRole), `LoginSession` |
-| `travel` | Travel Management (5장) | `TravelManagementAPI`, `TravelManager`, `TravelProduct`(validateProduct·validateApplicationCapacity·updateDepartureStatus), `TravelConfiguration`(applyChanges·validateConfiguration), `TravelPriceCalculator`(calculateUnitPrice·isRegularCustomer·calculateApplicationPrice), `TravelApplication`(validateTravelers·getTravelerCount·confirmHoneymoonDeparture), `TravelHistory`(isCompletedWithinThreeYears) |
+| `travel` | Travel Management (5장) | `TravelManagementAPI`, `TravelManager`, `TravelProduct`(validateProduct·validateApplicationCapacity·updateDepartureStatus), `TravelConfiguration`(applyChanges·validateConfiguration), `TravelPriceCalculator`(calculateUnitPrice·isRegularCustomer·calculateApplicationPrice), `TravelApplication`(validateTravelers·getTravelerCount·confirmHoneymoonDeparture), `TravelHistory`(isCompletedWithinThreeYears) / 추가 `SouvenirStockAPI`(기념품 재고 검사·출발 차감, `SouvenirManager` 가 구현) |
 | `souvenir` | Souvenir Management (6장) | `SouvenirManagementAPI`, `SouvenirManager`(loadSouvenirs·prepareStockReceipt·recordSouvenirStockReceipt), `Souvenir`, `StockReceipt`(validateReceipt·matchesRequest) / 추가 `StockIssue` |
-| `dataaccess` | Data Access (7장) | `DataAccessAPI`, `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
+| `dataaccess` | Data Access (7장) | `DataAccessAPI`(아래 저장 인터페이스 4개를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
 | `speech` | Speech Recognition Integration (8장) | `SpeechRecognitionAPI`, `SpeechRecognitionManager`(recognizeSelection), `SpeechServiceClient`(recognize), `VoiceSelectionInterpreter`(interpretSelection) |
 | `sms` | SMS Notification (9장) | `SMSNotificationAPI`, `SMSNotificationManager`(sendDepartureConfirmation), `SMSServiceClient`(sendSMS), `SMSMessage`(recordResult·canRetry, 상태 Pending/Success/Failure/Unknown) |
-| `common` | (설정) | `SecurityConfig`, `WebConfig`, `MwtProperties` |
 
-- 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → `DataAccessAPI`. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
+- 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → 자기 저장 인터페이스. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
+- 저장 인터페이스는 쓰는 쪽이 가진다 (의존성 역전, 설계 7장과 다름): `members.MemberDataAccessAPI`, `travel.TravelDataAccessAPI`, `souvenir.SouvenirDataAccessAPI`, `sms.SMSMessageDataAccessAPI`.
+  `dataaccess.DataAccessAPI` 는 이 넷을 묶고 `DataAccessManager` 가 구현한다. 의존은 dataaccess → 업무 한 방향뿐이며, 업무·ui 가 `dataaccess` 를 참조하면 `PackageDependencyTest` 가 실패한다
+- 패키지 사이 순환 의존 금지 (`PackageDependencyTest`). 같은 방법으로 travel 이 souvenir 를 부르지 않고 `travel.SouvenirStockAPI` 를 쓴다 (souvenir → travel 한 방향).
+- 설정은 쓰는 쪽이 가진다 (별도 설정 서브시스템 없음): 보안·웹 설정(`SecurityConfig`·`WebConfig`)과 직원 가입 코드(`UiProperties`)는 `ui`,
+  사진 저장 위치(`TravelProperties.mediaRoot`)는 `travel`, 문자 설정(`SMSProperties`)은 `sms`, 업무 날짜 기준 `Clock`(`mwt.time-zone`)은 `mwt-app` 의 `MwtApplication`. 설정 키(`mwt.*`, `.env`)는 그대로
+- 다른 서브시스템은 그 서브시스템의 `*API` 로만 부른다. `*Manager` 를 직접 참조하면 `PackageDependencyTest` 가 실패한다 (데모 데이터 `demo` 는 예외).
+  화면이 쓰는 조회·관리 기능, 다른 서브시스템이 쓰는 기능(연락처 조회, 문자 발송 준비 등)과 그 결과·예외 타입도 `*API` 에 둔다
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다 (예: 신청은 회원을 `memberId` 로만)
-- 트랜잭션: 업무 메소드가 경계를 정하고 `DataAccessManager` 는 참여한다. 같은 상품을 잠그고 묶을 때는 `DataAccessAPI.runTravelTransaction(productId, work)`
+- 트랜잭션: 업무 메소드가 경계를 정하고 `DataAccessManager` 는 참여한다. 같은 상품을 잠그고 묶을 때는 `TravelDataAccessAPI.runTravelTransaction(productId, work)`
 - 로그인한 회원은 `LoginSession` (Spring Security 인증 주체). 설계처럼 회원 번호를 인자로 받지 않는 API 메소드(viewPreviousTravelHistory, reviewApplication, prepareStockReceipt 등)는 `LoginSession.current()` 로 확인한다. 테스트·데모용으로 회원 번호를 받는 같은 이름의 메소드도 둔다
 - 로그인 처리: Spring Security 폼 로그인 → `MemberAuthenticationProvider` → `MemberManager.logIn` → `LoginSession`
 - 역할 검사는 `members` 의 `@CustomerRequired` / `@StaffRoleRequired` 를 View 에 붙여 서버에서 한다. 직원 여부는 `Role` 로만 판단
@@ -101,7 +124,7 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 - 데모 신청: customer2가 다낭 골프 2명(1명 더 오면 확정), 제주 효도 8명(확정, 남은 2자리)
 
 ## 화면 디자인
-- 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `src/main/resources/static/css/mwt.css` 하나에서 관리
+- 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `mwt-presentation/mwt-ui/src/main/resources/static/css/mwt.css` 하나에서 관리
 - 색: 흰 바탕, 글자 `--mwt-ink`(#222), 보조 `--mwt-muted`, 선 `--mwt-line`. 강조색은 딥 틸 `--mwt-accent`(#0F766E) 하나만, 주요 버튼(`.btn-primary`)·선택 상태·현재 단계에만 쓴다
   - 상태 배지만 의미 색: `.tag-success`(출발 확정·성공), `.tag-warning`(확인 필요), `.tag-danger`(취소·실패), `.tag-muted`(미확정). 그 외 `.tag-accent`, `.tag-dark`(본인)
   - 버튼: `.btn-primary`(주요, 강조색) / `.btn-dark`(보조) / `.btn-outline-primary`(일반, 회색 테두리). 모서리 8px, 카드·사진 12px

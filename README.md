@@ -29,8 +29,8 @@
 ## 구현 및 검증 참고
 
 - [요구사항·설계 자료](docs/)
-- [신청·출발 확정](src/main/java/com/misterworldtour/travel/TravelManager.java) · [신청 테스트](src/test/java/com/misterworldtour/travel/BookingServiceTest.java)
-- [문자 발송](src/main/java/com/misterworldtour/sms/SMSNotificationManager.java) · [문자 테스트](src/test/java/com/misterworldtour/sms/SMSDeliveryTest.java)
+- [신청·출발 확정](mwt-business/mwt-travel/src/main/java/com/misterworldtour/travel/TravelManager.java) · [신청 테스트](mwt-app/src/test/java/com/misterworldtour/travel/BookingServiceTest.java)
+- [문자 발송](mwt-business/mwt-sms/src/main/java/com/misterworldtour/sms/SMSNotificationManager.java) · [문자 테스트](mwt-app/src/test/java/com/misterworldtour/sms/SMSDeliveryTest.java)
 - [배포 가이드](deploy/DEPLOY.md)
 - [변경 이력 및 리뷰](../../pulls)
 
@@ -50,7 +50,7 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 
 - `--seed-demo` 는 데모 계정·상품·재고·이력·신청을 넣는다. 여러 번 실행해도 중복되지 않는다 (비밀번호 `demo1234!`).
   - `staff1` 직원 / `regular1` 단골 고객(3년 내 완료 3회) / `customer2` 비단골 / `newbie` 이력 없음
-- 표(테이블)는 시작할 때 Flyway 가 `src/main/resources/db/migration` 의 SQL 로 만든다.
+- 표(테이블)는 시작할 때 Flyway 가 `mwt-persistence/mwt-dataaccess/src/main/resources/db/migration` 의 SQL 로 만든다.
 - 포트를 바꾸려면 `PORT` 환경변수를 쓴다 (예: `$env:PORT=8081`).
 
 ## 자주 쓰는 명령 (저장소 루트에서)
@@ -60,7 +60,7 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 | 개발 서버 | `.\mvnw.cmd spring-boot:run` |
 | 데모 데이터와 함께 실행 | `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--seed-demo"` |
 | 테스트 | `.\mvnw.cmd test` |
-| jar 만들기 | `.\mvnw.cmd package` (`target/mwt-0.1.0.jar`) |
+| jar 만들기 | `.\mvnw.cmd package` (`mwt-app/target/mwt.jar`) |
 | 완료 여행 이력 일괄 정리 | `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--complete-trips"` |
 | 시험 문자 1통 | `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--send-test-sms=010-1234-5678"` |
 
@@ -83,26 +83,27 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 |---|---|---|
 | `ui` | User Interface | `MainView`, `MemberView`, `TravelHistoryView`, `TravelProductView`, `TravelApplicationView`, `TourProductAdminView`, `SouvenirStockView` (+ 추가 화면 `SouvenirAdminView`, `SMSLogView`) |
 | `members` | Member Management | `MemberManagementAPI`, `MemberManager`, `Member`, `LoginSession` |
-| `travel` | Travel Management | `TravelManagementAPI`, `TravelManager`, `TravelProduct`, `TravelConfiguration`, `TravelPriceCalculator`, `TravelApplication`, `TravelHistory` |
+| `travel` | Travel Management | `TravelManagementAPI`, `TravelManager`, `TravelProduct`, `TravelConfiguration`, `TravelPriceCalculator`, `TravelApplication`, `TravelHistory`, `SouvenirStockAPI`(기념품 재고, souvenir 가 구현) |
 | `souvenir` | Souvenir Management | `SouvenirManagementAPI`, `SouvenirManager`, `Souvenir`, `StockReceipt` (+ 출발 확정 차감 `StockIssue`) |
-| `dataaccess` | Data Access | `DataAccessAPI`, `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
+| `dataaccess` | Data Access | `DataAccessAPI`(업무별 저장 인터페이스를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
 | `speech` | Speech Recognition Integration | `SpeechRecognitionAPI`, `SpeechRecognitionManager`, `SpeechServiceClient`, `VoiceSelectionInterpreter` |
 | `sms` | SMS Notification | `SMSNotificationAPI`, `SMSNotificationManager`, `SMSServiceClient`, `SMSMessage` |
-| `common` | (설정) | 보안·로그인 설정, 웹 설정, 프로젝트 설정 값 |
 | `demo` | (데모) | 데모 데이터 `--seed-demo` |
 
-- 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 `DataAccessAPI` 로만 저장·조회한다.
+- 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 자기 패키지의 저장 인터페이스(`TravelDataAccessAPI` 등)로만 저장·조회한다. 이 인터페이스는 `DataAccessManager` 가 구현하므로 의존은 dataaccess → 업무 한 방향이다.
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다.
+- 구현 서브시스템(계층)은 폴더, 그 안의 패키지마다 Maven 모듈(jar)이 하나다 (예: `mwt-business/mwt-travel`). 모듈 의존은 화면 → 업무, 저장 → 업무 방향만 있고, 거꾸로 참조하면 컴파일되지 않는다.
 
 ```
-pom.xml, mvnw, mvnw.cmd       Maven 설정 (Spring Boot 4.1, Java 21)과 Maven Wrapper
-src/main/java/com/misterworldtour/   위 표의 패키지
-src/main/resources/
-  application.yml             설정 (서버는 application-prod.yml)
-  db/migration/               Flyway 표 생성 SQL
-  templates/                  Thymeleaf 화면 (layout.html 공통 틀)
-  static/                     CSS·JS·기본 사진 (출처: static/img/photos/credits.json → 사이트 푸터 "사진 출처")
-src/test/                     테스트 (JUnit 5, MockMvc)
+pom.xml, mvnw, mvnw.cmd       부모 Maven 설정 (Spring Boot 4.1, Java 21, 모듈 목록)과 Maven Wrapper
+계층 폴더(묶음 pom) / 패키지 모듈(jar 하나씩)
+mwt-business/                 Business Layer
+  mwt-members/ mwt-travel/ mwt-souvenir/ mwt-speech/ mwt-sms/
+mwt-persistence/mwt-dataaccess/   Persistence Layer: dataaccess, resources/db/migration (Flyway 표 생성 SQL)
+mwt-presentation/mwt-ui/      Presentation Layer: ui (화면, 보안·웹 설정), resources/templates (Thymeleaf), resources/static (CSS·JS·기본 사진,
+                              출처: static/img/photos/credits.json → 사이트 푸터 "사진 출처")
+mwt-app/                      실행 모듈: MwtApplication, demo, application*.yml, 테스트(src/test, JUnit 5·MockMvc)
+                              → 실행 jar mwt-app/target/mwt.jar (패키지 모듈 jar 7개를 묶음)
 deploy/                       서버 설치·갱신 스크립트와 배포 안내
 docs/                         계획서·요구분석·설계 산출물 (StarUML, Word, 한글)
 ```
