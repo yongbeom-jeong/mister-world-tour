@@ -28,17 +28,16 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 ### Maven 모듈 (구현 서브시스템 = 계층 폴더, 컴포넌트 = 패키지 모듈)
 | 계층 폴더 (묶음 pom) | 패키지 모듈 (jar) | 의존 모듈 |
 |---|---|---|
-| `mwt-configuration` | `mwt-common` | 없음 |
 | `mwt-business` | `mwt-members` (+ `common-passwords.txt.gz`), `mwt-sms` | 없음 |
-| | `mwt-travel` | common, members, sms |
+| | `mwt-travel` | members, sms |
 | | `mwt-souvenir` | members, travel (travel 의 `SouvenirStockAPI` 구현) |
 | | `mwt-speech` | travel |
 | `mwt-persistence` | `mwt-dataaccess` (+ `db/migration`) | members, sms, souvenir, travel |
-| `mwt-presentation` | `mwt-ui` (+ `templates`, `static`) | common, members, sms, souvenir, speech, travel |
-| `mwt-app` (실행 모듈) | `MwtApplication`, `demo`, `application*.yml`, 전체 테스트 | 패키지 모듈 8개 |
+| `mwt-presentation` | `mwt-ui` (+ `templates`, `static`) | members, sms, souvenir, speech, travel |
+| `mwt-app` (실행 모듈) | `MwtApplication`, `demo`, `application*.yml`, `Clock` 빈, 전체 테스트 | 패키지 모듈 7개 |
 - 소스 위치 예: `mwt-business/mwt-travel/src/main/java/com/misterworldtour/travel/TravelManager.java`
 - 모듈 의존은 표의 방향만 가능하다 (거꾸로 참조하면 컴파일이 안 된다). 새 패키지 간 의존이 필요하면 그 모듈 pom 에 추가하되 순환은 만들지 않는다
-- 실행 jar 는 `mwt-app/target/mwt.jar` 하나이고, 그 안에 패키지 모듈 jar 8개(`BOOT-INF/lib/mwt-*.jar`)가 들어 있다
+- 실행 jar 는 `mwt-app/target/mwt.jar` 하나이고, 그 안에 패키지 모듈 jar 7개(`BOOT-INF/lib/mwt-*.jar`)가 들어 있다
 - 패키지 이름은 그대로 `com.misterworldtour.<패키지>` 라서 컴포넌트 스캔·엔티티 스캔은 설정 없이 모든 모듈에 닿는다
 
 
@@ -51,13 +50,13 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 | `dataaccess` | Data Access (7장) | `DataAccessAPI`(아래 저장 인터페이스 4개를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
 | `speech` | Speech Recognition Integration (8장) | `SpeechRecognitionAPI`, `SpeechRecognitionManager`(recognizeSelection), `SpeechServiceClient`(recognize), `VoiceSelectionInterpreter`(interpretSelection) |
 | `sms` | SMS Notification (9장) | `SMSNotificationAPI`, `SMSNotificationManager`(sendDepartureConfirmation), `SMSServiceClient`(sendSMS), `SMSMessage`(recordResult·canRetry, 상태 Pending/Success/Failure/Unknown) |
-| `common` | (설정) | `SecurityConfig`, `WebConfig`, `MwtProperties` |
 
 - 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → 자기 저장 인터페이스. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
 - 저장 인터페이스는 쓰는 쪽이 가진다 (의존성 역전, 설계 7장과 다름): `members.MemberDataAccessAPI`, `travel.TravelDataAccessAPI`, `souvenir.SouvenirDataAccessAPI`, `sms.SMSMessageDataAccessAPI`.
-  `dataaccess.DataAccessAPI` 는 이 넷을 묶고 `DataAccessManager` 가 구현한다. 의존은 dataaccess → 업무 한 방향뿐이며, 업무·ui·common 이 `dataaccess` 를 참조하면 `PackageDependencyTest` 가 실패한다
+  `dataaccess.DataAccessAPI` 는 이 넷을 묶고 `DataAccessManager` 가 구현한다. 의존은 dataaccess → 업무 한 방향뿐이며, 업무·ui 가 `dataaccess` 를 참조하면 `PackageDependencyTest` 가 실패한다
 - 패키지 사이 순환 의존 금지 (`PackageDependencyTest`). 같은 방법으로 travel 이 souvenir 를 부르지 않고 `travel.SouvenirStockAPI` 를 쓴다 (souvenir → travel 한 방향).
-  `common` 은 `ui` 를 참조하지 않는다: 로그인 성공·실패 처리(`ui.LoginHandlers`)·화면 인터셉터(`ui.LayoutModelInterceptor`)는 ui 의 빈이고, `SecurityConfig`·`WebConfig` 는 스프링 인터페이스 타입으로 주입받는다
+- 설정은 쓰는 쪽이 가진다 (별도 설정 서브시스템 없음): 보안·웹 설정(`SecurityConfig`·`WebConfig`)과 직원 가입 코드(`UiProperties`)는 `ui`,
+  사진 저장 위치(`TravelProperties.mediaRoot`)는 `travel`, 문자 설정(`SMSProperties`)은 `sms`, 업무 날짜 기준 `Clock`(`mwt.time-zone`)은 `mwt-app` 의 `MwtApplication`. 설정 키(`mwt.*`, `.env`)는 그대로
 - 다른 서브시스템은 그 서브시스템의 `*API` 로만 부른다. `*Manager` 를 직접 참조하면 `PackageDependencyTest` 가 실패한다 (데모 데이터 `demo` 는 예외).
   화면이 쓰는 조회·관리 기능, 다른 서브시스템이 쓰는 기능(연락처 조회, 문자 발송 준비 등)과 그 결과·예외 타입도 `*API` 에 둔다
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다 (예: 신청은 회원을 `memberId` 로만)

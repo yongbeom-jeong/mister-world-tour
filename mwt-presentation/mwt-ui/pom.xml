@@ -15,11 +15,6 @@
     <dependencies>
         <dependency>
             <groupId>com.misterworldtour</groupId>
-            <artifactId>mwt-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.misterworldtour</groupId>
             <artifactId>mwt-members</artifactId>
             <version>${project.version}</version>
         </dependency>

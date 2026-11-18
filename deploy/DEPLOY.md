@@ -51,7 +51,7 @@ bash /srv/mwt-spring/deploy/setup.sh
 - Nginx 가 `X-Forwarded-Proto`·`X-Forwarded-For` 를 넘기고, `application-prod.yml` 의 `forward-headers-strategy: native` 가
   이를 받아 https 주소·리디렉트를 올바르게 만든다.
 - CSS·JS·기본 사진(`mwt-presentation/mwt-ui/src/main/resources/static/`)은 jar 에 들어 있어 Spring 이 제공한다.
-- 빌드 결과는 `mwt-app/target/mwt.jar` (패키지 모듈 jar 8개를 묶은 실행 jar). 스크립트가 `run/mwt.jar` 로 복사해 실행한다.
+- 빌드 결과는 `mwt-app/target/mwt.jar` (패키지 모듈 jar 7개를 묶은 실행 jar). 스크립트가 `run/mwt.jar` 로 복사해 실행한다.
 
 ## 3. 운영
 

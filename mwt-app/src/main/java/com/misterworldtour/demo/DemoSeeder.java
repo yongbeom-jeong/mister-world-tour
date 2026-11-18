@@ -1,6 +1,6 @@
 package com.misterworldtour.demo;
 
-import com.misterworldtour.common.MwtProperties;
+import com.misterworldtour.travel.TravelProperties;
 import com.misterworldtour.members.MemberManager;
 import com.misterworldtour.members.Role;
 import com.misterworldtour.souvenir.SouvenirManager;
@@ -116,11 +116,11 @@ class DemoSeeder implements ApplicationRunner {
     private final MemberManager members;
     private final TravelManager travel;
     private final SouvenirManager souvenirs;
-    private final MwtProperties properties;
+    private final TravelProperties properties;
     private final Clock clock;
 
     DemoSeeder(MemberManager members, TravelManager travel, SouvenirManager souvenirs,
-               MwtProperties properties, Clock clock) {
+               TravelProperties properties, Clock clock) {
         this.members = members;
         this.travel = travel;
         this.souvenirs = souvenirs;

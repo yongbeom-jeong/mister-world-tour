@@ -1,4 +1,4 @@
-package com.misterworldtour.common;
+package com.misterworldtour;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 패키지(서브시스템) 의존 방향 검사. 소스의 {@code com.misterworldtour.<패키지>} 참조(주석 제외)로 의존 그래프를 만든다.
  * <ul>
  *   <li>패키지 사이에 순환 의존이 없어야 한다.</li>
- *   <li>Data Access → 업무 서브시스템 한 방향만: 업무·ui·common 은 dataaccess 를 참조하지 않는다
+ *   <li>Data Access → 업무 서브시스템 한 방향만: 업무·ui 는 dataaccess 를 참조하지 않는다
  *       (저장 인터페이스는 쓰는 쪽이 가진다).</li>
  * </ul>
  * 소스는 모든 모듈(mwt-*)에서 읽는다. 테스트는 mwt-app 폴더에서 실행된다.
@@ -45,7 +45,7 @@ class PackageDependencyTest {
     @Test
     void onlyDataAccessKnowsDataAccess() throws IOException {
         Map<String, Set<String>> graph = dependencyGraph();
-        for (String pkg : List.of("members", "travel", "souvenir", "sms", "speech", "ui", "common")) {
+        for (String pkg : List.of("members", "travel", "souvenir", "sms", "speech", "ui")) {
             assertThat(graph.getOrDefault(pkg, Set.of())).as("%s 패키지의 의존", pkg).doesNotContain("dataaccess");
         }
     }

@@ -1,6 +1,5 @@
 package com.misterworldtour.travel;
 
-import com.misterworldtour.common.MwtProperties;
 
 import org.springframework.stereotype.Component;
 
@@ -38,9 +37,9 @@ public class ProductImages {
         }
     }
 
-    private final MwtProperties properties;
+    private final TravelProperties properties;
 
-    ProductImages(MwtProperties properties) {
+    ProductImages(TravelProperties properties) {
         this.properties = properties;
     }
 

@@ -17,9 +17,8 @@
     <name>mister-world-tour</name>
     <description>미스터 월드 투어 (Spring Boot 판). 구현 서브시스템(계층) 폴더 안에 패키지마다 모듈 하나, mwt-app 이 실행 jar 로 묶는다</description>
 
-    <!-- 계층 폴더(묶음 pom) 안에 패키지 모듈(jar). 의존 방향은 각 모듈 pom 에 (ui → 업무 → common, dataaccess → 업무). app 은 전부를 묶는다 -->
+    <!-- 구현 서브시스템(계층) 폴더 3개 안에 패키지 모듈(jar). 의존 방향은 각 모듈 pom 에 (ui → 업무, dataaccess → 업무). app 은 전부를 묶는다 -->
     <modules>
-        <module>mwt-configuration</module>
         <module>mwt-business</module>
         <module>mwt-persistence</module>
         <module>mwt-presentation</module>

@@ -1,6 +1,5 @@
 package com.misterworldtour.ui;
 
-import com.misterworldtour.common.MwtProperties;
 import com.misterworldtour.members.MemberManagementAPI;
 import com.misterworldtour.members.Role;
 
@@ -23,9 +22,9 @@ public class SignUpFormValidator {
     private static final Map<String, String> FIELDS = Map.of("account", "username", "password", "password1");
 
     private final MemberManagementAPI memberManager;
-    private final MwtProperties properties;
+    private final UiProperties properties;
 
-    SignUpFormValidator(MemberManagementAPI memberManager, MwtProperties properties) {
+    SignUpFormValidator(MemberManagementAPI memberManager, UiProperties properties) {
         this.memberManager = memberManager;
         this.properties = properties;
     }

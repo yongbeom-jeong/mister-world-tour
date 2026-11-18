@@ -88,24 +88,22 @@ Copy-Item .env.example .env            # 필요하면 값 수정 (STAFF_SIGNUP_C
 | `dataaccess` | Data Access | `DataAccessAPI`(업무별 저장 인터페이스를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`, `SouvenirRepository` (+ 문자 기록 `SMSMessageRepository`) |
 | `speech` | Speech Recognition Integration | `SpeechRecognitionAPI`, `SpeechRecognitionManager`, `SpeechServiceClient`, `VoiceSelectionInterpreter` |
 | `sms` | SMS Notification | `SMSNotificationAPI`, `SMSNotificationManager`, `SMSServiceClient`, `SMSMessage` |
-| `common` | (설정) | 보안·로그인 설정, 웹 설정, 프로젝트 설정 값 |
 | `demo` | (데모) | 데모 데이터 `--seed-demo` |
 
 - 화면(View)은 업무 서브시스템의 `*API`/`*Manager` 로만 요청하고, 업무 클래스는 자기 패키지의 저장 인터페이스(`TravelDataAccessAPI` 등)로만 저장·조회한다. 이 인터페이스는 `DataAccessManager` 가 구현하므로 의존은 dataaccess → 업무 한 방향이다.
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다.
-- 구현 서브시스템(계층)은 폴더, 그 안의 패키지마다 Maven 모듈(jar)이 하나다 (예: `mwt-business/mwt-travel`). 모듈 의존은 화면 → 업무 → 설정, 저장 → 업무 방향만 있고, 거꾸로 참조하면 컴파일되지 않는다.
+- 구현 서브시스템(계층)은 폴더, 그 안의 패키지마다 Maven 모듈(jar)이 하나다 (예: `mwt-business/mwt-travel`). 모듈 의존은 화면 → 업무, 저장 → 업무 방향만 있고, 거꾸로 참조하면 컴파일되지 않는다.
 
 ```
 pom.xml, mvnw, mvnw.cmd       부모 Maven 설정 (Spring Boot 4.1, Java 21, 모듈 목록)과 Maven Wrapper
 계층 폴더(묶음 pom) / 패키지 모듈(jar 하나씩)
-mwt-configuration/mwt-common/ Configuration: common (보안·웹 설정, 설정 값)
 mwt-business/                 Business Layer
   mwt-members/ mwt-travel/ mwt-souvenir/ mwt-speech/ mwt-sms/
 mwt-persistence/mwt-dataaccess/   Persistence Layer: dataaccess, resources/db/migration (Flyway 표 생성 SQL)
-mwt-presentation/mwt-ui/      Presentation Layer: ui, resources/templates (Thymeleaf), resources/static (CSS·JS·기본 사진,
+mwt-presentation/mwt-ui/      Presentation Layer: ui (화면, 보안·웹 설정), resources/templates (Thymeleaf), resources/static (CSS·JS·기본 사진,
                               출처: static/img/photos/credits.json → 사이트 푸터 "사진 출처")
 mwt-app/                      실행 모듈: MwtApplication, demo, application*.yml, 테스트(src/test, JUnit 5·MockMvc)
-                              → 실행 jar mwt-app/target/mwt.jar (패키지 모듈 jar 8개를 묶음)
+                              → 실행 jar mwt-app/target/mwt.jar (패키지 모듈 jar 7개를 묶음)
 deploy/                       서버 설치·갱신 스크립트와 배포 안내
 docs/                         계획서·요구분석·설계 산출물 (StarUML, Word, 한글)
 ```

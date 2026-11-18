@@ -1,4 +1,4 @@
-package com.misterworldtour.common;
+package com.misterworldtour.ui;
 
 import com.misterworldtour.members.CustomerRequired;
 import com.misterworldtour.members.StaffRoleRequired;

@@ -1,4 +1,4 @@
-package com.misterworldtour.common;
+package com.misterworldtour.ui;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +23,7 @@ import java.util.Set;
  * <p>로그인만 필요한지는 여기서, 고객/직원 역할은 각 컨트롤러의
  * {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 검사한다 .
  *
- * <p>로그인 성공·실패 처리는 User Interface 가 빈으로 제공하고(ui.LoginHandlers), 여기서는 스프링 인터페이스 타입으로만
- * 받는다. 그래서 common 은 ui 를 참조하지 않는다.
+ * <p>로그인 성공·실패 처리는 {@link LoginHandlers} 빈을 스프링 인터페이스 타입으로 받는다.
  */
 @Configuration
 @EnableMethodSecurity
