@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<rect x="130" y="30" width="1300" height="60" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="120" y="44.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="120" y="64.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="786.0" y="65.0" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.ui</text>
+<rect x="60" y="330" width="230" height="90" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="50" y="354.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="50" y="384.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="181.0" y="380.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.speech</text>
+<rect x="420" y="330" width="300" height="90" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="410" y="354.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="410" y="384.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="576.0" y="380.0" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.travel</text>
+<rect x="900" y="330" width="230" height="90" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="890" y="354.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="890" y="384.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1021.0" y="380.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.souvenir</text>
+<rect x="1260" y="330" width="230" height="90" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="1250" y="354.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="1250" y="384.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1381.0" y="380.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.members</text>
+<rect x="640" y="570" width="260" height="90" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="630" y="594.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="630" y="624.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="776.0" y="620.0" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.sms</text>
+<rect x="1150" y="590" width="190" height="60" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="1140" y="604.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="1140" y="624.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1251.0" y="625.0" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">Solapi</text>
+<rect x="380" y="830" width="1060" height="60" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="370" y="844.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="370" y="864.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="916.0" y="865.0" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.dataaccess</text>
+<path d="M175.0,330.0 L175.0,219.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="175.0" cy="210" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M175.0,90.0 L175.0,195.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M160.0,210.0 A15,15 0 0 1 190.0,210.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="197.0" y="215.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">SpeechRecognitionAPI</text>
+<path d="M570.0,330.0 L570.0,219.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="570.0" cy="210" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M570.0,90.0 L570.0,195.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M555.0,210.0 A15,15 0 0 1 585.0,210.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="592.0" y="215.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">TravelManagementAPI</text>
+<path d="M1015.0,330.0 L1015.0,219.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1015.0" cy="210" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1015.0,90.0 L1015.0,195.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1000.0,210.0 A15,15 0 0 1 1030.0,210.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1037.0" y="215.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">SouvenirManagementAPI</text>
+<path d="M1375.0,330.0 L1375.0,219.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1375.0" cy="210" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1375.0,90.0 L1375.0,195.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1360.0,210.0 A15,15 0 0 1 1390.0,210.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1397.0" y="215.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">MemberManagementAPI</text>
+<path d="M860.0,570.0 L860.0,529.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="860" cy="520" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M860.0,90.0 L860.0,505.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M845.0,520.0 A15,15 0 0 1 875.0,520.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="882.0" y="525.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">SMSNotificationAPI</text>
+<path d="M890.0,375.0 L799.0,375.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="790" cy="375" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M720.0,375.0 L775.0,375.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M790.0,390.0 A15,15 0 0 1 790.0,360.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="790.0" y="350.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">SouvenirStockAPI</text>
+<path d="M680.0,570.0 L680.0,504.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="680" cy="495" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M680.0,420.0 L680.0,480.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M665.0,495.0 A15,15 0 0 1 695.0,495.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="560.0" y="500.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">SMSNotificationAPI</text>
+<path d="M1320.0,420.0 L1320.0,455.0 L1209.0,455.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1200" cy="455" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M600.0,420.0 L600.0,455.0 L1185.0,455.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1200.0,470.0 A15,15 0 0 1 1200.0,440.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1200.0" y="440.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">MemberManagementAPI</text>
+<path d="M1140.0,615.0 L1029.0,615.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1020" cy="615" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M900.0,615.0 L1005.0,615.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1020.0,630.0 A15,15 0 0 1 1020.0,600.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1020.0" y="592.0" font-size="13" text-anchor="middle" fill="#000" font-weight="bold">Solapi SMS API</text>
+<path d="M470.0,830.0 L470.0,779.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="470" cy="770" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M470.0,420.0 L470.0,755.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M455.0,770.0 A15,15 0 0 1 485.0,770.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="490.0" y="800.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">TravelDataAccessAPI</text>
+<path d="M770.0,830.0 L770.0,779.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="770" cy="770" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M770.0,660.0 L770.0,755.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M755.0,770.0 A15,15 0 0 1 785.0,770.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="790.0" y="800.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">SMSMessageDataAccessAPI</text>
+<path d="M1100.0,830.0 L1100.0,779.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1100" cy="770" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1100.0,420.0 L1100.0,755.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1085.0,770.0 A15,15 0 0 1 1115.0,770.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1120.0" y="800.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">SouvenirDataAccessAPI</text>
+<path d="M1375.0,830.0 L1375.0,779.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<circle cx="1375" cy="770" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M1375.0,420.0 L1375.0,755.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1360.0,770.0 A15,15 0 0 1 1390.0,770.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="1395.0" y="800.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">MemberDataAccessAPI</text>
+<path d="M290.0,400.0 L410.0,400.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M399.0,394.8 L410.0,400.0 L399.0,405.2" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1130.0,400.0 L1250.0,400.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M1239.0,394.8 L1250.0,400.0 L1239.0,405.2" fill="none" stroke="#000" stroke-width="1.5"/>
+</svg>

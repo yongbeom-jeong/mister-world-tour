@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="504" viewBox="0 0 1300 504" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<rect x="480.0" y="215.0" width="340" height="205.5" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="470.0" y="277.5" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="470.0" y="346.0" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="656.0" y="322.8" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.sms</text>
+<path d="M625.0,45.0 L661.0,45.0 L675.0,59.0 L675.0,109.0 L625.0,109.0 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M661.0,45.0 L661.0,59.0 L675.0,59.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="650.0" y="129.0" font-size="15" text-anchor="middle" fill="#000" font-weight="bold">mwt-sms.jar</text>
+<path d="M650.0,139.0 L650.0,215.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
+<path d="M655.2,204.0 L650.0,215.0 L644.8,204.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="580.0" y="175.0" font-size="13" text-anchor="middle" fill="#000">«Implementation»</text>
+<rect x="60" y="180.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="202.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSNotificationAPI</text>
+<path d="M310.0,197.8 L465.5,238.3" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M467.5,230.6 L480.0,242.1 L463.5,246.1 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="60" y="228.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="250.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSNotificationManager</text>
+<path d="M310.0,245.8 L465.1,265.6" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M466.1,257.7 L480.0,267.5 L464.1,273.5 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="60" y="276.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="298.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSMessage</text>
+<path d="M310.0,293.8 L465.0,301.8" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M465.4,293.9 L480.0,302.6 L464.6,309.8 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="60" y="324.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="346.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSServiceClient</text>
+<path d="M310.0,341.8 L465.0,333.7" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M464.6,325.7 L480.0,332.9 L465.4,341.6 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="60" y="372.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="394.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SolapiSMSClient</text>
+<path d="M310.0,389.8 L465.1,369.9" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M464.1,362.0 L480.0,368.0 L466.1,377.8 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="60" y="420.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="185.0" y="442.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">ConsoleSMSClient</text>
+<path d="M310.0,437.8 L465.5,397.2" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M463.5,389.4 L480.0,393.4 L467.5,404.9 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="990" y="204.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1115.0" y="226.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">FlakyDemoSMSClient</text>
+<path d="M990.0,221.8 L834.9,243.1" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M836.0,251.0 L820.0,245.2 L833.8,235.2 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="990" y="252.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1115.0" y="274.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSConfig</text>
+<path d="M990.0,269.8 L835.0,280.4" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M835.5,288.4 L820.0,281.4 L834.4,272.4 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="990" y="300.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1115.0" y="322.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSProperties</text>
+<path d="M990.0,317.8 L835.0,317.8" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M835.0,325.8 L820.0,317.8 L835.0,309.8 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="990" y="348.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1115.0" y="370.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SendTestSMSRunner</text>
+<path d="M990.0,365.8 L835.0,355.1" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M834.4,363.1 L820.0,354.1 L835.5,347.1 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<rect x="990" y="396.75" width="250" height="34" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="1115.0" y="418.8" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">SMSMessageDataAccessAPI</text>
+<path d="M990.0,413.8 L834.9,392.4" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+<path d="M833.8,400.3 L820.0,390.4 L836.0,384.5 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+</svg>

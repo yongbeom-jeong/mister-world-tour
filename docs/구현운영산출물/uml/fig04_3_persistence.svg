@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="284" viewBox="0 0 540 284" font-family="Arial,'Malgun Gothic','맑은 고딕',sans-serif">
+<rect width="100%" height="100%" fill="#fff"/>
+<rect x="40" y="40" width="460" height="204" fill="#fff" stroke="#000" stroke-width="1.7"/>
+<text x="270.0" y="66.0" font-size="12" text-anchor="middle" fill="#000">«subsystem»</text>
+<text x="270.0" y="86.0" font-size="17" text-anchor="middle" fill="#000" font-weight="bold">Persistence Layer</text>
+<path d="M476,52 L476,60 M466,70 L466,60 L486,60 L486,70 M476,60 L476,70" fill="none" stroke="#000" stroke-width="1.5"/>
+<rect x="120.0" y="130" width="300" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<rect x="110.0" y="145.3" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<rect x="110.0" y="166.7" width="20" height="12" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="276.0" y="167.0" font-size="14" text-anchor="middle" fill="#000" font-weight="bold">com.misterworldtour.dataaccess</text>
+</svg>
