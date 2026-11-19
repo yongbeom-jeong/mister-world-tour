@@ -26498,7 +26498,7 @@
 								"$ref": "MWT_UCD_VIEW_MWT_UCD_UC3"
 							},
 							"lineStyle": 1,
-							"points": "766:454;890:400;894:316",
+							"points": "700:460;896:316",
 							"nameLabel": {
 								"$ref": "AAAAAAGhEemTNBom7k0="
 							},
@@ -29098,7 +29098,7 @@
 									"font": "Arial;22;0",
 									"parentStyle": false,
 									"showShadow": false,
-									"left": 650,
+									"left": 578.5,
 									"top": 2045,
 									"width": 23,
 									"height": 20
@@ -29116,7 +29116,7 @@
 									"font": "Arial;22;0",
 									"parentStyle": false,
 									"showShadow": false,
-									"left": 648,
+									"left": 577,
 									"top": 2105,
 									"width": 26,
 									"height": 26
@@ -29617,7 +29617,7 @@
 										"$ref": "MWT_OVERALL_LOGIN_ENTRY_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "661:205;660:233",
+									"points": "661:205;661:233",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTOBt+0kE="
@@ -30229,7 +30229,7 @@
 										"$ref": "MWT_OVERALL_MODE_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "296:784;269:784;268:837",
+									"points": "296:784;268:784;268:837",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_FLOW_11_LABEL"
@@ -30433,7 +30433,7 @@
 										"$ref": "MWT_OVERALL_GUI_SELECT_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "268:933;269:979;356:979",
+									"points": "268:933;268:979;356:979",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTOBui09g="
@@ -31145,7 +31145,7 @@
 										"$ref": "MWT_OVERALL_DEPARTURE_RULE_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "438:1409;590:1409;590:2015;661:2015;661:2044",
+									"points": "438:1409;590:1409;590:2044",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_FLOW_20_LABEL"
@@ -31245,7 +31245,7 @@
 										"$ref": "MWT_OVERALL_CONFIRM_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "367:1611;368:1639",
+									"points": "368:1611;368:1639",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTORvFSZs="
@@ -31345,7 +31345,7 @@
 										"$ref": "MWT_OVERALL_SMS_TARGET_MERGE_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "368:1661;367:1689",
+									"points": "368:1661;368:1689",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTORvJ5kE="
@@ -31445,7 +31445,7 @@
 										"$ref": "MWT_OVERALL_SMS_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "367:1861;367:2055;649:2055",
+									"points": "367:1861;367:2055;578:2055",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTORvNQL0="
@@ -31549,7 +31549,7 @@
 										"$ref": "MWT_OVERALL_STAFF_TASK_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "881:464;652:464;652:716;671:716",
+									"points": "881:464;782:464;782:677",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_FLOW_24_LABEL"
@@ -31653,7 +31653,7 @@
 										"$ref": "MWT_OVERALL_STAFF_TASK_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "952:500;953:798",
+									"points": "953:500;953:798",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_FLOW_25_LABEL"
@@ -32061,7 +32061,7 @@
 										"$ref": "MWT_OVERALL_HAS_APPLICATIONS_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "1023:1001;1149:1004",
+									"points": "1023:999;1149:999",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_FLOW_29_LABEL"
@@ -32265,7 +32265,7 @@
 										"$ref": "MWT_OVERALL_REJECT_MODIFY_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "1356:1008;1390:1008;1390:809;966:809",
+									"points": "1252:969;1252:809;966:809",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTORvy498="
@@ -32565,7 +32565,7 @@
 										"$ref": "MWT_OVERALL_STOCK_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "1223:725;1450:726;1450:1610;966:1610",
+									"points": "1223:725;1450:725;1450:1610;966:1610",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTOhv+ggM="
@@ -32665,7 +32665,7 @@
 										"$ref": "MWT_OVERALL_STAFF_MERGE_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "953:1621;953:2055;674:2055",
+									"points": "953:1621;953:2055;602:2055",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTOhwCdnc="
@@ -32765,7 +32765,7 @@
 										"$ref": "MWT_OVERALL_COMPLETION_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "661:2066;661:2104",
+									"points": "590:2066;590:2104",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "AAAAAAGhEemTOhwGDFc="
@@ -33703,7 +33703,7 @@
 										"$ref": "MWT_OVERALL_DELETE_CONFIRMED_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "1211:1395;1420:1395;1420:809;966:809",
+									"points": "1211:1395;1390:1395;1390:809;966:809",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_DELETE_CANCEL_LABEL_2"
@@ -33911,7 +33911,7 @@
 										"$ref": "MWT_OVERALL_DEPARTURE_RULE_VIEW"
 									},
 									"lineStyle": 1,
-									"points": "296:1417;240:1424;240:1580;261:1580",
+									"points": "325:1423;240:1423;240:1580;261:1580",
 									"showProperty": false,
 									"nameLabel": {
 										"$ref": "MWT_OVERALL_HONEYMOON_FLOW_LABEL_2"

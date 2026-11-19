@@ -99,6 +99,5 @@
 <text x="1395.0" y="800.0" font-size="13" text-anchor="start" fill="#000" font-weight="bold">MemberDataAccessAPI</text>
 <path d="M290.0,400.0 L410.0,400.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
 <path d="M399.0,394.8 L410.0,400.0 L399.0,405.2" fill="none" stroke="#000" stroke-width="1.5"/>
-<path d="M1130.0,400.0 L1250.0,400.0" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="7 5"/>
-<path d="M1239.0,394.8 L1250.0,400.0 L1239.0,405.2" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M1000.0,420.0 L1000.0,455.0" fill="none" stroke="#000" stroke-width="1.5"/>
 </svg>
