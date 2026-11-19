@@ -4745,8 +4745,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MemberView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "228:457;230:527",
+									"lineStyle": 0,
+									"points": "230:474;230:528",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -4845,8 +4845,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MemberView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "220:231;218:157",
+									"lineStyle": 0,
+									"points": "216:232;216:156",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -4945,8 +4945,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TravelProductView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1369:403;1448:424;1424:1288;889:1296",
+									"lineStyle": 0,
+									"points": "1368:400;1430:400;1430:1320;888:1320",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -5045,8 +5045,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TravelApplicationView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1032:770;980:770;980:1280;888:1280",
+									"lineStyle": 0,
+									"points": "1376:700;1400:700;1400:1300;888:1300",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -5145,8 +5145,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_SouvenirStockView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "724:231;724:165",
+									"lineStyle": 0,
+									"points": "724:232;724:164",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -5245,8 +5245,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TravelProductView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1202:239;1201:165",
+									"lineStyle": 0,
+									"points": "1200:240;1200:164",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -5344,8 +5344,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "838:551;1039:446",
+									"lineStyle": 0,
+									"points": "886:570;960:570;960:360;1040:360",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWXWHT5RPpo="
@@ -5442,8 +5442,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "887:634;1031:648",
+									"lineStyle": 0,
+									"points": "886:620;1032:620",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWYI0z5qb44="
@@ -5540,8 +5540,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "714:551;719:433",
+									"lineStyle": 0,
+									"points": "724:552;724:432",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWY6gj6DOxc="
@@ -5638,8 +5638,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "535:604;361:591",
+									"lineStyle": 0,
+									"points": "536:590;360:590",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWdULD6chl0="
@@ -5736,8 +5736,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "711:683;711:783",
+									"lineStyle": 0,
+									"points": "712:682;712:784",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWeaIz64RvI="
@@ -5834,8 +5834,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "593:551;321:398",
+									"lineStyle": 0,
+									"points": "600:552;600:450;495:450",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWewkz7Rcpg="
@@ -5932,8 +5932,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_MemberView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "321:398;593:551",
+									"lineStyle": 0,
+									"points": "495:450;600:450;600:552",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWicFD8F4+Q="
@@ -6030,8 +6030,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TourProductAdminView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "712:1161;712:1247",
+									"lineStyle": 0,
+									"points": "712:1188;712:1248",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWlaTD8qLOM="
@@ -6128,8 +6128,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TravelProductView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1204:481;1204:551",
+									"lineStyle": 0,
+									"points": "1204:480;1204:552",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWm8Yz9FnK0="
@@ -6226,8 +6226,8 @@
 									"tail": {
 										"$ref": "MWT_UI_CLASS_TravelHistoryView_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "104:600;84:600;84:1300;536:1300",
+									"lineStyle": 0,
+									"points": "104:600;84:600;84:1290;536:1290",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhGWpYUD9irvI="
@@ -7260,7 +7260,7 @@
 										"$ref": "MWT_S3_CLSV_1"
 									},
 									"lineStyle": 0,
-									"points": "232.0:720.0;232.0:1060.0",
+									"points": "232:888;232:1010",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -7360,7 +7360,7 @@
 										"$ref": "MWT_S3_CLSV_13"
 									},
 									"lineStyle": 0,
-									"points": "1220.0:860.0;1220.0:1140.0",
+									"points": "1220:956;1220:1090",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -7459,7 +7459,7 @@
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
 									"lineStyle": 0,
-									"points": "536:660;360:770",
+									"points": "536:670;300:670;300:700",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "MWT_S3_RELV_10"
@@ -7557,7 +7557,7 @@
 										"$ref": "MWT_UI_CLASS_MainView_VIEW"
 									},
 									"lineStyle": 0,
-									"points": "886:672;1070:900",
+									"points": "886:660;980:660;980:898;1070:898",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "MWT_S3_RELV_14"
@@ -9804,8 +9804,8 @@
 									"tail": {
 										"$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "395:299;395:191",
+									"lineStyle": 0,
+									"points": "395:300;395:190",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -9904,8 +9904,8 @@
 									"tail": {
 										"$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "395:416;395:564",
+									"lineStyle": 0,
+									"points": "395:415;395:565",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -10004,8 +10004,8 @@
 									"tail": {
 										"$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "508:416;650:490;1050:490;1050:594",
+									"lineStyle": 0,
+									"points": "720:380;810:380;810:680;850:680",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -10104,8 +10104,8 @@
 									"tail": {
 										"$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "721:351;849:349",
+									"lineStyle": 0,
+									"points": "720:345;850:345",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -10400,8 +10400,8 @@
 									"tail": {
 										"$ref": "MWT_MM_CLASS_MemberManager_MM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "720:400;790:400;790:870;850:870",
+									"lineStyle": 0,
+									"points": "720:405;790:405;790:852;850:852",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -13584,7 +13584,7 @@
 									"showShadow": false,
 									"left": 688,
 									"top": 288,
-									"width": 680,
+									"width": 892,
 									"height": 210,
 									"stereotypeDisplay": "none",
 									"showProperty": false,
@@ -15996,7 +15996,7 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"points": "1056:288;1056:205",
+									"points": "1040:288;1040:205",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -16007,7 +16007,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhIBlN15PGrp4="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -16095,7 +16096,7 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"points": "1024:498;1024:632",
+									"points": "1024:504;1024:632",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -16106,7 +16107,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhIBlN15PO9iw="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -16205,7 +16207,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhIBlN15PS638="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -16293,7 +16296,7 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"points": "1288:498;1288:560;1456:560",
+									"points": "1288:504;1288:560;1456:560",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -16304,7 +16307,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhIBlN15PWiOY="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLAssociationView",
@@ -16969,8 +16973,8 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelPriceCalculator_TM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "337:239;317:287",
+									"lineStyle": 0,
+									"points": "264:238;264:288",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhIBtwwaZNuCk="
@@ -17068,7 +17072,7 @@
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
 									"lineStyle": 0,
-									"points": "1580:290;1640:282",
+									"points": "1579:310;1640:310",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhIBxFMLNhJTQ="
@@ -17166,7 +17170,7 @@
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
 									"lineStyle": 0,
-									"points": "1580:410;1640:410",
+									"points": "1579:410;1640:410",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhIBxhlrR9cYQ="
@@ -17263,8 +17267,8 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "687:402;449:408",
+									"lineStyle": 0,
+									"points": "688:400;448:400",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhIB5IBrwwUck="
@@ -17361,8 +17365,8 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "830:499;672:584",
+									"lineStyle": 0,
+									"points": "760:504;760:640;671:640",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhIB5Wn7z9kO0="
@@ -17656,7 +17660,7 @@
 									"tail": {
 										"$ref": "MWT_TM_CLASS_TravelManager_TM_VIEW"
 									},
-									"lineStyle": 1,
+									"lineStyle": 0,
 									"points": "1500:288;1500:146;1640:146",
 									"showVisibility": true,
 									"nameLabel": {
@@ -20239,7 +20243,7 @@
 									"tail": {
 										"$ref": "MWT_SV_CLASS_SouvenirManager_SV_VIEW"
 									},
-									"points": "488:282;488:152",
+									"points": "483:282;483:228",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -20250,7 +20254,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhI9WTTYVgYvA="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -20338,7 +20343,7 @@
 									"tail": {
 										"$ref": "MWT_SV_CLASS_SouvenirManager_SV_VIEW"
 									},
-									"points": "720:352;864:472",
+									"points": "720:455;864:455",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -20349,7 +20354,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhI9WTTYVk5WY="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -20437,7 +20443,7 @@
 									"tail": {
 										"$ref": "MWT_SV_CLASS_SouvenirManager_SV_VIEW"
 									},
-									"points": "344:412;344:686",
+									"points": "344:498;344:686",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -20448,7 +20454,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhI9WTTYVoTic="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLDependencyView",
@@ -20536,7 +20543,7 @@
 									"tail": {
 										"$ref": "MWT_SV_CLASS_SouvenirManager_SV_VIEW"
 									},
-									"points": "632:412;632:686",
+									"points": "632:498;632:686",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -20547,7 +20554,8 @@
 									},
 									"propertyLabel": {
 										"$ref": "AAAAAAGhI9WTTYVsGEA="
-									}
+									},
+									"lineStyle": 0
 								},
 								{
 									"_type": "UMLInterfaceView",
@@ -21195,7 +21203,7 @@
 									"tail": {
 										"$ref": "MWT_SV_CLASS_SouvenirManager_SV_VIEW"
 									},
-									"points": "690:498;690:570;1229:570;1229:686",
+									"points": "690:498;690:600;1229:600;1229:686",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -21207,7 +21215,7 @@
 									"propertyLabel": {
 										"$ref": "MWT_S3_RELV_32"
 									},
-									"lineStyle": 1
+									"lineStyle": 0
 								}
 							]
 						},
@@ -21295,6 +21303,45 @@
 							},
 							"source": {
 								"$ref": "MWT_ARCH_SOUVENIR"
+							},
+							"target": {
+								"$ref": "MWT_ARCH_TRAVEL"
+							}
+						},
+						{
+							"_type": "UMLDependency",
+							"_id": "MWT_S4_REL_1",
+							"_parent": {
+								"$ref": "MWT_ARCH_SOUVENIR"
+							},
+							"source": {
+								"$ref": "MWT_ARCH_TRAVEL"
+							},
+							"target": {
+								"$ref": "MWT_ARCH_MEMBER"
+							}
+						},
+						{
+							"_type": "UMLDependency",
+							"_id": "MWT_S4_REL_2",
+							"_parent": {
+								"$ref": "MWT_ARCH_SOUVENIR"
+							},
+							"source": {
+								"$ref": "MWT_ARCH_SOUVENIR"
+							},
+							"target": {
+								"$ref": "MWT_ARCH_MEMBER"
+							}
+						},
+						{
+							"_type": "UMLDependency",
+							"_id": "MWT_S4_REL_3",
+							"_parent": {
+								"$ref": "MWT_ARCH_SOUVENIR"
+							},
+							"source": {
+								"$ref": "MWT_ARCH_SPEECH"
 							},
 							"target": {
 								"$ref": "MWT_ARCH_TRAVEL"
@@ -24151,7 +24198,7 @@
 									"showShadow": false,
 									"left": 1064,
 									"top": 480,
-									"width": 320,
+									"width": 560,
 									"height": 80,
 									"showProperty": false,
 									"showType": false,
@@ -26316,8 +26363,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_DataAccessManager_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "969:519;1063:519",
+									"lineStyle": 0,
+									"points": "1020:520;1064:520",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -26416,8 +26463,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_MemberRepository_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "256:191;255:145",
+									"lineStyle": 0,
+									"points": "255:192;255:144",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -26515,8 +26562,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_DataAccessManager_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "647:518;519:517",
+									"lineStyle": 0,
+									"points": "648:520;518:520",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhG6KmVPsR+QQ="
@@ -26613,8 +26660,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_DataAccessManager_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "808:417;808:256;417:257",
+									"lineStyle": 0,
+									"points": "800:418;800:257;416:257",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhG6LOI/stpSQ="
@@ -26711,8 +26758,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_DataAccessManager_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "808:619;808:808;497:805",
+									"lineStyle": 0,
+									"points": "800:690;800:827;496:827",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGhG6Lc4/tGq8U="
@@ -27063,8 +27110,8 @@
 									"tail": {
 										"$ref": "MWT_DA_CLASS_DataAccessManager_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "860:700;860:1060;496:1060",
+									"lineStyle": 0,
+									"points": "860:690;860:1073;496:1073",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "MWT_S3_RELV_34"
@@ -27355,8 +27402,8 @@
 									"tail": {
 										"$ref": "MWT_DA_API_DataAccessAPI_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1164:480;1195:420;1195:260",
+									"lineStyle": 0,
+									"points": "1195:480;1195:260",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -27648,8 +27695,8 @@
 									"tail": {
 										"$ref": "MWT_DA_API_DataAccessAPI_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1284:480;1545:420;1545:260",
+									"lineStyle": 0,
+									"points": "1545:480;1545:260",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -27941,8 +27988,8 @@
 									"tail": {
 										"$ref": "MWT_DA_API_DataAccessAPI_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1164:560;1195:620;1195:700",
+									"lineStyle": 0,
+									"points": "1195:560;1195:700",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -28234,8 +28281,8 @@
 									"tail": {
 										"$ref": "MWT_DA_API_DataAccessAPI_DA_VIEW"
 									},
-									"lineStyle": 1,
-									"points": "1284:560;1545:620;1545:700",
+									"lineStyle": 0,
+									"points": "1545:560;1545:700",
 									"stereotypeDisplay": "none",
 									"showProperty": false,
 									"nameLabel": {
@@ -34035,8 +34082,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_UI_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "398:136;240:244",
+							"lineStyle": 0,
+							"points": "400:135;400:200;170:200;170:260",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34135,8 +34182,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_UI_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "542:136;700:244",
+							"lineStyle": 0,
+							"points": "540:135;540:200;770:200;770:260",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34235,8 +34282,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_UI_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "470:136;470:244",
+							"lineStyle": 0,
+							"points": "470:135;470:260",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34335,8 +34382,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_UI_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "581:87;749:87",
+							"lineStyle": 0,
+							"points": "580:95;750:95",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34435,8 +34482,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_TRAVEL_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "770:341;770:489",
+							"lineStyle": 0,
+							"points": "770:340;770:505",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34536,7 +34583,7 @@
 								"$ref": "MWT_ARCH_DATA_VIEW"
 							},
 							"lineStyle": 0,
-							"points": "360:510;170:340",
+							"points": "360:545;170:545;170:340",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34636,7 +34683,7 @@
 								"$ref": "MWT_ARCH_DATA_VIEW"
 							},
 							"lineStyle": 0,
-							"points": "470:490;470:340",
+							"points": "470:505;470:340",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34736,7 +34783,7 @@
 								"$ref": "MWT_ARCH_DATA_VIEW"
 							},
 							"lineStyle": 0,
-							"points": "580:500;720:340",
+							"points": "560:505;560:420;720:420;720:340",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34836,7 +34883,7 @@
 								"$ref": "MWT_ARCH_DATA_VIEW"
 							},
 							"lineStyle": 0,
-							"points": "580:537;660:537",
+							"points": "580:545;660:545",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -34936,7 +34983,7 @@
 								"$ref": "MWT_ARCH_SOUVENIR_VIEW"
 							},
 							"lineStyle": 0,
-							"points": "580:292;660:292",
+							"points": "580:300;660:300",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -35035,8 +35082,8 @@
 							"tail": {
 								"$ref": "MWT_ARCH_UI_VIEW"
 							},
-							"lineStyle": 1,
-							"points": "560:135;560:190;950:190;950:537;880:537",
+							"lineStyle": 0,
+							"points": "570:135;570:160;950:160;950:545;880:545",
 							"stereotypeDisplay": "none",
 							"showProperty": false,
 							"nameLabel": {
@@ -35047,6 +35094,306 @@
 							},
 							"propertyLabel": {
 								"$ref": "MWT_S3_RELV_92"
+							}
+						},
+						{
+							"_type": "UMLDependencyView",
+							"_id": "MWT_S4_RELV_1",
+							"_parent": {
+								"$ref": "MWT_ARCH_DIAGRAM"
+							},
+							"model": {
+								"$ref": "MWT_S4_REL_1"
+							},
+							"subViews": [
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_2",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_1"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 784,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_3",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_1"
+									},
+									"visible": null,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 799,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 30,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_4",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_1"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 755,
+									"top": 409,
+									"height": 13,
+									"alpha": -1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_1"
+									},
+									"edgePosition": 1
+								}
+							],
+							"font": "Arial;16;0",
+							"parentStyle": false,
+							"showShadow": false,
+							"head": {
+								"$ref": "MWT_ARCH_MEMBER_VIEW"
+							},
+							"tail": {
+								"$ref": "MWT_ARCH_TRAVEL_VIEW"
+							},
+							"lineStyle": 0,
+							"points": "800:260;800:230;240:230;240:260",
+							"stereotypeDisplay": "none",
+							"showProperty": false,
+							"nameLabel": {
+								"$ref": "MWT_S4_RELV_2"
+							},
+							"stereotypeLabel": {
+								"$ref": "MWT_S4_RELV_3"
+							},
+							"propertyLabel": {
+								"$ref": "MWT_S4_RELV_4"
+							}
+						},
+						{
+							"_type": "UMLDependencyView",
+							"_id": "MWT_S4_RELV_5",
+							"_parent": {
+								"$ref": "MWT_ARCH_DIAGRAM"
+							},
+							"model": {
+								"$ref": "MWT_S4_REL_2"
+							},
+							"subViews": [
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_6",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_2"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 784,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_7",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_2"
+									},
+									"visible": null,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 799,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 30,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_8",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_2"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 755,
+									"top": 409,
+									"height": 13,
+									"alpha": -1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_5"
+									},
+									"edgePosition": 1
+								}
+							],
+							"font": "Arial;16;0",
+							"parentStyle": false,
+							"showShadow": false,
+							"head": {
+								"$ref": "MWT_ARCH_MEMBER_VIEW"
+							},
+							"tail": {
+								"$ref": "MWT_ARCH_SOUVENIR_VIEW"
+							},
+							"lineStyle": 0,
+							"points": "360:300;280:300",
+							"stereotypeDisplay": "none",
+							"showProperty": false,
+							"nameLabel": {
+								"$ref": "MWT_S4_RELV_6"
+							},
+							"stereotypeLabel": {
+								"$ref": "MWT_S4_RELV_7"
+							},
+							"propertyLabel": {
+								"$ref": "MWT_S4_RELV_8"
+							}
+						},
+						{
+							"_type": "UMLDependencyView",
+							"_id": "MWT_S4_RELV_9",
+							"_parent": {
+								"$ref": "MWT_ARCH_DIAGRAM"
+							},
+							"model": {
+								"$ref": "MWT_S4_REL_3"
+							},
+							"subViews": [
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_10",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_3"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 784,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_11",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_3"
+									},
+									"visible": null,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 799,
+									"top": 408,
+									"height": 13,
+									"alpha": 1.5707963267948966,
+									"distance": 30,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"edgePosition": 1
+								},
+								{
+									"_type": "EdgeLabelView",
+									"_id": "MWT_S4_RELV_12",
+									"_parent": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"model": {
+										"$ref": "MWT_S4_REL_3"
+									},
+									"visible": false,
+									"font": "Arial;13;0",
+									"parentStyle": false,
+									"left": 755,
+									"top": 409,
+									"height": 13,
+									"alpha": -1.5707963267948966,
+									"distance": 15,
+									"hostEdge": {
+										"$ref": "MWT_S4_RELV_9"
+									},
+									"edgePosition": 1
+								}
+							],
+							"font": "Arial;16;0",
+							"parentStyle": false,
+							"showShadow": false,
+							"head": {
+								"$ref": "MWT_ARCH_TRAVEL_VIEW"
+							},
+							"tail": {
+								"$ref": "MWT_ARCH_SPEECH_VIEW"
+							},
+							"lineStyle": 0,
+							"points": "860:135;860:260",
+							"stereotypeDisplay": "none",
+							"showProperty": false,
+							"nameLabel": {
+								"$ref": "MWT_S4_RELV_10"
+							},
+							"stereotypeLabel": {
+								"$ref": "MWT_S4_RELV_11"
+							},
+							"propertyLabel": {
+								"$ref": "MWT_S4_RELV_12"
 							}
 						}
 					]

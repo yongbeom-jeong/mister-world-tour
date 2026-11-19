@@ -4373,7 +4373,7 @@
 												"$ref": "MWTI_00023"
 											},
 											"target": {
-												"$ref": "MWTI_00021"
+												"$ref": "MWTI_00214"
 											}
 										}
 									]
@@ -15190,13 +15190,13 @@
 									"parentStyle": false,
 									"showShadow": false,
 									"head": {
-										"$ref": "MWTI_00297"
+										"$ref": "MWTI_00468"
 									},
 									"tail": {
 										"$ref": "MWTI_00287"
 									},
 									"lineStyle": 1,
-									"points": "1130:400;1132:400;1248:400;1250:400",
+									"points": "1000:420;1000:422;1000:455;1198:455;1200:455",
 									"stereotypeDisplay": "none",
 									"showVisibility": true,
 									"showProperty": false,

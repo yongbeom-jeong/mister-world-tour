@@ -5964,7 +5964,7 @@
 								"$ref": "MWT_UCD_VIEW_MWT_UCD_UC3"
 							},
 							"lineStyle": 1,
-							"points": "766:454;890:400;894:316",
+							"points": "700:460;896:316",
 							"nameLabel": {
 								"$ref": "AAAAAAGhEemTNBom7k0="
 							},
