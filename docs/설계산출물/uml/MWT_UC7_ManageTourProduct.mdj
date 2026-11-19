@@ -8722,7 +8722,7 @@
 														"$ref": "MWT_UC7_ed9e5033a9a34761946a38bdca4a9b3f"
 													},
 													"edgePosition": 1,
-													"text": "ModifyTourProduct(productId, productName, theme, level, basePrice, travelPeriod, departureDate)",
+													"text": "ModifyTourProduct(productId, productName, theme, level, destination, description, basePrice, travelPeriod, departureDate, image)",
 													"fillColor": "transparent",
 													"fontColor": "#000000"
 												},
@@ -9917,7 +9917,7 @@
 													"width": 266,
 													"height": 15,
 													"alpha": 1.5707963267948966,
-													"distance": 12,
+													"distance": 173.6,
 													"hostEdge": {
 														"$ref": "MWT_UC7_bc785d6308bf42669ab94eeb369ce5d0"
 													},
@@ -10051,7 +10051,7 @@
 													"width": 140,
 													"height": 15,
 													"alpha": 1.5707963267948966,
-													"distance": 12,
+													"distance": 98.0,
 													"hostEdge": {
 														"$ref": "MWT_UC7_07844f281a8d42fea7b7e3c10d70122c"
 													},
@@ -12960,10 +12960,7 @@
 									},
 									"sequenceNumber": "18",
 									"documentation": "",
-									"name": "ModifyTourProduct(productId, productName, theme, level, basePrice, travelPeriod, departureDate)",
-									"signature": {
-										"$ref": "MWT_UC7_48b14b372a514720b0794d9901b2b7f8"
-									}
+									"name": "ModifyTourProduct(productId, productName, theme, level, destination, description, basePrice, travelPeriod, departureDate, image)"
 								},
 								{
 									"_type": "UMLMessage",

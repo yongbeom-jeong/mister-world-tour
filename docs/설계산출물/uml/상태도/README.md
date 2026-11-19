@@ -1,6 +1,6 @@
 # Mister World Tour Object State Diagrams
 
-Updated: 2026-10-12
+Updated: 2026-11-19
 
 Three native UML state machines, with English model text and neutral black-and-white presentation. Transitions now show only concise events and guards. Repeated work is described inside states or in model documentation.
 
@@ -21,11 +21,11 @@ Call events bind actual operations in the copied class context. when(...) denote
 
 ## SMSMessage
 
-Pending, Success, Failure and Unknown correspond to SMSDeliveryStatus. record is the existing RecordResult(result) call event. Its success, failure and unknown guards select the recorded outcome. Entry actions in the three result states specify the existing operation's attemptCount increment exactly once per result. The Failure self-transition is external and repeats this entry action. The constructor initializes attemptCount to zero. The manager checks CanRetry before each external retry, allowing four total attempts. Success, Unknown or the fourth confirmed failure completes handling without deleting the object.
+Pending, Success, Failure and Unknown correspond to SMSDeliveryStatus. record is the existing RecordResult(result) call event. Its success, failure and unknown guards select the recorded outcome. Entry actions in the three result states specify the existing operation's attemptCount increment exactly once per result. The Failure self-transition is external and repeats this entry action. The constructor initializes attemptCount to zero. The manager checks CanRetry before each external retry, allowing four total attempts. Success, Unknown or the fourth confirmed failure completes handling without deleting the object. resend binds the staff ResendMessage call: Failure, Unknown (only when duplicate delivery is confirmed acceptable) and a Pending record older than five minutes (stale) return to Pending and start a new round of up to four attempts on the same record.
 
 ## TravelApplicationView
 
-Editing, Reviewing, Reviewed, Submitting, Outcome Unknown and Registered describe the screen after ShowApplication initializes it. review binds ReviewApplication(); submit and retry bind SubmitTravelApplication(). valid means an accepted unchanged review. ok and failed partition the review result. saved means confirmed registration; unknown means unresolved commit; retryable means confirmed non-commit with valid review; recheck means confirmed non-commit requiring another review. same request requires the original key and reviewed content. Editing entry invalidates review data without discarding product, configuration or traveler input. A saved application stays successful regardless of SMS failure.
+Editing, Reviewing, Reviewed, Submitting, Outcome Unknown and Registered describe the screen after ShowApplication initializes it. review binds ReviewApplication(); submit and retry bind SubmitTravelApplication(). valid means an accepted unchanged review. ok and failed partition the review result. saved means confirmed registration; unknown means unresolved commit; retryable means confirmed non-commit with valid review; recheck means confirmed non-commit requiring another review. same request requires the original key and reviewed content. Editing entry invalidates review data without discarding product, configuration or traveler input. A saved application stays successful regardless of SMS failure. cancel binds CancelApplication(); cancellable means the application is not departure-confirmed, its departure date has not passed and it is not already cancelled. Cancelled shows the cancellation result.
 
 ## SouvenirStockView
 
