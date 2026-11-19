@@ -1,67 +1,95 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1262" viewBox="0 0 1400 1262"><rect width="100%" height="100%" fill="white"/>
-<polyline points="170,130 170,1222" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
-<polyline points="990,102 990,1222" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1867" viewBox="0 0 1400 1867"><rect width="100%" height="100%" fill="white"/>
+<rect x="70" y="1192" width="1260" height="555" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="70,1224 114,1224 128,1210 128,1192" fill="none" stroke="black" stroke-width="2"/>
+<rect x="75" y="1194" width="31" height="24" fill="white"/>
+<text x="78" y="1213" text-anchor="start" font-family="Arial, sans-serif" font-size="18">opt</text>
+<text x="85" y="1242" text-anchor="start" font-family="Arial, sans-serif" font-size="18">[item management selected]</text>
+<polyline points="170,130 170,1827" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
 <circle cx="170" cy="37" r="12" fill="white" stroke="black" stroke-width="2"/>
 <polyline points="170,49 170,78" fill="none" stroke="black" stroke-width="2"/>
 <polyline points="148,59 192,59" fill="none" stroke="black" stroke-width="2"/>
 <polyline points="170,78 150,101" fill="none" stroke="black" stroke-width="2"/>
 <polyline points="170,78 190,101" fill="none" stroke="black" stroke-width="2"/>
-<rect x="106.0" y="104" width="128.0" height="29" fill="white"/>
+<rect x="103" y="104" width="134" height="29" fill="white"/>
 <text x="170" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: Employee</text>
+<polyline points="990,102 990,1827" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
 <rect x="885" y="25" width="210" height="70" fill="white" stroke="black" stroke-width="2"/>
-<rect x="952.5" y="43" width="75.0" height="29" fill="white"/>
+<rect x="949.5" y="43" width="81" height="29" fill="white"/>
 <text x="990" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="bold">: MWT</text>
 <rect x="983" y="190" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polyline points="170,190 983,190" fill="none" stroke="black" stroke-width="2"/>
 <polygon points="983,190 968,183 968,197" fill="black"/>
-<rect x="418.0" y="154" width="324.0" height="26" fill="white"/>
-<text x="580.0" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : OpenView(&quot;SouvenirStockView&quot;)</text>
+<rect x="415" y="154" width="330" height="26" fill="white"/>
+<text x="580" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">1 : OpenView(&quot;SouvenirStockView&quot;)</text>
 <polyline points="990,280 1055,280 1055,308 997,308" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="308" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,308 1012,301 1012,315" fill="black"/>
-<rect x="813.5" y="244" width="193.0" height="26" fill="white"/>
+<rect x="810.5" y="244" width="199" height="26" fill="white"/>
 <text x="910" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2-1 : FindSouvenirs()</text>
 <polyline points="990,377 170,377" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
 <polyline points="185,370 170,377 185,384" fill="none" stroke="black" stroke-width="2"/>
-<rect x="409.5" y="341" width="341.0" height="26" fill="white"/>
-<text x="580.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2 : souvenirList, currentStockQuantity</text>
+<rect x="406.5" y="341" width="347" height="26" fill="white"/>
+<text x="580" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">2 : souvenirList, currentStockQuantity</text>
 <rect x="983" y="467" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polyline points="170,467 983,467" fill="none" stroke="black" stroke-width="2"/>
 <polygon points="983,467 968,460 968,474" fill="black"/>
-<rect x="466.5" y="431" width="227.0" height="26" fill="white"/>
-<text x="580.0" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-1 : souvenirId, quantity</text>
+<rect x="463.5" y="431" width="233" height="26" fill="white"/>
+<text x="580" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-1 : souvenirId, quantity</text>
 <rect x="983" y="557" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polyline points="170,557 983,557" fill="none" stroke="black" stroke-width="2"/>
 <polygon points="983,557 968,550 968,564" fill="black"/>
-<rect x="417.0" y="521" width="326.0" height="26" fill="white"/>
-<text x="580.0" y="542" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-2 : RecordSouvenirStockReceipt()</text>
+<rect x="414" y="521" width="332" height="26" fill="white"/>
+<text x="580" y="542" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">3-2 : RecordSouvenirStockReceipt()</text>
 <polyline points="990,647 1055,647 1055,675 997,675" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="675" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,675 1012,668 1012,682" fill="black"/>
-<rect x="695.5" y="611" width="429.0" height="26" fill="white"/>
+<rect x="692.5" y="611" width="435" height="26" fill="white"/>
 <text x="910" y="632" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-1 : PrepareStockReceipt(souvenirId, quantity)</text>
 <polyline points="990,744 1055,744 1055,772 997,772" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="772" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,772 1012,765 1012,779" fill="black"/>
-<rect x="807.5078125" y="708" width="204.984375" height="26" fill="white"/>
+<rect x="804.508" y="708" width="210.984" height="26" fill="white"/>
 <text x="910" y="729" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">4-2 : ValidateReceipt()</text>
 <polyline points="990,841 1055,841 1055,869 997,869" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="869" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,869 1012,862 1012,876" fill="black"/>
-<rect x="603.5078125" y="805" width="612.984375" height="26" fill="white"/>
+<rect x="600.508" y="805" width="618.984" height="26" fill="white"/>
 <text x="910" y="826" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-1 : RecordSouvenirStockReceipt(souvenirId, quantity, requestKey)</text>
 <polyline points="990,938 1055,938 1055,966 997,966" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="966" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,966 1012,959 1012,973" fill="black"/>
-<rect x="765.5" y="902" width="289.0" height="26" fill="white"/>
+<rect x="762.5" y="902" width="295" height="26" fill="white"/>
 <text x="910" y="923" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">5-2 : SaveStockReceipt(receipt)</text>
 <polyline points="990,1035 1055,1035 1055,1063 997,1063" fill="none" stroke="black" stroke-width="2"/>
 <rect x="983" y="1063" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
 <polygon points="997,1063 1012,1056 1012,1070" fill="black"/>
-<rect x="772.5" y="999" width="275.0" height="26" fill="white"/>
+<rect x="769.5" y="999" width="281" height="26" fill="white"/>
 <text x="910" y="1020" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6-1 : FindSouvenir(souvenirId)</text>
 <polyline points="990,1132 170,1132" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
 <polyline points="185,1125 170,1132 185,1139" fill="none" stroke="black" stroke-width="2"/>
-<rect x="359.5" y="1096" width="441.0" height="26" fill="white"/>
-<text x="580.0" y="1117" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : StockReceiptResponse, currentStockQuantity</text>
+<rect x="356.5" y="1096" width="447" height="26" fill="white"/>
+<text x="580" y="1117" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">6 : StockReceiptResponse, currentStockQuantity</text>
+<polyline points="990,1337 170,1337" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,1330 170,1337 185,1344" fill="none" stroke="black" stroke-width="2"/>
+<rect x="467.5" y="1301" width="225" height="26" fill="white"/>
+<text x="580" y="1322" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">7 : souvenirList, themes</text>
+<rect x="983" y="1427" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polyline points="170,1427 983,1427" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="983,1427 968,1420 968,1434" fill="black"/>
+<rect x="334" y="1391" width="492" height="26" fill="white"/>
+<text x="580" y="1412" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">8 : ManageSouvenir(action, souvenirId, name, theme)</text>
+<polyline points="990,1517 1055,1517 1055,1545 997,1545" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1545" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1545 1012,1538 1012,1552" fill="black"/>
+<rect x="740.008" y="1481" width="339.984" height="26" fill="white"/>
+<text x="910" y="1502" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">9-1 : ValidateSouvenir(name, theme)</text>
+<polyline points="990,1614 1055,1614 1055,1642 997,1642" fill="none" stroke="black" stroke-width="2"/>
+<rect x="983" y="1642" width="14" height="30" fill="white" stroke="black" stroke-width="2"/>
+<polygon points="997,1642 1012,1635 1012,1649" fill="black"/>
+<rect x="774.5" y="1578" width="271" height="26" fill="white"/>
+<text x="910" y="1599" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">9-2 : SaveSouvenir(souvenir)</text>
+<polyline points="990,1711 170,1711" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="185,1704 170,1711 185,1718" fill="none" stroke="black" stroke-width="2"/>
+<rect x="488.5" y="1675" width="183" height="26" fill="white"/>
+<text x="580" y="1696" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">10 : souvenirResult</text>
 </svg>
