@@ -6886,7 +6886,7 @@
 														"$ref": "MWT_UC6_1b32c198db2b4c23a70cbf2758693ec9"
 													},
 													"edgePosition": 1,
-													"text": "RegisterTourProduct(productName, theme, level, basePrice, travelPeriod, departureDate)",
+													"text": "RegisterTourProduct(productName, theme, level, destination, description, basePrice, travelPeriod, departureDate, image)",
 													"fillColor": "transparent",
 													"fontColor": "#000000"
 												},
@@ -7281,7 +7281,7 @@
 													"width": 266,
 													"height": 15,
 													"alpha": 1.5707963267948966,
-													"distance": 12,
+													"distance": 173.6,
 													"hostEdge": {
 														"$ref": "MWT_UC6_bea845d0df0a4d9e9db7f3fc9ee85c0f"
 													},
@@ -7415,7 +7415,7 @@
 													"width": 140,
 													"height": 15,
 													"alpha": 1.5707963267948966,
-													"distance": 12,
+													"distance": 98.0,
 													"hostEdge": {
 														"$ref": "MWT_UC6_66f9370fa6e14f02a94066471bc5a041"
 													},
@@ -8482,10 +8482,7 @@
 									},
 									"sequenceNumber": "8",
 									"documentation": "",
-									"name": "RegisterTourProduct(productName, theme, level, basePrice, travelPeriod, departureDate)",
-									"signature": {
-										"$ref": "MWT_UC6_6d796cdde85f4f86b0e0dcdc513a461a"
-									}
+									"name": "RegisterTourProduct(productName, theme, level, destination, description, basePrice, travelPeriod, departureDate, image)"
 								},
 								{
 									"_type": "UMLMessage",
