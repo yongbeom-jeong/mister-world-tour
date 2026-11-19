@@ -1,6 +1,6 @@
 package com.misterworldtour.travel;
 
-/** 교통. 리무진은 임시 옵션 (AGENTS.md 임시 결정). */
+/** 교통. 리무진은 임시 옵션. */
 public enum TransportOption {
     LUXURY_CAR_2("2인 전용 고급차량"),
     LUXURY_VAN_10("10인 승합 고급차량"),

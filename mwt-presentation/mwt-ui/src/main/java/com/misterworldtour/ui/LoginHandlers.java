@@ -15,21 +15,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.io.Serializable;
 
-/** UC2 로그인 성공·실패 처리. 두 처리기는 빈으로 등록되어 common.SecurityConfig 가 주입받는다. */
+/** UC2 로그인 성공·실패 처리. */
 public final class LoginHandlers {
 
-    /** 고객 로그인 직후 처음 그리는 화면에서 이력 팝업을 한 번 연다 (UC2 (4)). */
+    /** 로그인 직후 이력 팝업 한 번 (UC2 (4)). */
     public static final String SHOW_HISTORY_POPUP = "show_history_popup";
     static final String LOGIN_FAILURE = "login_failure";
 
-    /** 로그인 실패 내용. 로그인 화면이 한 번 꺼내 쓴다. */
     public record LoginFailure(boolean blank, String username, String next) implements Serializable {
     }
 
     private LoginHandlers() {
     }
 
-    /** 고객이면 이력 팝업 표시를 남기고, next(로그인 전 보던 화면) → 저장된 요청 → 홈 순으로 이동한다. */
+    /** next → 저장된 요청 → 홈 순으로 이동. */
     @Component
     public static class Success extends SavedRequestAwareAuthenticationSuccessHandler {
 
@@ -53,7 +52,6 @@ public final class LoginHandlers {
         }
     }
 
-    /** 빈 칸이면 '모두 입력', 아니면 '아이디 또는 비밀번호가 올바르지 않음'으로 안내한다 (입력한 아이디는 다시 채움). */
     @Component
     public static class Failure implements AuthenticationFailureHandler {
 
@@ -74,7 +72,7 @@ public final class LoginHandlers {
         }
     }
 
-    /** 같은 사이트 안의 경로만 허용한다 (외부 주소로 보내는 열린 리다이렉트 방지). */
+    /** 열린 리다이렉트 방지: 사이트 안 경로만. */
     static boolean isSafeNext(String next) {
         return next != null && next.startsWith("/") && !next.startsWith("//") && !next.contains("\\");
     }

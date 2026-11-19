@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 발송 기록과 직원 재발송 (SMSLogTests). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -86,7 +85,7 @@ class SMSLogWebTest {
         long id = logId();
         SMSMessage after = sms.resendMessage(id, staff.getMemberId(), false, new ConsoleSMSClient(), System::nanoTime);
         assertThat(after.getStatus()).isEqualTo(SMSMessage.Status.SUCCESS);
-        assertThat(after.getAttemptCount()).isEqualTo(5); // 자동 4회 + 재발송 1회 누적
+        assertThat(after.getAttemptCount()).isEqualTo(5); // 자동 4회 + 재발송 1회
         assertThat(after.getResendCount()).isEqualTo(1);
         assertThat(after.getResentById()).isEqualTo(staff.getMemberId());
         assertThatThrownBy(() -> sms.resendMessage(id, staff.getMemberId(), false)).hasMessageContaining("성공");

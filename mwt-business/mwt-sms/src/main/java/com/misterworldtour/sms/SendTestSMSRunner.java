@@ -11,11 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * 문자 연동 확인용 시험 발송 .env 의 SMS_CLIENT 를 그대로 쓴다 (재시도 없이 1회).
+ * 문자 연동 확인용 시험 발송 (재시도 없이 1회). 종료 코드 0 성공, 1 실패, 2 결과 불명.
  *
  * <pre>mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--send-test-sms=010-1234-5678 --text=보낼 내용"</pre>
- *
- * 보낸 뒤 서버를 끄고 종료 코드로 결과를 알린다 (0 성공, 1 실패, 2 결과 불명).
  */
 @Component
 class SendTestSMSRunner implements ApplicationRunner {

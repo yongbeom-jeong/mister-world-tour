@@ -30,7 +30,6 @@ public class LoginSessionSupport {
         return new LoginSession(m.getMemberId(), m.getRole(), m.getAccount(), m.getName());
     }
 
-    /** 이 로그인 세션으로 보낸 요청 (Spring Security 인증 주체가 LoginSession). */
     public static RequestPostProcessor login(LoginSession session) {
         return SecurityMockMvcRequestPostProcessors.authentication(UsernamePasswordAuthenticationToken.authenticated(
                 session, null, List.of(new SimpleGrantedAuthority(session.getRole().authority()))));

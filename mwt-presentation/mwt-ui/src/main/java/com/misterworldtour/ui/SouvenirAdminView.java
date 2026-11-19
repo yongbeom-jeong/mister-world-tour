@@ -37,8 +37,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 직원의 기념품 품목 관리 화면 (설계 이후 추가): 품목 등록·이름·테마 수정·삭제와 출발 확정 차감 내역.
- * 재고 수량은 입고(SouvenirStockView)와 출발 확정 차감으로만 바뀐다.
+ * 직원 기념품 품목 관리 화면 (설계 이후 추가): 등록·수정·삭제, 차감 내역.
+ * 재고는 입고와 출발 확정 차감으로만 바뀐다.
  */
 @Controller
 @RequestMapping("/souvenir/staff")
@@ -48,11 +48,9 @@ public class SouvenirAdminView {
     static final int ISSUES_PER_PAGE = 30;
     private static final Logger log = LoggerFactory.getLogger(SouvenirAdminView.class);
 
-    /** 테마 한 줄: 테마와 그 테마의 품목들. */
     public record ThemeGroup(Theme theme, List<Souvenir> items) {
     }
 
-    /** 차감 내역 한 줄 (신청·상품·고객은 다른 패키지 서비스에서 받아 붙인다). */
     record IssueRow(StockIssue issue, ApplicationSummary application, String memberName) {
     }
 
@@ -66,9 +64,6 @@ public class SouvenirAdminView {
         this.members = members;
     }
 
-    // ---------------------------------------------------------------- 품목 등록
-
-    /** 이름과 연결할 테마. 등록 후 입고 화면에서 그 품목을 선택한 상태로 연다. */
     @GetMapping("/souvenirs/new/")
     String registerPage(Model model) {
         model.addAttribute("values", Map.of("name", "", "theme", ""));
@@ -93,8 +88,6 @@ public class SouvenirAdminView {
             return "souvenir/register";
         }
     }
-
-    // ---------------------------------------------------------------- 품목 관리 (수정·삭제)·차감 내역
 
     private void warnIfThemeEmpty(RedirectAttributes redirect, Theme theme) {
         if (!souvenirs.themeHasSouvenir(theme)) {
@@ -181,7 +174,7 @@ public class SouvenirAdminView {
         Long selected = souvenir != null && souvenir.matches("\\d{1,18}") ? Long.valueOf(souvenir) : null;
         int pageNumber = page != null && page.matches("\\d{1,9}") ? Math.max(Integer.parseInt(page), 1) : 1;
         Page<StockIssue> result = souvenirs.loadIssues(selected, pageNumber - 1, ISSUES_PER_PAGE);
-        if (pageNumber > Math.max(result.getTotalPages(), 1)) { // 없는 페이지는 마지막 페이지
+        if (pageNumber > Math.max(result.getTotalPages(), 1)) {
             pageNumber = Math.max(result.getTotalPages(), 1);
             result = souvenirs.loadIssues(selected, pageNumber - 1, ISSUES_PER_PAGE);
         }

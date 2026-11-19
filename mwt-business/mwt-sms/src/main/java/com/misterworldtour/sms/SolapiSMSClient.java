@@ -32,23 +32,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * 솔라피(SOLAPI) 문자 발송 클라이언트.
- *
- * <pre>
- * .env:
- *   SMS_CLIENT=SolapiSMSClient
- *   SOLAPI_API_KEY=...        # 솔라피 콘솔 > API Key 관리
- *   SOLAPI_API_SECRET=...
- *   SOLAPI_SENDER=01012345678 # 솔라피에 등록·인증된 발신번호
- *   SMS_ALLOWED_NUMBERS=010-1111-2222,010-3333-4444  # (선택) 이 번호로만 실제 발송
- * </pre>
- *
- * <ul>
- *   <li>인증: HMAC-SHA256 (서명 대상 = date + salt, 키 = API Secret, 16진수 서명)</li>
- *   <li>발송: POST /messages/v4/send-many/detail. 90byte 를 넘으면 솔라피가 자동으로 LMS 로 보낸다.</li>
- *   <li>연결 실패·HTTP 4xx·접수 거부 → SendException (재시도) / 응답 시간 초과·HTTP 5xx·응답 해석 불가 →
- *       UnknownResultException (재시도 안 함) / 허용 목록 밖 번호 → RejectedException (외부 호출 없음)</li>
- * </ul>
+ * 솔라피(SOLAPI) 문자 발송 클라이언트. SOLAPI_SENDER 는 솔라피에 등록·인증된 발신번호여야 한다.
+ * 인증은 HMAC-SHA256 (서명 대상 date + salt, 키 API Secret, 16진수). 90byte 를 넘으면 솔라피가 LMS 로 보낸다.
  */
 public class SolapiSMSClient implements SMSServiceClient {
 

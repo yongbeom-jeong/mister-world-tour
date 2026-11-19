@@ -79,8 +79,6 @@ class SouvenirWebTest {
                 .containsExactlyInAnyOrder("커플 기념티", "건강 인삼", "골프공", "기념품 스카프");
     }
 
-    // ---------------------------------------------------------------- 입고 서비스
-
     @Test
     void prepareDoesNotSaveAndRecordIncreasesOnce() {
         var p = receipts.prepareStockReceipt(staff.getMemberId(), String.valueOf(golfBall), "5");
@@ -134,8 +132,6 @@ class SouvenirWebTest {
         assertThat(receiptCount()).isEqualTo(2);
     }
 
-    // ---------------------------------------------------------------- 입고 HTTP
-
     @Test
     void fullFlowThroughHttp() throws Exception {
         MockHttpSession session = new MockHttpSession();
@@ -180,8 +176,6 @@ class SouvenirWebTest {
         }
         mvc.perform(get("/souvenir/staff/souvenirs/")).andExpect(redirectedUrl("/members/login/"));
     }
-
-    // ---------------------------------------------------------------- 품목 등록·수정·삭제
 
     @Test
     void registerLinksThemeAndOpensStockPage() throws Exception {

@@ -17,22 +17,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-/**
- * 로그인·로그아웃과 접근 제한.
- *
- * <p>로그인만 필요한지는 여기서, 고객/직원 역할은 각 컨트롤러의
- * {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 검사한다 .
- *
- * <p>로그인 성공·실패 처리는 {@link LoginHandlers} 빈을 스프링 인터페이스 타입으로 받는다.
- */
+/** 로그인·로그아웃과 접근 제한. 역할 검사는 {@code @CustomerRequired} / {@code @StaffRoleRequired} 로 한다. */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    /**
-     * JSON 으로 응답하는 직원 기능 (기념품 입고). 로그인 만료·권한 없음을
-     * 로그인 화면 이동 대신 JSON 403 PERMISSION_DENIED 로 알린다 (화면 스크립트가 '권한 거부'를 '반영 불명'과 구분).
-     */
+    /** 기념품 입고 JSON 요청: 로그인 만료·권한 없음을 화면 이동 대신 JSON 403 PERMISSION_DENIED 로 응답. */
     static final Set<String> STAFF_JSON_PATHS = Set.of(
             "/souvenir/staff/stock/list/", "/souvenir/staff/stock/prepare/", "/souvenir/staff/stock/record/");
 
@@ -60,7 +50,6 @@ public class SecurityConfig {
                         .logoutUrl("/members/logout/")
                         .logoutSuccessUrl("/"))
                 .exceptionHandling(ex -> ex
-                        // 로그인 필요: JSON 직원 기능은 JSON 403, 나머지는 로그인 화면으로
                         .authenticationEntryPoint((req, res, e) -> {
                             if (staffJson.matches(req)) {
                                 permissionDenied(res);

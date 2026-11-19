@@ -18,15 +18,13 @@ import java.util.Locale;
 
 /**
  * 고객·직원 공통 회원 정보 (설계 4.1 Member).
- *
- * <p>회원 고유번호는 저장 후 부여되고, 역할(role)로 고객과 직원을 구분한다.
- * 아이디는 대소문자를 무시하고 중복 금지: 소문자로 바꾼 {@code accountKey} 에 DB 유일 제약을 건다.
+ * 아이디 중복은 대소문자 무시: 소문자로 바꾼 {@code accountKey} 에 유일 제약.
  */
 @Entity
 @Table(name = "member")
 public class Member {
 
-    /** 비밀번호 해시 방식 (기본 bcrypt). 저장값 앞에 {bcrypt} 처럼 방식이 붙어 나중에 바꿔도 기존 비밀번호가 맞는다. */
+    /** 저장값 앞에 {bcrypt} 처럼 방식이 붙어 나중에 바꿔도 기존 비밀번호가 맞는다. */
     private static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Id
@@ -71,12 +69,10 @@ public class Member {
         this.role = role;
     }
 
-    /** 비밀번호 해시를 만든다 (MemberManager 가 가입 때 사용). */
     public static String hashPassword(String password) {
         return PASSWORD_ENCODER.encode(password);
     }
 
-    /** 대소문자를 무시한 중복 검사용 아이디. */
     public static String accountKeyOf(String account) {
         return account == null ? "" : account.toLowerCase(Locale.ROOT);
     }
@@ -90,12 +86,11 @@ public class Member {
         }
     }
 
-    /** 입력한 비밀번호가 저장된 해시와 맞는지. */
     public boolean checkPassword(String password) {
         return password != null && passwordHash != null && PASSWORD_ENCODER.matches(password, passwordHash);
     }
 
-    /** 없는 아이디로 로그인할 때도 같은 시간이 걸리게 한 번 비교한다 (아이디 존재 여부 노출 방지). */
+    /** 없는 아이디도 같은 시간이 걸리게 한 번 비교한다 (아이디 존재 여부 노출 방지). */
     static void checkDummyPassword(String password) {
         PASSWORD_ENCODER.matches(password == null ? "" : password, DUMMY_HASH);
     }
@@ -106,7 +101,6 @@ public class Member {
         return role == Role.CUSTOMER;
     }
 
-    /** 여행사 직원 여부. */
     public boolean isStaffMember() {
         return role == Role.STAFF;
     }

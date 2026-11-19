@@ -38,7 +38,7 @@ public final class TravelRules {
     private TravelRules() {
     }
 
-    /** 테마별로 고를 수 있는 교통 (임시 정책: 허니문은 2인 차량, 나머지는 10인 승합 차량 기반 + 리무진). */
+    /** 테마별로 고를 수 있는 교통. */
     public static Set<TransportOption> allowedTransports(Theme theme) {
         return theme == Theme.HONEYMOON
                 ? EnumSet.of(TransportOption.LUXURY_CAR_2, TransportOption.LIMOUSINE)

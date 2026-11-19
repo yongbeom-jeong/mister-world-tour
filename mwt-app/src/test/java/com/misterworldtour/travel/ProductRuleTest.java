@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** 상품 규칙. */
 class ProductRuleTest {
 
     static TravelProduct product(Theme theme, TourLevel level) {

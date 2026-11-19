@@ -11,7 +11,7 @@
 </section>
 
 <div id="main" class="container pb-4">
-  <!--/* 음성·문장으로 찾기 (SelectByVoice): 마이크로 말하거나 같은 칸에 문장을 입력한다 */-->
+  <!--/* 음성·문장으로 찾기 (SelectByVoice) */-->
   <div class="voice-search" id="voice-box">
     <form id="voice-text-form" class="voice-search-bar" role="search" aria-label="말이나 문장으로 여행 찾기">
       <button type="button" class="mic-btn" id="mic-btn" aria-label="음성으로 찾기" aria-pressed="false" title="음성으로 찾기">
@@ -26,7 +26,6 @@
   </div>
 
   <div class="catalog-toolbar">
-    <!--/* 테마·등급 필터 */-->
     <form method="get" id="filter-form" class="catalog-filters">
       <div class="chip-group" role="radiogroup" aria-label="테마">
         <input type="radio" class="btn-check" name="theme" id="theme-all" value="" th:checked="${theme == null}">
@@ -71,7 +70,6 @@
 </div>
 
 <script id="scripts" th:inline="javascript">
-  // 테마·등급을 바꾸면 바로 목록을 새로 조회한다
   document.querySelectorAll("#filter-form input[type=radio]").forEach(r =>
     r.addEventListener("change", () => document.getElementById("filter-form").submit()));
 
@@ -105,7 +103,7 @@
         if (r.status !== "SUCCESS") { show("warning", heard + r.message); return; }   // 직전 선택 유지
         show("success", heard + r.message);
         if (r.kind === "PRODUCT") {
-          location.href = PRODUCTS_URL + r.product_id + "/";   // GUI 와 같은 상품 선택 경로
+          location.href = PRODUCTS_URL + r.product_id + "/";
         } else {
           // 말한 조건만 바꾸고 나머지는 현재 화면 조건 유지
           const q = new URLSearchParams({ theme: r.theme || CURRENT.theme, tour_level: r.tour_level || CURRENT.tour_level });
@@ -131,7 +129,7 @@
       return;
     }
 
-    let rec = null;          // 듣는 중인 인식기. 없으면 꺼진 상태
+    let rec = null;
     let stoppedByUser = false;
 
     function setListening(on) {
@@ -143,7 +141,7 @@
     }
 
     micBtn.addEventListener("click", () => {
-      if (rec) {             // 듣는 중에 다시 누르면 끈다 (사용자가 끈 것은 실패로 기록하지 않음)
+      if (rec) {             // 듣는 중에 누르면 끈다 (실패로 기록하지 않음)
         stoppedByUser = true;
         rec.abort();
         return;
@@ -164,7 +162,7 @@
         const why = { "no-speech": "음성이 들리지 않았습니다.", "not-allowed": "마이크 권한이 필요합니다.",
                       "audio-capture": "마이크를 찾을 수 없습니다." }[e.error] || "음성을 인식하지 못했습니다.";
         show("warning", why + " 다시 말하거나 칸에 입력해 주세요.");
-        // 실패 기록 (UC4 4a·7a). 기록 실패는 화면 동작에 영향 없음
+        // 실패 기록 (UC4 4a·7a)
         fetch(FAILURE_URL, {
           method: "POST", headers: { [csrfHeader]: csrf, "Content-Type": "application/json" },
           body: JSON.stringify({ error: e.error }),
@@ -172,7 +170,7 @@
       };
       rec.onresult = e => {
         const transcript = e.results[0][0].transcript;
-        input.value = transcript;   // 들은 문장을 칸에 보여 준다
+        input.value = transcript;
         send(transcript);
       };
       rec.start();

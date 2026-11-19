@@ -35,10 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * 이전 여행 이력 팝업 (설계 3.1 TravelHistoryView, UC3). 고객 로그인 직후와 홈의 '이력 보기'에서 같은 조회를 쓴다.
- * 조회 대상 고객은 로그인 세션으로 확인하며, 조회 실패는 '이력 없음'과 구분해 안내한다.
- */
+/** 이전 여행 이력 팝업 (설계 3.1 TravelHistoryView, UC3). */
 @Controller
 @CustomerRequired
 public class TravelHistoryView {
@@ -51,7 +48,7 @@ public class TravelHistoryView {
         this.travelManager = travelManager;
     }
 
-    /** 팝업이 fetch 로 불러가는 HTML 조각. 조회 실패는 '이력 없음'과 구분해 실패로 응답. */
+    /** 팝업이 불러가는 HTML 조각. 조회 실패는 '이력 없음'과 구분. */
     @GetMapping("/travel/history/")
     String viewPreviousTravelHistory(@AuthenticationPrincipal LoginSession me, Model model, HttpServletResponse response) {
         try {

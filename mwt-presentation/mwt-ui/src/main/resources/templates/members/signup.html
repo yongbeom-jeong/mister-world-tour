@@ -41,7 +41,6 @@
   </div>
 </div>
 <script id="scripts">
-  // 직원 유형을 골랐을 때만 직원 인증 코드 입력란을 보인다.
   const box = document.getElementById("staff-code-box");
   const radios = document.querySelectorAll('input[name="memberType"]');
   function syncStaff() {
@@ -51,7 +50,7 @@
   radios.forEach(r => r.addEventListener("change", syncStaff));
   syncStaff();
 
-  // 입력하는 동안 형식 안내를 바로 보여준다. 최종 검사는 서버가 한다.
+  // 입력 중 형식 안내 (최종 검사는 서버)
   function liveHint(input, check) {
     const hint = document.createElement("div");
     hint.className = "small mt-1";

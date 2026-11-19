@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Locale;
 
-/** SMS_CLIENT 설정으로 문자 클라이언트를 고른다. 테스트는 .env 와 무관하게 Console 로 고정한다. */
+/** SMS_CLIENT 설정으로 문자 클라이언트를 고른다. */
 @Configuration
 class SMSConfig {
 

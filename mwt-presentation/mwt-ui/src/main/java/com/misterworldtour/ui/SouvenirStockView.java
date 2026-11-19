@@ -34,9 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 직원의 기념품 입고 등록 화면 (설계 3.1 SouvenirStockView, UC8, 상태도 11.3).
- * 화면은 준비(prepare) → 등록(record)을 스크립트로 이어 호출하고, 응답이 불명하면 같은 요청 키로만 다시 확인한다.
- * 입고 JSON 요청의 로그인 만료·권한 없음은 {@code SecurityConfig} 가 JSON 403 으로 응답한다.
+ * 직원 기념품 입고 화면 (설계 3.1 SouvenirStockView, UC8, 상태도 11.3).
+ * 준비 → 등록을 이어 호출하고, 응답 불명이면 같은 요청 키로만 다시 확인한다.
  */
 @Controller
 @RequestMapping("/souvenir/staff")
@@ -69,13 +68,13 @@ public class SouvenirStockView {
         return map.entrySet().stream().map(e -> new SouvenirAdminView.ThemeGroup(e.getKey(), e.getValue())).toList();
     }
 
-    /** 입고 화면 (상태도 11.3). 목록은 페이지가 열린 뒤 LoadSouvenirs(JSON)로 불러오고, 품목 선택(SelectSouvenir)은 화면에서 한다. */
+    /** 입고 화면. 목록은 열린 뒤 LoadSouvenirs 로 불러온다. */
     @GetMapping("/stock/")
     String showStockReceipt() {
         return "souvenir/stock";
     }
 
-    /** LoadSouvenirs: 기념품 목록과 현재 재고. 조회 실패는 빈 목록·재고 0과 구분해 오류로 응답. */
+    /** LoadSouvenirs: 조회 실패는 빈 목록과 구분해 오류로 응답. */
     @GetMapping("/stock/list/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> loadSouvenirs() {
@@ -88,7 +87,7 @@ public class SouvenirStockView {
         }
     }
 
-    /** RecordSouvenirStockReceipt 1단계: 새 입고의 요청 키를 준비한다 (PrepareStockReceipt). */
+    /** PrepareStockReceipt: 새 입고 요청 키. */
     @PostMapping("/stock/prepare/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> prepareStockReceipt(
@@ -104,7 +103,7 @@ public class SouvenirStockView {
         }
     }
 
-    /** RecordSouvenirStockReceipt 2단계: 준비한 키로 입고를 등록한다. 같은 키의 재시도는 재고를 다시 늘리지 않는다. */
+    /** RecordSouvenirStockReceipt: 같은 키로 재시도해도 재고는 한 번만 는다. */
     @PostMapping("/stock/record/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> recordSouvenirStockReceipt(

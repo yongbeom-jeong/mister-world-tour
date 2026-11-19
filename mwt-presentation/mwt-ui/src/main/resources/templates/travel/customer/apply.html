@@ -81,7 +81,6 @@
           <div th:if="${errors.get('travelers') != null}" class="alert alert-danger py-2 small" th:text="${errors.get('travelers')}">오류</div>
 
           <div id="rows">
-            <!--/* 첫 행: 신청 고객 본인 (계정 정보 사용) */-->
             <div class="row g-2 mb-2 traveler-row align-items-center">
               <div class="col-5 col-md-6"><input class="form-control bg-light" name="traveler_name" th:value="${me.name}" readonly aria-label="신청 고객 성명"></div>
               <div class="col-5"><input class="form-control bg-light" name="traveler_contact" th:value="${me.contact}" readonly aria-label="신청 고객 연락처"></div>
@@ -138,7 +137,7 @@
     if (btn) { btn.closest(".traveler-row").remove(); sync(); invalidateReview(); }
   });
   rows.addEventListener("input", invalidateReview);
-  if (HONEYMOON && count() < 2) addRow();   // 허니문은 동반 1명 입력란을 바로 보여준다
+  if (HONEYMOON && count() < 2) addRow();
   sync();
 
   const submitBtn = document.getElementById("submit-btn");

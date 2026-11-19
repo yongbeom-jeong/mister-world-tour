@@ -14,13 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Travel Management 가 User Interface 에 제공하는 여행 관리 기능 (설계 5.1 TravelManagementAPI).
- * 고객의 상품 조회·선택·구성·신청과 이전 여행 이력 조회, 직원의 상품 등록·수정·삭제.
- * 로그인한 회원은 LoginSession 으로 확인한다.
+ * 여행 관리 기능 (설계 5.1 TravelManagementAPI). 로그인한 회원은 LoginSession 으로 확인한다.
  */
 public interface TravelManagementAPI {
 
-    /** 신청 확인 화면 안내 문구. */
     String CANCEL_RULE = "출발이 확정되면 신청을 취소할 수 없어요.";
 
     /** 검토 이후 금액이 바뀌어 다시 확인이 필요함. */
@@ -30,7 +27,6 @@ public interface TravelManagementAPI {
         }
     }
 
-    /** 상품이 없음 (삭제되었을 수 있음). */
     class ProductNotFoundException extends BookingException {
         public ProductNotFoundException() {
             super("상품을 찾을 수 없습니다. 삭제되었을 수 있습니다.");
@@ -85,15 +81,10 @@ public interface TravelManagementAPI {
     record MyApplication(TravelApplication application, int travelerCount) {
     }
 
-    /** 구성 변경 결과: 새 구성과 1인 가격. */
     record ConfigurationResult(TravelConfiguration configuration, int unitPrice) {
     }
 
-    /**
-     * 신청 검토 결과. 저장하지 않으며 화면이 요청 키와 함께 보관했다가 확정 제출 때 넘긴다.
-     *
-     * @param travelers 정리한 실제 여행자 (첫 번째는 신청 고객 본인)
-     */
+    /** 신청 검토 결과. 저장하지 않고, 화면이 요청 키와 함께 보관했다가 확정 제출 때 넘긴다. */
     record ApplicationReviewResult(String requestKey, long productId, long memberId, TravelConfiguration configuration,
                                    List<TravelerInput> travelers, PriceBreakdown price) implements Serializable {
         public ApplicationReviewResult {
@@ -185,7 +176,6 @@ public interface TravelManagementAPI {
     /** 신청 고객의 성명·연락처 (신청 화면 첫 행). */
     MemberManagementAPI.Contact applicantContact(long memberId);
 
-    /** 구성의 1인 가격. */
     int calculateUnitPrice(TravelProduct product, TravelConfiguration configuration);
 
     /** 취소할 수 없는 이유 (취소 가능하면 null). */

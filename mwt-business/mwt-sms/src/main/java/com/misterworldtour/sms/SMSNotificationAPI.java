@@ -9,13 +9,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * SMS Notification 이 Travel Management 에 제공하는 출발 확정 문자 발송 (설계 9.1 SMSNotificationAPI).
- * 출발 확정 여부와 수신 대상은 Travel Management 가 정해 넘긴다.
- */
+/** 출발 확정 문자 발송 (설계 9.1 SMSNotificationAPI). 수신 대상은 Travel Management 가 정해 넘긴다. */
 public interface SMSNotificationAPI {
 
-    /** 보내기 전에 발송 기록을 만들어 둔 출발 확정 문자 묶음. */
+    /** 보내기 전에 발송 기록을 만들어 둔 문자 묶음. */
     record DeparturePlan(DepartureNotice notice, List<SMSMessage> messages, List<Recipient> invalid) {
     }
 
@@ -29,7 +26,6 @@ public interface SMSNotificationAPI {
     /** 단문 한도 (영문·숫자·공백 1byte, 한글 2byte). */
     int SMS_MAX_BYTES = 90;
 
-    /** 출발 안내 정보: 상품 번호·이름·출발일. */
     record DepartureNotice(Long productId, String productName, LocalDate departureDate) {
 
         /** 단문(90byte) 안에 들어가는 안내 문자. 길면 이름 → 상품 이름 순으로 줄인다. */
@@ -61,7 +57,7 @@ public interface SMSNotificationAPI {
         return text.codePoints().map(c -> c < 128 ? 1 : 2).sum();
     }
 
-    /** 대상별 최종 결과와 성공·실패·결과 불명 건수. invalid 는 연락처 등 정보가 없어 보내지 못한 대상. */
+    /** invalid 는 연락처 등이 없어 보내지 못한 대상. */
     record SMSBatchResult(List<SMSMessage> messages, List<Recipient> invalid) {
 
         public static SMSBatchResult allInvalid(List<Recipient> recipients) {
@@ -104,7 +100,7 @@ public interface SMSNotificationAPI {
         }
     }
 
-    /** 고객별 문자를 만들어 보내고(재시도 포함) 결과를 기록해 돌려준다. */
+    /** 설계 SendDepartureConfirmation. 재시도 포함. */
     SMSBatchResult sendDepartureConfirmation(List<Recipient> recipients, DepartureNotice notice);
 
     /** 신청 저장과 같은 트랜잭션에서 발송 기록을 '발송 중'으로 먼저 만든다. */

@@ -15,10 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 직원 상품 등록·수정 화면의 입력 값 (TourProductAdminView). 화면 값은 문자열로 받고 {@link #validate} 는
- * 숫자·날짜·선택값 형식만 확인한다. 가격·기간·출발일 범위와 등급·기본 구성 규칙은 TravelManagementAPI 가
- * TravelProduct.validateProduct · TravelConfiguration.validateConfiguration 으로 검사한다.
- * 기본 구성(hotelLevel·meal·transport)은 테마·등급 기본값을 보여 주고 직원이 확인한 뒤 바꿀 수 있다. 비우면 기본값.
+ * 상품 등록·수정 입력 값 (TourProductAdminView). {@link #validate} 는 형식만 보고,
+ * 범위·기본 구성 규칙은 validateProduct · validateConfiguration 이 검사한다.
  */
 public class ProductForm {
 
@@ -54,7 +52,7 @@ public class ProductForm {
         return v == null ? "" : v.strip();
     }
 
-    /** 형식 오류 (항목별). 비어 있으면 input() 으로 값을 꺼낼 수 있다. */
+    /** 항목별 형식 오류. 비어 있어야 input() 을 쓸 수 있다. */
     public Map<String, String> validate() {
         Map<String, String> errors = new LinkedHashMap<>();
         if (Theme.parse(s(theme)) == null) {
@@ -84,7 +82,7 @@ public class ProductForm {
         return errors;
     }
 
-    /** 검사를 통과한 값. 비운 기본 구성은 null (서비스가 테마·등급 기본값을 쓴다). */
+    /** 비운 기본 구성은 null (테마·등급 기본값 사용). */
     public ProductInput input() {
         return new ProductInput(s(name), s(destination), description == null ? "" : description.strip(),
                 Theme.parse(s(theme)), TourLevel.parse(s(tourLevel)), parseInt(basePrice), parseInt(travelDays),

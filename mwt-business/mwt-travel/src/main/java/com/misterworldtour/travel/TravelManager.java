@@ -40,17 +40,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 /**
- * 여행 관리 업무의 처리 순서를 조정한다 (설계 5.1 TravelManager). {@link TravelManagementAPI} 를 구현한다.
- *
- * <ul>
- *   <li>상품 정보·구성·가격·신청·이력은 TravelProduct·TravelConfiguration·TravelPriceCalculator·TravelApplication·
- *       TravelHistory 가 맡고, 저장·조회는 {@link TravelDataAccessAPI} 에 요청한다.</li>
- *   <li>신청은 상품을 잠근 트랜잭션(RunTravelTransaction) 안에서 정원·기념품 재고·금액을 다시 확인해 저장하고 출발을 판정한다.
- *       출발이 확정된 신청의 테마 기념품을 같은 트랜잭션에서 차감한다 (2026-11-11 팀 결정).</li>
- *   <li>신청 저장이 끝난 뒤 출발이 확정된 고객의 문자 발송을 SMS Notification 에 요청한다. 문자 실패는 신청을 되돌리지 않는다.</li>
- *   <li>신청이 있는 상품은 수정·삭제할 수 없고, 같은 요청 키의 신청은 중복 저장하지 않는다.</li>
- * </ul>
- * 설계 이후 추가: 신청 취소(출발 확정 전), 완료 여행 이력 자동 생성, 직원 홈 통계.
+ * 여행 관리 업무 처리 (설계 5.1 TravelManager).
+ * 신청은 상품을 잠근 트랜잭션에서 정원·재고·금액을 다시 확인해 저장하고, 출발이 확정되면 기념품을 차감한다.
  */
 @Service
 public class TravelManager implements TravelManagementAPI {
@@ -90,8 +81,6 @@ public class TravelManager implements TravelManagementAPI {
                 .orElseThrow(() -> new BookingException("고객으로 로그인해 주세요."));
     }
 
-    // ---------------------------------------------------------------- ViewPreviousTravelHistory (UC3)
-
     @Override
     @Transactional
     public List<TravelHistory> viewPreviousTravelHistory() {
@@ -104,8 +93,6 @@ public class TravelManager implements TravelManagementAPI {
         completeFinishedTrips(memberId, today());
         return dataAccess.findTravelHistories(memberId);
     }
-
-    // ---------------------------------------------------------------- LoadProducts · SelectProduct (UC4·UC7)
 
     @Override
     @Transactional(readOnly = true)
@@ -137,7 +124,6 @@ public class TravelManager implements TravelManagementAPI {
         return Math.max(TravelRules.GROUP_CAPACITY - currentTravelerCount(product.getProductId()), 0);
     }
 
-    /** 상품 테마에 연결된 기념품 이름 (상세 화면 표시용). */
     public List<String> themeSouvenirNames(TravelProduct product) {
         return souvenirs.souvenirNamesForTheme(product.getTheme());
     }
@@ -147,8 +133,6 @@ public class TravelManager implements TravelManagementAPI {
     public MemberManagementAPI.Contact applicantContact(long memberId) {
         return members.getContact(memberId).orElse(new MemberManagementAPI.Contact("", ""));
     }
-
-    // ---------------------------------------------------------------- LoadDefaultConfiguration (UC6·UC7)
 
     @Override
     @Transactional(readOnly = true)
@@ -170,8 +154,6 @@ public class TravelManager implements TravelManagementAPI {
                 theme.getDefaultTransport().getLabel(), level.getDefaultHotel().getLabel(),
                 level.getDefaultMeal().getLabel(), choices);
     }
-
-    // ---------------------------------------------------------------- ConfigureTravelProduct (UC4)
 
     @Override
     @Transactional(readOnly = true)
@@ -196,15 +178,9 @@ public class TravelManager implements TravelManagementAPI {
         return TravelPriceCalculator.calculateUnitPrice(product, configuration);
     }
 
-    // ---------------------------------------------------------------- ReviewApplication (UC5)
-
     /**
-     * 이 신청에 필요한 기념품 수 (테마 품목마다).
-     * <ul>
-     *   <li>허니문, 이미 확정된 상품: 이 신청의 여행자 수 (확정과 함께 차감)</li>
-     *   <li>이 신청으로 새로 확정되는 상품: 그때까지의 모든 신청 + 이 신청 (확정 순간 전부 차감)</li>
-     *   <li>아직 확정 전: 이 신청의 여행자 수만큼 있는지만 확인 (차감은 확정 때)</li>
-     * </ul>
+     * 이 신청에 필요한 기념품 수 (품목마다). 이 신청으로 새로 확정되는 상품은 그때까지의 신청 여행자까지 포함하고,
+     * 그 외는 이 신청의 여행자 수.
      */
     static int souvenirsNeeded(TravelProduct product, int travelerCount, int currentCount) {
         if (product.isHoneymoon() || product.isConfirmed()) {
@@ -235,7 +211,7 @@ public class TravelManager implements TravelManagementAPI {
         if (themeSouvenirs.isEmpty()) {
             throw new BookingException("이 테마의 기념품 정보가 없어 신청할 수 없습니다. 고객센터에 문의해 주세요.");
         }
-        int needed = souvenirsNeeded(product, travelerCount, currentCount); // 테마 기념품마다 여행자 1인당 1개
+        int needed = souvenirsNeeded(product, travelerCount, currentCount);
         for (ThemeSouvenir s : themeSouvenirs) {
             if (s.stockQuantity() < needed) {
                 throw new BookingException(shortageMessage(travelerCount, s.souvenirName(), needed,
@@ -291,8 +267,6 @@ public class TravelManager implements TravelManagementAPI {
         return new ApplicationReviewResult(UUID.randomUUID().toString().replace("-", ""), productId, memberId,
                 configuration, cleaned, price);
     }
-
-    // ---------------------------------------------------------------- SubmitTravelApplication (UC5)
 
     @Override
     public ApplicationResult submitTravelApplication(long productId, TravelConfiguration configuration,
@@ -379,7 +353,7 @@ public class TravelManager implements TravelManagementAPI {
 
         TravelApplication app = new TravelApplication(memberId, product, configuration, price, requestKey);
         if (product.isHoneymoon()) {
-            app.confirmHoneymoonDeparture(); // 허니문: 정확히 2인 신청마다 독립 출발 확정
+            app.confirmHoneymoonDeparture();
         }
         app = dataAccess.saveApplication(app, cleaned.stream()
                 .map(t -> new Traveler(t.name(), t.contact(), t.applicant())).toList());
@@ -388,7 +362,7 @@ public class TravelManager implements TravelManagementAPI {
         List<Long> recipients;
         List<IssueItem> toIssue;
         if (product.isHoneymoon()) {
-            recipients = List.of(memberId); // 허니문: 이 신청 고객만
+            recipients = List.of(memberId);
             toIssue = List.of(new IssueItem(app.getApplicationId(), count));
         } else {
             boolean wasConfirmed = product.isConfirmed();
@@ -437,9 +411,6 @@ public class TravelManager implements TravelManagementAPI {
                 app.currentDepartureStatus(), newlyConfirmed, false, issued, recipients, null), plan, smsRecipients);
     }
 
-    // ---------------------------------------------------------------- 신청 취소 (2026-11-12 결정)
-
-    /** 취소할 수 없는 이유. 취소할 수 있으면 null. (화면 표시와 실제 취소에서 같은 규칙을 쓴다) */
     public String cancelBlockReason(TravelApplication app) {
         if (app.isCancelled()) {
             return "이미 취소한 신청입니다.";
@@ -455,7 +426,6 @@ public class TravelManager implements TravelManagementAPI {
 
     /**
      * 출발 확정 전 신청을 취소한다. 확정 판정과 겹치지 않게 상품을 잠근 뒤 다시 검사한다.
-     * 확정 전에는 기념품을 차감하지 않으므로 되돌릴 재고가 없다.
      */
     public void cancelApplication(long memberId, long applicationId) {
         long productId = dataAccess.findApplicationProductId(memberId, applicationId)
@@ -471,8 +441,6 @@ public class TravelManager implements TravelManagementAPI {
         });
         log.info("신청 취소 application={} member={}", applicationId, memberId);
     }
-
-    // ---------------------------------------------------------------- 내 신청
 
     /** 같은 요청 키로 이미 저장된 이 고객의 신청 (재제출 안내용). */
     @Transactional(readOnly = true)
@@ -490,7 +458,6 @@ public class TravelManager implements TravelManagementAPI {
         return dataAccess.findMemberApplication(memberId, applicationId);
     }
 
-    /** 취소하지 않은 신청 수 (고객 홈 표시). */
     @Transactional(readOnly = true)
     public long activeApplicationCount(long memberId) {
         return dataAccess.countMemberApplications(memberId);
@@ -502,8 +469,6 @@ public class TravelManager implements TravelManagementAPI {
         return dataAccess.findMemberApplications(memberId).stream()
                 .map(a -> new MyApplication(a, counts.getOrDefault(a.getApplicationId(), 0))).toList();
     }
-
-    // ---------------------------------------------------------------- 직원 홈·다른 화면용 조회
 
     @Transactional(readOnly = true)
     public DashboardCounts staffDashboardCounts() {
@@ -537,12 +502,7 @@ public class TravelManager implements TravelManagementAPI {
         return map;
     }
 
-    // ---------------------------------------------------------------- RegisterTourProduct · ModifyTourProduct · DeleteTourProduct
-
-    /**
-     * 입력값을 상품에 넣고 검증한다 (ValidateProduct). 기본 구성은 테마·등급으로 정한 뒤 직원이 고른 값으로 바꾸며,
-     * 그 구성이 테마·등급에 맞는지 확인한다 (ValidateConfiguration).
-     */
+    /** 입력값을 상품에 넣고 검증한다 (ValidateProduct, ValidateConfiguration). */
     private void fill(TravelProduct product, ProductInput in) {
         product.update(in.productName(), in.destination(), in.description(), in.theme(), in.level(), in.basePrice(),
                 in.travelPeriod(), in.departureDate());
@@ -633,19 +593,14 @@ public class TravelManager implements TravelManagementAPI {
         dataAccess.findProduct(productId).ifPresent(p -> p.setImage(imagePath));
     }
 
-    // ---------------------------------------------------------------- 완료 여행 이력 (2026-11-12 결정)
-
     @Transactional
     public int completeFinishedTrips(Long memberId) {
         return completeFinishedTrips(memberId, today());
     }
 
     /**
-     * 다녀온 여행을 완료 이력으로 만든다. 만든 이력 수를 돌려준다.
-     *
-     * <p>대상: 취소하지 않았고 출발이 확정된 신청(허니문은 신청 상태, 그 외는 상품 상태) 중 여행 마지막 날이 지난 것.
-     * 같은 고객이 같은 상품에 신청을 여러 번 했어도 이력은 1건이고, 가격은 그 신청 금액(할인 반영)의 합계다.
-     * 여러 번 호출해도 중복되지 않는다.
+     * 출발 확정된 신청 중 여행 마지막 날이 지난 것을 완료 이력으로 만들고, 만든 이력 수를 돌려준다.
+     * 고객·상품마다 1건(가격은 신청 금액 합계)이라 여러 번 호출해도 중복되지 않는다.
      */
     @Transactional
     public int completeFinishedTrips(Long memberId, LocalDate today) {
@@ -663,7 +618,7 @@ public class TravelManager implements TravelManagementAPI {
             }
             trips.computeIfAbsent(key, k -> new TravelHistory(a.getMemberId(), travelId, p.getProductName(),
                     p.getTourLevel(), p.getTravelPeriod(), 0, true, end));
-            prices.merge(key, a.getFinalAmount(), Integer::sum); // 같은 여행의 신청 금액 합계
+            prices.merge(key, a.getFinalAmount(), Integer::sum);
         }
         int created = 0;
         for (Map.Entry<String, TravelHistory> e : trips.entrySet()) {

@@ -20,7 +20,6 @@
 </head>
 <body th:with="m=${currentMember}, path=${requestPath ?: ''}"
       th:class="|d-flex flex-column min-vh-100 ${m != null and m.staffMember ? 'mwt-staff' : ''} ${bodyClass ?: ''}|">
-  <!--/* 상단 메뉴: 로고(왼쪽) · 역할별 탭(가운데) · 계정 메뉴(오른쪽). 휴대폰에서는 탭이 둘째 줄로 내려간다 */-->
   <header class="mwt-nav sticky-top">
     <div class="container mwt-nav-inner">
       <a class="mwt-brand" th:href="@{/}">

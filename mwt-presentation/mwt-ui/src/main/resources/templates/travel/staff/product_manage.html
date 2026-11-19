@@ -18,7 +18,7 @@
     <div class="col-lg-4">
       <div class="mwt-card">
         <form method="get" th:action="@{/travel/staff/products/}" class="mwt-card-head gap-2">
-          <!--/* 같은 화면의 상품 입력 폼과 id 가 겹치지 않도록 filter_ 를 붙인다 (파라미터 이름은 그대로) */-->
+          <!--/* 상품 입력 폼과 id 가 겹치지 않게 filter_ 접두 */-->
           <select name="theme" id="filter_theme" class="form-select form-select-sm">
             <option value="">전체 테마</option>
             <option th:each="t : ${themes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${filterTheme == t}">테마</option>

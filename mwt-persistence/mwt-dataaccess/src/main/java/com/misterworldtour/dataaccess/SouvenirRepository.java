@@ -19,10 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * 기념품 정보·현재 재고 조회와 입고·차감 반영 (설계 7.1 SouvenirRepository).
- * 입고 내역 저장과 재고 증가({@link #saveStockReceipt})는 함께 반영한다.
- */
+/** 기념품·재고 조회와 입고·차감 반영 (설계 7.1 SouvenirRepository). */
 @Repository
 class SouvenirRepository {
 
@@ -109,7 +106,7 @@ class SouvenirRepository {
                 .setParameter("id", souvenirId).getSingleResult();
     }
 
-    /** 재고가 quantity 이상일 때만 줄이는 조건부 UPDATE (음수가 되지 않음). */
+    /** 재고가 quantity 이상일 때만 줄이는 조건부 UPDATE. */
     boolean decreaseStock(long souvenirId, int quantity) {
         em.flush();
         return em.createQuery("""

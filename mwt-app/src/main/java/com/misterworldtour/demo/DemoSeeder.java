@@ -31,12 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 데모·시험용 더미 데이터.
- *
- * <pre>mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--seed-demo</pre>
- *
- * 데이터를 넣은 뒤 서버는 그대로 실행된다. 여러 번 실행해도 중복 생성되지 않는다(아이디·상품명 기준).
- * 날짜는 실행일 기준 상대값이다. 모든 값은 설계에 정해지지 않은 임의 값이다. 비밀번호는 모두 {@value #PASSWORD}.
+ * 데모 데이터 ({@code --seed-demo}). 여러 번 실행해도 중복 생성하지 않는다(아이디·상품명 기준).
+ * 날짜는 실행일 기준 상대값, 비밀번호는 모두 {@value #PASSWORD}.
  */
 @Component
 class DemoSeeder implements ApplicationRunner {
@@ -83,13 +79,12 @@ class DemoSeeder implements ApplicationRunner {
             new DemoProduct("한라산·올레길 트레킹", "제주도", Theme.TREKKING, TourLevel.CLASSIC, 590_000, 3, 15,
                     "성판악 코스 정상 등반과 올레 7코스.", "hallasan"));
 
-    /** 초기 기념품 재고 (입고 내역으로 기록). */
     static final Map<String, Integer> STOCK = Map.of("커플 기념티", 20, "건강 인삼", 30, "골프공", 50, "기념품 스카프", 40);
 
     record DemoHistory(String productName, TourLevel level, int days, int price, int daysAgo) {
     }
 
-    /** 아이디 → 완료 이력. regular1 은 3년 내 3회(단골), customer2 는 3년 내 2회 + 오래된 1회(단골 아님). */
+    /** regular1 은 3년 내 3회(단골), customer2 는 3년 내 2회 + 오래된 1회(단골 아님). */
     static final Map<String, List<DemoHistory>> HISTORIES = Map.of(
             "regular1", List.of(
                     new DemoHistory("오사카 미식 효도 여행", TourLevel.GRAND, 4, 1_100_000, 120),
@@ -104,10 +99,7 @@ class DemoSeeder implements ApplicationRunner {
     record DemoApplication(String username, String productName, List<String> companions) {
     }
 
-    /**
-     * 미리 넣어 둘 신청. 실제 신청 처리(검토 → 등록)를 그대로 쓴다.
-     * 다낭 골프 2명(1명 더 오면 출발 확정), 제주 효도 8명(이미 확정, 남은 자리 2명).
-     */
+    /** 실제 신청 처리(검토 → 등록)로 넣는 데모 신청. */
     static final List<DemoApplication> APPLICATIONS = List.of(
             new DemoApplication("customer2", "다낭 골프 챌린지", List.of("이동반")),
             new DemoApplication("customer2", "제주 힐링 효도 여행",
@@ -182,7 +174,7 @@ class DemoSeeder implements ApplicationRunner {
                 continue;
             }
             List<TravelerInput> rows = new ArrayList<>();
-            rows.add(new TravelerInput("", "", true)); // 첫 행은 신청 고객 본인 (계정 정보로 채움)
+            rows.add(new TravelerInput("", "", true)); // 첫 행은 신청 고객 본인
             a.companions().forEach(n -> rows.add(new TravelerInput(n, "", false)));
             ApplicationReviewResult review = travel.reviewApplication(mid, product.getProductId(), TravelConfiguration.defaultOf(product), rows);
             travel.submitTravelApplication(mid, review.withRequestKey(key));
@@ -196,7 +188,7 @@ class DemoSeeder implements ApplicationRunner {
         return members.findMemberByAccount(username).orElseThrow().getMemberId();
     }
 
-    /** 데모 상품 사진을 업로드 사진처럼 media 폴더에 복사한다. 반환값은 media 기준 경로. */
+    /** 업로드 사진처럼 media 폴더에 복사하고 media 기준 경로를 돌려준다. */
     private String copyPhoto(String photo) throws IOException {
         String relative = "products/seed/" + photo + ".jpg";
         Path target = Path.of(properties.mediaRoot()).resolve(relative);

@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 신청 취소(2026-11-12 결정)와 완료 여행 이력 (CancelTests·TripCompletionTests·TripCountTests·HistoryViewTests). */
 class CancelAndHistoryTest extends BookingTestBase {
 
     @Autowired
@@ -37,8 +36,6 @@ class CancelAndHistoryTest extends BookingTestBase {
         return jdbc.queryForList("SELECT product_name FROM travel_history WHERE member_id = ? ORDER BY id", String.class,
                 m.getMemberId());
     }
-
-    // ---------------------------------------------------------------- 취소
 
     @Test
     void cancelBeforeConfirmationFreesSeats() {
@@ -56,7 +53,7 @@ class CancelAndHistoryTest extends BookingTestBase {
         ApplicationResult first = book(alice, p, "동반");
         booking.cancelApplication(alice.getMemberId(), first.applicationId());
         LoginSession bob = customer("bob");
-        ApplicationResult r = book(bob, p, "x", "y"); // 3명 → 확정, 취소한 앨리스는 빠짐
+        ApplicationResult r = book(bob, p, "x", "y"); // 취소한 앨리스는 빠짐
         assertThat(r.newlyConfirmed()).isTrue();
         assertThat(r.recipientMemberIds()).containsExactly(bob.getMemberId());
         assertThat(r.souvenirsIssued()).isEqualTo(3);
@@ -101,8 +98,6 @@ class CancelAndHistoryTest extends BookingTestBase {
                 .andExpect(content().string(containsString(TravelManager.CANCEL_RULE)));
     }
 
-    // ---------------------------------------------------------------- 완료 이력
-
     @Test
     void confirmedTripBecomesHistoryAfterLastDay() {
         TravelProduct p = product(Theme.HONEYMOON, TourLevel.PREMIUM);
@@ -116,13 +111,13 @@ class CancelAndHistoryTest extends BookingTestBase {
         assertThat(h.getCompletedAt()).isEqualTo(LocalDate.now().minusDays(1));
         assertThat(h.getProductName()).isEqualTo(p.getProductName());
         assertThat(h.getPrice()).isEqualTo(dataAccess.findApplication(r.applicationId()).orElseThrow().getFinalAmount());
-        assertThat(travel.completeFinishedTrips(alice.getMemberId())).isZero(); // 중복 없음
+        assertThat(travel.completeFinishedTrips(alice.getMemberId())).isZero();
     }
 
     @Test
     void unconfirmedOrCancelledTripIsNotHistory() {
         TravelProduct pending = product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "미확정");
-        book(alice, pending); // 1명 → 미확정
+        book(alice, pending);
         TravelProduct cancelled = product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "취소");
         ApplicationResult r = book(alice, cancelled);
         booking.cancelApplication(alice.getMemberId(), r.applicationId());
@@ -137,7 +132,7 @@ class CancelAndHistoryTest extends BookingTestBase {
         LoginSession bob = customer("bob", "밥", "010-2000-0002");
         int a1 = dataAccess.findApplication(book(alice, p).applicationId()).orElseThrow().getFinalAmount();
         int a2 = dataAccess.findApplication(book(alice, p).applicationId()).orElseThrow().getFinalAmount();
-        book(bob, p); // 3명 → 확정
+        book(bob, p);
         travel(p, 10);
         assertThat(travel.completeFinishedTrips(null)).isEqualTo(2);
         assertThat(historyNames(alice)).hasSize(1); // 같은 상품 신청 2건이어도 다녀온 여행은 1회

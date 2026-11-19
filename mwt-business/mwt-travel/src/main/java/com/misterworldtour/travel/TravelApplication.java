@@ -27,11 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 고객의 여행 신청 (설계 5.1 TravelApplication): 신청 고객 번호·상품·선택 구성·실제 여행자 목록·최종 금액·요청 키·신청 시점.
- *
- * <p>신청 고객은 회원 id 로만 가진다 (다른 패키지의 엔티티를 직접 참조·수정하지 않는다).
- * 출발 상태는 허니문만 신청별로 쓰고, 다른 테마는 null 이며 상품 공동 상태를 따른다.
- * 취소는 행을 지우지 않고 cancelledAt 을 기록한다.
+ * 고객의 여행 신청 (설계 5.1 TravelApplication).
+ * 출발 상태는 허니문만 신청별로 쓰고, 다른 테마는 null(상품 공동 상태를 따름). 취소는 행을 지우지 않고 cancelledAt 기록.
  */
 @Entity
 @Table(name = "travel_application")
@@ -119,17 +116,12 @@ public class TravelApplication {
         }
     }
 
-    /** 실제 여행자 한 명 입력 (정리된 값). */
     public record TravelerInput(String name, String contact, boolean applicant) implements Serializable {
     }
 
     static final int MAX_TRAVELER_NAME = 50;
 
-    /**
-     * 여행자 정보 검증 (설계 ValidateTravelers). rows 의 첫 행은 신청 고객 본인(계정 성명·연락처로 채워 온 값)이다.
-     * 비어 있는 행은 무시하고, 성명 필수·연락처는 선택(있으면 휴대전화 형식)이다. 허니문은 정확히 2명.
-     * 정리한 여행자 목록을 돌려주며, 문제가 있으면 항목별 안내와 함께 {@link BookingException}.
-     */
+    /** 여행자 정보 검증 (설계 ValidateTravelers). 첫 행은 신청 고객 본인. 성명 필수, 연락처 선택. 허니문은 정확히 2명. */
     public static List<TravelerInput> validateTravelers(Theme theme, List<TravelerInput> rows) {
         Map<String, String> errors = new LinkedHashMap<>();
         List<TravelerInput> cleaned = new ArrayList<>();
@@ -137,7 +129,7 @@ public class TravelApplication {
             String name = strip(rows.get(i).name());
             String contactRaw = strip(rows.get(i).contact());
             if (name.isEmpty() && contactRaw.isEmpty()) {
-                continue; // 비어 있는 행은 무시
+                continue;
             }
             String key = "traveler_" + i;
             if (name.isEmpty()) {
@@ -176,7 +168,6 @@ public class TravelApplication {
         return s == null ? "" : s.strip();
     }
 
-    /** 실제 여행자를 신청에 넣는다 (저장은 Data Access 의 SaveApplication 이 신청과 함께 한다). */
     public void addTraveler(Traveler traveler) {
         traveler.attachTo(this);
         travelers.add(traveler);
@@ -190,7 +181,6 @@ public class TravelApplication {
         departureStatus = DepartureStatus.CONFIRMED;
     }
 
-    /** 신청한 구성 (호텔·교통·식사·음료). */
     public TravelConfiguration getConfiguration() {
         return new TravelConfiguration(hotelLevel.name(), transport.name(), meal.name(),
                 TravelConfiguration.normalizeDrinks(extraDrinks));

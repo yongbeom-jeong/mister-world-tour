@@ -13,8 +13,8 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
 /**
- * 한 번의 기념품 입고 내역 (설계 6.1 StockReceipt): 입고 번호·품목·직원 번호·수량·최초 요청 시점·요청 키.
- * requestKey 로 같은 입고의 재시도를 구별해 재고가 두 번 늘지 않게 한다. 입고 번호는 저장 후 부여된다.
+ * 한 번의 기념품 입고 내역 (설계 6.1 StockReceipt).
+ * requestKey 로 같은 입고의 재시도를 구별해 재고가 두 번 늘지 않게 한다.
  */
 @Entity
 @Table(name = "stock_receipt")
@@ -55,7 +55,7 @@ public class StockReceipt {
         this.requestKey = requestKey;
     }
 
-    /** 입고 자료 검사. 문제가 있으면 안내 문구, 없으면 null. */
+    /** 문제가 있으면 안내 문구, 없으면 null. */
     public String validateReceipt() {
         if (souvenir == null || !souvenir.isActive()) {
             return "등록된 기념품을 찾을 수 없습니다.";
@@ -72,12 +72,11 @@ public class StockReceipt {
         return null;
     }
 
-    /** 기존 입고 내역이 현재 요청(직원·품목·수량)과 같은지. 같으면 같은 입고의 재시도다. */
+    /** 직원·품목·수량이 같으면 같은 입고의 재시도다. */
     public boolean matchesRequest(long employeeId, long souvenirId, int quantity) {
         return this.employeeId == employeeId && souvenir.getSouvenirId() == souvenirId && this.quantity == quantity;
     }
 
-    /** 재고 증가 직후의 재고 수량 (Data Access 가 입고 저장과 함께 기록). */
     public void recordStockAfter(int stockAfter) {
         this.stockAfter = stockAfter;
     }

@@ -13,10 +13,7 @@ import jakarta.persistence.Table;
 
 import java.time.OffsetDateTime;
 
-/**
- * 출발 확정으로 차감한 기념품 (품목·신청마다 1행, 여행자 1인당 1개).
- * 신청은 id 로만 가진다 (Travel 패키지의 엔티티를 직접 참조하지 않음).
- */
+/** 출발 확정으로 차감한 기념품 내역 ((품목, 신청)마다 1행). */
 @Entity
 @Table(name = "stock_issue")
 public class StockIssue {

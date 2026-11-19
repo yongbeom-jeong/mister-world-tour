@@ -90,8 +90,6 @@ class MemberWebTest {
         return members.saveMember(new Member(username, Member.hashPassword(PW), "이름", "", "010-0000-0000", role));
     }
 
-    // ---------------------------------------------------------------- UC1 회원가입
-
     @Test
     void customerSignupSavesHashedPasswordAndNormalizedContact() throws Exception {
         mvc.perform(signup())
@@ -144,7 +142,7 @@ class MemberWebTest {
     @Test
     void dbRejectsSameUsernameWithDifferentCase() {
         createMember("Hong_gd", Role.CUSTOMER);
-        // 화면·MemberManager 검사를 지나도(동시 가입) 대소문자만 다른 아이디는 DB 유일 제약이 막는다
+        // 동시 가입으로 앞 검사를 지나도 대소문자만 다른 아이디는 DB 유일 제약이 막는다
         assertThatThrownBy(() -> members.saveMember(new Member("HONG_GD", Member.hashPassword(PW), "홍3", "", "010-1111-4444",
                 Role.CUSTOMER))).isInstanceOf(DataIntegrityViolationException.class);
         assertThat(memberService.signUp(Role.CUSTOMER, "HONG_GD", PW, "홍3", "주소", "010-1111-4444").errors())
@@ -162,7 +160,7 @@ class MemberWebTest {
         assertThat(memberCount()).isZero();
     }
 
-    /** 저장(커밋)은 됐는데 응답 전에 연결이 끊긴 경우. 저장은 별도 트랜잭션으로 먼저 확정한다. */
+    /** 커밋은 됐는데 응답 전에 연결이 끊긴 경우. */
     @Test
     void dbErrorAfterSaved() throws Exception {
         TransactionTemplate committed = new TransactionTemplate(transactionManager);
@@ -181,8 +179,6 @@ class MemberWebTest {
         mvc.perform(get("/members/login/").flashAttrs(res.getFlashMap()))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("가입은 완료되었습니다")));
     }
-
-    // ---------------------------------------------------------------- UC2 로그인
 
     MvcResult login(MockHttpSession session, String username, String password, String next) throws Exception {
         MockHttpServletRequestBuilder req = post("/members/login/").session(session)
@@ -238,7 +234,7 @@ class MemberWebTest {
         mvc.perform(get("/").session(session)).andExpect(model().attribute("currentMember", (Object) null));
     }
 
-    /** 빈 칸은 브라우저 말풍선이 아니라 화면 안내로 알린다 (폼은 novalidate). */
+    /** 폼은 novalidate: 빈 칸은 화면 안내로 알린다. */
     @Test
     void blankLoginAsksForInput() throws Exception {
         MockHttpSession session = new MockHttpSession();

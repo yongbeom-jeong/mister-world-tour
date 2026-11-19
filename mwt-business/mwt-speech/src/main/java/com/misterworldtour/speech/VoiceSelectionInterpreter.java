@@ -22,19 +22,19 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 인식된 문장을 테마·투어 등급 조회 조건이나 상품 선택으로 해석한다 (설계 8.1 VoiceSelectionInterpreter).
- * 해석 결과는 선택 값만 돌려준다. 상품 검증·등급 제한·가격은 Travel Management 가 화면 선택과 같은 경로로 처리한다.
+ * 인식된 문장을 테마·등급 조회 조건이나 상품 선택으로 해석한다 (설계 8.1 VoiceSelectionInterpreter).
+ * 선택 값만 돌려주고 검증·가격은 화면 선택과 같은 경로로 처리한다.
  */
 @Component
 public class VoiceSelectionInterpreter {
 
-    // 별칭은 임시 정책 (설계상 명령 문형·별칭은 연동 시험에서 구체화)
+    // 별칭은 임시 정책
     static final Map<Theme, List<String>> THEME_ALIASES = new LinkedHashMap<>();
     static final Map<TourLevel, List<String>> LEVEL_ALIASES = new LinkedHashMap<>();
     static final Map<String, Integer> ORDINALS = Map.ofEntries(Map.entry("첫", 1), Map.entry("한", 1),
             Map.entry("두", 2), Map.entry("세", 3), Map.entry("네", 4), Map.entry("다섯", 5), Map.entry("여섯", 6),
             Map.entry("일곱", 7), Map.entry("여덟", 8), Map.entry("아홉", 9), Map.entry("열", 10));
-    /** 상품 이름에서 고유 단어를 고를 때 제외할 흔한 단어. */
+    /** 상품 고유 단어에서 뺄 흔한 단어. */
     static final Set<String> GENERIC_WORDS = Set.of("투어", "여행", "챌린지", "힐링", "로맨틱", "트레킹", "골프",
             "허니문", "효도", "상품", "패키지");
     static final Pattern ORDINAL_RE = Pattern.compile(
@@ -77,15 +77,11 @@ public class VoiceSelectionInterpreter {
         return out;
     }
 
-    /**
-     * 인식된 문장과 현재 화면의 테마·투어 등급·상품 목록으로 선택 의도를 해석한다.
-     * 상품 조회 요청이면 테마·등급을, 상품 선택 요청이면 현재 목록의 상품 번호를 돌려준다.
-     * 하나로 정할 수 없거나 지원하지 않는 명령이면 그 사유를 돌려준다 (적용할 값 없음 → 직전 선택 유지).
-     */
+    /** 설계 InterpretSelection. 상품 선택을 먼저 보고, 없으면 테마·등급 조건으로 본다. */
     public VoiceSelectionResult interpretSelection(String recognizedText, VoiceSelectionContext context) {
         String text = norm(recognizedText);
 
-        // 1) 상품 선택: 순서("두 번째", "2번") 또는 상품 고유 단어(여행지·이름)
+        // 상품 선택: 순서("두 번째", "2번") 또는 고유 단어(여행지·이름)
         Matcher m = ORDINAL_RE.matcher(recognizedText);
         if (m.find() && !context.products().isEmpty()) {
             int n = m.group(1) != null ? Integer.parseInt(m.group(1)) : ORDINALS.get(m.group(2));
@@ -115,7 +111,7 @@ public class VoiceSelectionInterpreter {
                     "여러 상품이 해당됩니다 (" + names + "). 상품 이름이나 순서(예: 두 번째)로 다시 말해 주세요.");
         }
 
-        // 2) 테마·등급 조회 조건: 말한 항목만 돌려주고 나머지는 화면 상태 유지
+        // 말한 항목만 돌려주고 나머지는 화면 상태 유지
         Set<Theme> themes = find(THEME_ALIASES, text);
         Set<TourLevel> levels = find(LEVEL_ALIASES, text);
         if (themes.size() > 1 || levels.size() > 1) {

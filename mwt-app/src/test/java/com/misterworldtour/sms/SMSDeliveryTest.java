@@ -158,7 +158,7 @@ class SMSDeliveryTest {
         assertThat(r.success()).isEqualTo(1);
         assertThat(r.failed()).isEqualTo(1);
         assertThat(ConsoleSMSClient.SENT).hasSize(1);
-        // 정보가 없는 대상은 SMSMessage(발송 기록)를 만들지 않는다 (설계 상태도 11.1)
+        // 정보가 없는 대상은 발송 기록을 만들지 않는다 (설계 상태도 11.1)
         assertThat(jdbc.queryForList("SELECT status FROM sms_log ORDER BY id", String.class))
                 .containsExactly("SUCCESS");
     }
@@ -178,7 +178,7 @@ class SMSDeliveryTest {
     @Test
     void batchStopsBeforeExceedingTimeLimit() {
         AtomicLong clock = new AtomicLong();
-        SlowClient client = new SlowClient(clock, 15, 10, false); // 1통에 15초, 1회 최대 10초 대기, 한도 40초
+        SlowClient client = new SlowClient(clock, 15, 10, false); // 1통 15초, 1회 최대 10초 대기
         List<Recipient> many = List.of(alice, new Recipient(2L, "밥", "010-2"), new Recipient(3L, "캐럴", "010-3"),
                 new Recipient(4L, "데이브", "010-4"));
         SMSBatchResult r = sms.sendDepartureConfirmation(many, notice, client, clock::get);
@@ -194,7 +194,7 @@ class SMSDeliveryTest {
         AtomicLong clock = new AtomicLong();
         SlowClient client = new SlowClient(clock, 15, 10, true);
         SMSBatchResult r = sms.sendDepartureConfirmation(List.of(alice), notice, client, clock::get);
-        assertThat(r.messages().get(0).getAttemptCount()).isEqualTo(3); // 0·15·30초 시도, 45초 시도는 하지 않음
+        assertThat(r.messages().get(0).getAttemptCount()).isEqualTo(3);
         assertThat(r.failed()).isEqualTo(1);
     }
 }

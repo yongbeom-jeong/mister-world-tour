@@ -44,8 +44,6 @@ class TravelRepository {
         this.tx = new TransactionTemplate(transactionManager);
     }
 
-    // ---------------------------------------------------------------- 상품
-
     List<TravelProduct> findProducts(ProductFilter f) {
         StringBuilder q = new StringBuilder("select p from TravelProduct p where 1 = 1");
         if (f.departureAfter() != null) {
@@ -148,9 +146,6 @@ class TravelRepository {
                 .map(r -> new ProductApplicationCount((TravelProduct) r[0], (Long) r[1])).toList();
     }
 
-    // ---------------------------------------------------------------- 신청·여행자
-
-    /** 신청 정보와 실제 여행자 목록을 함께 저장한다. */
     TravelApplication saveApplication(TravelApplication application, List<Traveler> travelers) {
         for (Traveler t : travelers) {
             application.addTraveler(t);
@@ -261,8 +256,6 @@ class TravelRepository {
         }
         return query.getResultList();
     }
-
-    // ---------------------------------------------------------------- 이전 여행 이력
 
     List<TravelHistory> findTravelHistories(long memberId) {
         return em.createQuery("""

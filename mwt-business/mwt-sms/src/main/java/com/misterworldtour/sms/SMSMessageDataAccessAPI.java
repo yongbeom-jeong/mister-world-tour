@@ -5,19 +5,13 @@ import org.springframework.data.domain.Page;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-/**
- * 문자 발송 기록의 저장과 조회. SMS Notification 이 필요로 하는 인터페이스이며,
- * Data Access 서브시스템의 {@code DataAccessManager} 가 구현한다 (의존성 역전: 인터페이스는 쓰는 쪽이 가진다).
- */
+/** 문자 발송 기록 저장·조회. Data Access 의 {@code DataAccessManager} 가 구현한다. */
 public interface SMSMessageDataAccessAPI {
 
-    /**
-     * 발송 기록을 저장하고 번호를 붙인다. 바깥 트랜잭션(신청 저장) 안에서 불러도 실패가 바깥을 되돌리지 않게
-     * 저장점을 두고 저장한다. 실패하면 예외.
-     */
+    /** 저장점을 두고 저장해, 실패해도 바깥 트랜잭션(신청 저장)을 되돌리지 않는다. */
     long insertSMSMessage(SMSMessage message);
 
-    /** 메모리에서 바뀐 발송 결과를 저장된 기록에 반영한다. resentBy 가 있으면 재발송 횟수도 센다. */
+    /** resentBy 가 있으면 재발송 횟수도 센다. */
     void saveSMSMessageResult(SMSMessage message, Long resentBy);
 
     Optional<SMSMessage> findSMSMessage(long id);

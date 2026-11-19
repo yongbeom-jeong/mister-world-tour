@@ -20,11 +20,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-/**
- * 직원이 올린 상품 사진 처리: 최대 1600px JPEG 로 줄여 다시 저장한다.
- * 다시 그려 저장하므로 위치 정보 등 메타데이터는 남지 않는다.
- * (휴대폰 사진의 회전 정보(EXIF)는 보정하지 않는다)
- */
+/** 직원이 올린 상품 사진을 최대 1600px JPEG 로 다시 저장한다 (메타데이터 제거, EXIF 회전은 보정하지 않음). */
 @Component
 public class ProductImages {
 

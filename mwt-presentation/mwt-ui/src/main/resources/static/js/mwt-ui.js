@@ -1,15 +1,11 @@
 /* 화면 공통 입력 부품 (모든 화면에서 불러온다)
- *
- * 1. 선택 상자: 브라우저 기본 <select> 목록 대신 디자인된 목록(Bootstrap dropdown)을 보여 준다.
- *    실제 값은 원래 select 가 그대로 가진다 → 폼 전송·서버 검증·기존 화면 스크립트(id_theme 등)는 바뀌지 않는다.
- *    다른 스크립트가 옵션·disabled 를 바꾸면 MutationObserver 로 다시 그린다.
- *    기본 select 를 그대로 쓰려면 data-native 속성을 붙인다.
- * 2. 날짜: <input type="date"> 를 디자인된 달력(flatpickr, 한국어)으로. flatpickr 를 불러온 화면에서만 동작한다.
+ * - 선택 상자: 실제 값은 숨긴 원래 select 에 있어 폼 전송은 그대로. 기본 select 가 필요하면 data-native
+ * - 날짜: flatpickr 를 불러온 화면에서만 동작
  */
 (() => {
   "use strict";
 
-  // ---------------------------------------------------------------- 선택 상자
+  // 선택 상자
   let uid = 0;
 
   function enhanceSelect(select) {
@@ -19,7 +15,6 @@
     const wrap = document.createElement("div");
     wrap.className = "mwt-select dropdown";
     if (select.classList.contains("form-select-sm")) wrap.classList.add("mwt-select-sm");
-    // 원래 select 에 준 폭 제한(style)은 감싸는 요소로 옮긴다
     if (select.style.maxWidth) { wrap.style.maxWidth = select.style.maxWidth; select.style.maxWidth = ""; }
 
     const btn = document.createElement("button");
@@ -42,7 +37,6 @@
     select.classList.add("mwt-select-native");
     select.tabIndex = -1;
     select.setAttribute("aria-hidden", "true");
-    // 라벨은 화면의 버튼을 가리키게 한다 (라벨을 누르면 버튼에 초점)
     if (select.id) {
       document.querySelectorAll(`label[for="${CSS.escape(select.id)}"]`).forEach(l => { l.htmlFor = btn.id; });
       if (!select.labels?.length && select.getAttribute("aria-label")) btn.setAttribute("aria-label", select.getAttribute("aria-label"));
@@ -86,7 +80,7 @@
     render();
   }
 
-  // ---------------------------------------------------------------- 날짜
+  // 날짜
   function enhanceDate(input) {
     if (!window.flatpickr || input.dataset.enhanced || "native" in input.dataset) return;
     input.dataset.enhanced = "1";
@@ -94,12 +88,12 @@
       locale: window.flatpickr.l10ns?.ko || "default",
       dateFormat: "Y-m-d",          // 서버로 보내는 값은 그대로
       altInput: true,
-      altFormat: "Y년 n월 j일",       // 화면에 보이는 형식
-      monthSelectorType: "static",   // 월 선택도 기본 목록 대신 화살표로 넘긴다
+      altFormat: "Y년 n월 j일",
+      monthSelectorType: "static",
       minDate: input.min || null,
       maxDate: input.max || null,
       disableMobile: true,
-      altInputClass: input.className + " mwt-date",   // 원래 입력칸 스타일을 이어받는다
+      altInputClass: input.className + " mwt-date",
       onReady: (_, __, fp) => {
         fp.altInput.classList.toggle("is-invalid", input.classList.contains("is-invalid"));
         fp.altInput.placeholder = "날짜를 고르세요";

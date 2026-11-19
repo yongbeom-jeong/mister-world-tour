@@ -78,7 +78,7 @@
       </section>
     </div>
 
-    <!--/* ---------------------------------------------------------------- 가격·신청 (PC: 오른쪽 카드, 휴대폰: 하단 바) */-->
+    <!--/* ---------------------------------------------------------------- 가격·신청 */-->
     <div class="col-lg-5 col-xl-4 offset-xl-1">
       <aside class="booking-bar" aria-label="선택한 여행 가격과 신청">
         <div class="booking-bar-product">
@@ -114,7 +114,6 @@
   price.textContent = fmt(price.textContent);
 
   function syncInputs() {
-    // 화면 입력을 마지막 유효 구성으로 되돌리거나 맞춘다
     for (const r of document.querySelectorAll("input[data-field]")) r.checked = current[r.dataset.field] === r.value;
     const included = INCLUDED[current.meal] || [];
     for (const cb of document.querySelectorAll("[data-drink]")) {
