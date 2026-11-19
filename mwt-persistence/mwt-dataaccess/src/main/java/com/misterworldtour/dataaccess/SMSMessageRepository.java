@@ -26,10 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 문자 발송 기록(SMSMessage) 저장·조회. 설계 7.1 의 세 Repository 외에 문자 기록 보관을 위해 둔다.
- *
- * <p>발송 기록은 신청 저장 트랜잭션 안에서 먼저 만들되, 실패해도 신청을 되돌리지 않도록 같은 연결에
- * 저장점(savepoint)을 두고 JDBC 로 저장한다 (JPA 는 저장점을 지원하지 않음).
+ * 문자 발송 기록(SMSMessage) 저장·조회 (설계 7.1 외 추가).
+ * 신청 저장 트랜잭션 안에서 저장점(savepoint)을 두고 JDBC 로 저장한다 (JPA 는 저장점 미지원).
  */
 @Repository
 class SMSMessageRepository {
@@ -50,7 +48,7 @@ class SMSMessageRepository {
         this.tx = new TransactionTemplate(transactionManager);
     }
 
-    /** 새 기록의 번호. 실패하면 예외 (바깥 트랜잭션은 저장점까지만 되돌려 계속 쓸 수 있다). */
+    /** 실패하면 예외. 바깥 트랜잭션은 저장점까지만 되돌린다. */
     long insert(SMSMessage message) {
         Long id = jdbc.execute((ConnectionCallback<Long>) con -> {
             boolean inTransaction = !con.getAutoCommit();
@@ -100,7 +98,6 @@ class SMSMessageRepository {
         }
     }
 
-    /** 메모리의 발송 결과를 저장된 기록에 반영한다 (자체 트랜잭션, 바깥이 있으면 참여). */
     void saveResult(SMSMessage message, Long resentBy) {
         tx.executeWithoutResult(s -> {
             SMSMessage saved = em.find(SMSMessage.class, message.getId());

@@ -7,29 +7,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * 가격·단골 할인 계산 (설계 5.1 TravelPriceCalculator).
- *
- * <pre>
- * 1인 가격       = 1인 기본 가격 + 옵션 추가금 (기본 구성보다 높이면 +, 낮추면 −). 하한은 기본 가격의 50%
- * 할인 전 금액   = 1인 가격 × 실제 여행자 수
- * 단골 할인액    = 단골(최근 3년 내 완료 여행 3회 이상)이면 할인 전 금액의 10% (원 미만 버림), 아니면 0
- * 최종 신청 금액 = 할인 전 금액 − 단골 할인액
- * </pre>
- */
+/** 가격·단골 할인 계산 (설계 5.1 TravelPriceCalculator). */
 public final class TravelPriceCalculator {
 
-    /** 옵션 가격표: 1인당 옵션 금액(원, 임시 금액). 기본 구성에서 바꾼 항목만 차액을 반영한다. */
+    /** 1인당 옵션 금액(원). 기본 구성에서 바꾼 항목만 차액을 반영한다. */
     public static final Map<String, Map<String, Integer>> OPTION_PRICE_TABLE = Map.of(
             TravelConfiguration.HOTEL, Map.of("STAR3", 0, "STAR4", 150_000, "STAR5", 350_000),
             TravelConfiguration.TRANSPORT, Map.of("LUXURY_VAN_10", 0, "LUXURY_CAR_2", 0, "LIMOUSINE", 150_000),
             TravelConfiguration.MEAL, Map.of("LUNCHBOX", 0, "LOCAL", 80_000, "FINE", 200_000));
 
-    /** 추가 음료 1인 금액(원). 식사에 기본 포함된 음료는 0원 (기본 제공분 중복 과금 방지). */
+    /** 추가 음료 1인 금액(원). 식사에 기본 포함된 음료는 0원. */
     public static final Map<String, Integer> DRINK_PRICES =
             Map.of("WINE", 50_000, "BEER", 20_000, "CHAMPAGNE", 60_000, "COFFEE", 10_000);
 
-    /** 옵션을 아무리 낮춰도 1인 가격은 기본 가격의 50% 이상 (임시 정책). */
+    /** 1인 가격 하한: 기본 가격의 50%. */
     public static final double MIN_UNIT_PRICE_RATIO = 0.5;
 
     /** 신청 금액 계산 결과. 검토 때와 등록 때 값이 같아야 신청한다 (equals 로 비교). */
@@ -55,7 +46,7 @@ public final class TravelPriceCalculator {
         return table.getOrDefault(chosen, 0) - table.getOrDefault(productValue(product, field), 0);
     }
 
-    /** 기본 구성과 다른 항목의 차액 합계 + 추가 음료 (기본 제공 음료는 중복 과금하지 않음). */
+    /** 기본 구성과 다른 항목의 차액 합계 + 추가 음료. */
     static int optionSurcharge(TravelProduct product, TravelConfiguration configuration) {
         int total = optionDifference(product, TravelConfiguration.HOTEL, configuration.hotelLevel())
                 + optionDifference(product, TravelConfiguration.TRANSPORT, configuration.transport())

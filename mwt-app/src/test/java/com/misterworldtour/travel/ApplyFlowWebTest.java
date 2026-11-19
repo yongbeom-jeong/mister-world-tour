@@ -79,7 +79,7 @@ class ApplyFlowWebTest extends BookingTestBase {
                 .andExpect(status().isOk()).andReturn();
         ApplicationReviewResult review = (ApplicationReviewResult) res.getModelAndView().getModel().get("review");
         assertThat(review.price().travelerCount()).isEqualTo(2);
-        assertThat(review.travelers().get(0).name()).isEqualTo("앨리스"); // 첫 행은 계정 정보
+        assertThat(review.travelers().get(0).name()).isEqualTo("앨리스");
         assertThat(review.travelers().get(1).contact()).isEqualTo("010-9999-0000");
 
         MvcResult submitted = mvc.perform(post("/travel/apply/").session(session).with(login(alice)).with(csrf())
@@ -128,7 +128,7 @@ class ApplyFlowWebTest extends BookingTestBase {
         assertThat(applicationCount()).isZero();
 
         org.mockito.Mockito.reset(spyBooking);
-        submit(key); // 다시 누르면 정상 저장
+        submit(key);
         assertThat(applicationCount()).isEqualTo(1);
     }
 

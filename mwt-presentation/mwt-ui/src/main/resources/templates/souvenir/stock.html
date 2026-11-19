@@ -126,7 +126,7 @@
       render();
       showSelected();
     } catch (e) {
-      // 조회 실패를 재고 0으로 보이지 않게 목록을 비우고 오류를 표시
+      // 조회 실패를 재고 0으로 보이지 않게
       souvenirs = [];
       rows.innerHTML = "";
       listError.textContent = "기념품 목록을 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.";
@@ -134,7 +134,7 @@
     }
   }
 
-  function showSelected() {   // 선택 품목 이름 옆 현재 재고를 목록 값과 맞춘다
+  function showSelected() {
     const s = souvenirs.find(x => x.id === selectedId);
     if (!s) return;
     selectedName.textContent = `${s.name} (현재 ${s.stock_quantity.toLocaleString()}개)`;
@@ -142,7 +142,7 @@
   }
 
   function selectSouvenir(id) {
-    if (busy || pending) return;   // 처리 중이거나 확인 안 된 입고가 있으면 바꾸지 않음
+    if (busy || pending) return;
     if (!souvenirs.some(x => x.id === id)) return;
     if (id !== selectedId) { qty.value = ""; result.hidden = true; }
     selectedId = id;
@@ -159,7 +159,7 @@
       headers: { "X-CSRF-TOKEN": csrf },
       body: new URLSearchParams(body),
     });
-    // 로그인 만료·권한 없음(403)은 서버가 요청을 처리하기 전에 막은 것이라 반영되지 않았음이 확실하다
+    // 403 은 처리 전에 막힌 것이라 반영되지 않았다
     let data = null;
     try { data = await res.json(); } catch (_) {}
     const authFailed = (data && data.status === "PERMISSION_DENIED") || res.status === 403
@@ -179,7 +179,7 @@
     try {
       const { res, data, authFailed } = await post(URLS.record, pending);
       if (authFailed) {
-        pending = null;   // 새 로그인 세션에는 이 준비 문맥이 없으므로 다시 입고해야 한다
+        pending = null;   // 새 세션에는 준비 문맥이 없어 다시 입고
         retry.hidden = true;
         show("danger", AUTH_MSG);
       } else if (res.ok && data && data.ok) {
@@ -196,18 +196,18 @@
           loadSouvenirs();
         }
       } else if (data && data.status === "SAVE_FAILED") {
-        // 저장 트랜잭션이 취소됨: 반영되지 않았음이 확실하다. 같은 키로 다시 시도할 수 있다.
+        // 저장 취소됨: 같은 키로 다시 시도 가능
         show("danger", data.message + " '같은 입고 다시 확인'으로 다시 시도할 수 있습니다.");
         retry.hidden = false;
       } else if (res.status >= 500 || !data) {
         throw new Error("unknown");
       } else {
-        pending = null;   // 확실히 거부된 요청: 다음 입고는 새로 준비
+        pending = null;   // 거부됨: 다음 입고는 새로 준비
         retry.hidden = true;
         show("danger", data.message);
       }
     } catch (e) {
-      // 반영 여부를 알 수 없음: 같은 키로만 다시 확인 (새 입고로 바꾸지 않음)
+      // 반영 여부 불명: 같은 키로만 다시 확인
       show("warning", "입고 반영 여부를 확인하지 못했습니다. '같은 입고 다시 확인'을 눌러 주세요. 재고가 두 번 늘지 않습니다.");
       retry.hidden = false;
     } finally {

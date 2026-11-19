@@ -28,11 +28,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * {@link DataAccessAPI} 구현 (설계 7.1 DataAccessManager). 회원·여행·기념품 요청을 각각 MemberRepository·
- * TravelRepository·SouvenirRepository 에, 문자 기록 요청을 SMSMessageRepository 에 전달하고 결과를 돌려준다.
- * 현재 회원·선택 상품 같은 공유 상태는 보관하지 않는다.
- *
- * <p>각 메소드는 호출한 업무 메소드의 트랜잭션에 참여하고, 없으면 자체 트랜잭션으로 실행한다.
+ * {@link DataAccessAPI} 구현 (설계 7.1 DataAccessManager). 각 Repository 에 위임하고 호출한 업무 메소드의 트랜잭션에 참여한다.
  */
 @Service
 @Transactional
@@ -50,8 +46,6 @@ public class DataAccessManager implements DataAccessAPI {
         this.souvenirRepository = souvenirRepository;
         this.smsMessageRepository = smsMessageRepository;
     }
-
-    // ---------------------------------------------------------------- 회원
 
     @Override
     public boolean existsAccount(String account) {
@@ -82,8 +76,6 @@ public class DataAccessManager implements DataAccessAPI {
     public Optional<Member> findMemberJoinedSince(String account, OffsetDateTime since) {
         return memberRepository.findMemberJoinedSince(account, since);
     }
-
-    // ---------------------------------------------------------------- 여행 상품
 
     @Override
     public List<TravelProduct> findProducts(ProductFilter filters) {
@@ -150,8 +142,6 @@ public class DataAccessManager implements DataAccessAPI {
     public List<ProductApplicationCount> findRecentProducts(int limit) {
         return travelRepository.findRecentProducts(limit);
     }
-
-    // ---------------------------------------------------------------- 여행 신청
 
     @Override
     public TravelApplication saveApplication(TravelApplication application, List<Traveler> travelers) {
@@ -223,8 +213,6 @@ public class DataAccessManager implements DataAccessAPI {
         return travelRepository.findConfirmedApplicationsDepartedBefore(today, memberId);
     }
 
-    // ---------------------------------------------------------------- 여행 이력
-
     @Override
     public List<TravelHistory> findTravelHistories(long memberId) {
         return travelRepository.findTravelHistories(memberId);
@@ -244,8 +232,6 @@ public class DataAccessManager implements DataAccessAPI {
     public Set<String> findCompletedTravelKeys(String prefix, Long memberId) {
         return travelRepository.findCompletedTravelKeys(prefix, memberId);
     }
-
-    // ---------------------------------------------------------------- 기념품
 
     @Override
     public List<Souvenir> findSouvenirs() {
@@ -337,9 +323,7 @@ public class DataAccessManager implements DataAccessAPI {
         return souvenirRepository.findStockIssuesForApplication(applicationId);
     }
 
-    // ---------------------------------------------------------------- 문자 발송 기록
-
-    /** 실패해도 바깥 트랜잭션(신청 저장)을 되돌림 표시하지 않는다 (저장점까지만 취소). */
+    /** 실패해도 저장점까지만 취소해 바깥 트랜잭션(신청 저장)은 살린다. */
     @Override
     @Transactional(noRollbackFor = RuntimeException.class)
     public long insertSMSMessage(SMSMessage message) {

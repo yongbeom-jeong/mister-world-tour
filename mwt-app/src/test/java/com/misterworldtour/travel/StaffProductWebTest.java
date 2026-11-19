@@ -133,7 +133,7 @@ class StaffProductWebTest extends BookingTestBase {
         String html = mvc.perform(get("/travel/staff/products/{id}/", p.getProductId()).with(login(staff)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertThat(html).contains("filter_theme").contains("id=\"id_theme\"");
-        assertThat(html.split("id=\"id_theme\"", -1)).hasSize(2); // 한 번만
+        assertThat(html.split("id=\"id_theme\"", -1)).hasSize(2);
         assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().getProductName()).isEqualTo(p.getProductName());
     }
 
@@ -144,7 +144,7 @@ class StaffProductWebTest extends BookingTestBase {
         TravelProduct p = only();
         assertThat(p.getImage()).startsWith("products/").endsWith(".jpg");
         BufferedImage saved = ImageIO.read(Path.of("target/test-media").resolve(p.getImage()).toFile());
-        assertThat(saved.getWidth()).isEqualTo(1600); // 최대 1600px 로 줄임
+        assertThat(saved.getWidth()).isEqualTo(1600);
         assertThat(saved.getHeight()).isEqualTo(800);
         assertThat(p.getPhotoUrl()).isEqualTo("/media/" + p.getImage());
 

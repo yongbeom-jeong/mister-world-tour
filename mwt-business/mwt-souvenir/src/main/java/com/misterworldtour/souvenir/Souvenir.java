@@ -16,8 +16,8 @@ import jakarta.persistence.Table;
 import java.util.Locale;
 
 /**
- * 기념품 품목 (설계 6.1 Souvenir): 품목 번호·이름·여행 테마·조회 시점의 재고 수량. 테마에 여러 품목이 있을 수 있다.
- * 입고·차감 내역이 있는 품목을 삭제하면 내역 보존을 위해 숨긴다(active=false). 숨긴 품목은 신청 검사·차감·입고에서 빠진다.
+ * 기념품 품목 (설계 6.1 Souvenir). 테마에 여러 품목이 있을 수 있다.
+ * 내역이 있는 품목은 삭제 대신 숨기고(active=false), 숨긴 품목은 신청 검사·차감·입고에서 빠진다.
  */
 @Entity
 @Table(name = "souvenir")
@@ -52,7 +52,6 @@ public class Souvenir {
         this.theme = theme;
     }
 
-    /** 대소문자를 무시한 이름 중복 검사용 값. */
     public static String keyOf(String name) {
         return name == null ? "" : name.toLowerCase(Locale.ROOT);
     }

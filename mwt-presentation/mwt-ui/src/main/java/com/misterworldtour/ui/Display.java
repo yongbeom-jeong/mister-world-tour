@@ -8,22 +8,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/** 화면 표시용 정보: 테마 소개 문구와 사진 경로. 업무 규칙과는 무관하다. */
+/** 화면 표시용 테마·등급 정보 (소개 문구, 사진 경로). */
 public final class Display {
 
-    /** 테마 하나의 화면 정보. code·label 은 메뉴·검색, 나머지는 테마 카드. */
     public record ThemeView(String code, String label, String shortLabel, String en, String icon,
                             String tagline, String photoUrl, String photoSm) {
     }
 
-    /** 등급 하나의 화면 정보. summary 예: "4등급 호텔 · 현지식 레스토랑 식사". */
     public record LevelView(String code, String label, String icon, String summary) {
     }
 
     private record ThemeInfo(String en, String icon, String tagline, String photo) {
     }
 
-    // 테마별 소개 (과제 안내의 테마 설명을 바탕으로 한 화면 문구)
     private static final Map<Theme, ThemeInfo> THEME_INFO = Map.of(
             Theme.HONEYMOON, new ThemeInfo("Honeymoon Romance", "bi-heart",
                     "둘만을 위한 로맨틱 스페셜 룸과 2인 전용 고급차량", "theme_honeymoon"),
@@ -34,7 +31,6 @@ public final class Display {
             Theme.TREKKING, new ThemeInfo("Outdoor Trekking", "bi-tree",
                     "산과 길이 주는 모험, 아웃도어 스카프와 함께", "theme_trekking"));
 
-    // 투어 등급 아이콘 (홈 검색 선택 패널)
     private static final Map<TourLevel, String> LEVEL_ICONS = Map.of(
             TourLevel.CLASSIC, "bi-star", TourLevel.GRAND, "bi-stars", TourLevel.PREMIUM, "bi-gem");
 
@@ -58,7 +54,6 @@ public final class Display {
         return "/img/photos/" + (small ? "sm/" : "") + name + ".jpg";
     }
 
-    /** 직원이 올린 사진, 없으면 테마 기본 사진. */
     public static String productPhoto(TravelProduct product, boolean small) {
         return small ? product.getPhotoSmUrl() : product.getPhotoUrl();
     }

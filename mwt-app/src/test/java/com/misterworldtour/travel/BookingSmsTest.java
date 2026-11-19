@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
-/** 출발 확정 문자와 신청 저장의 관계 (SubmitTests·DepartureSMSLogTests·SMSLogBeforeSendTests). */
+/** 출발 확정 문자와 신청 저장의 관계. */
 class BookingSmsTest extends BookingTestBase {
 
     @MockitoSpyBean
@@ -34,8 +34,8 @@ class BookingSmsTest extends BookingTestBase {
     void confirmationSmsIsSentAndLoggedPerRecipient() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         LoginSession bob = customer("bob", "밥", "010-2000-0002");
-        assertThat(book(bob, p, "밥동반").sms()).isNull(); // 2명: 미확정, 문자 없음
-        ApplicationResult r = book(alice, p); // 3명 → 확정
+        assertThat(book(bob, p, "밥동반").sms()).isNull();
+        ApplicationResult r = book(alice, p);
         assertThat(r.sms().success()).isEqualTo(2);
         assertThat(r.sms().summary()).isEqualTo("출발 확정 문자: 성공 2건");
         assertThat(ConsoleSMSClient.SENT).extracting(s -> s[0]).containsExactlyInAnyOrder("010-2000-0002", "010-1000-0001");

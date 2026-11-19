@@ -26,14 +26,11 @@ class PricingTest {
     void unitPriceWithOptions() {
         TravelProduct p = product(TourLevel.CLASSIC, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(p, TravelConfiguration.defaultOf(p))).isEqualTo(1_000_000);
-        // 호텔 3→5등급(+35만), 식사 도시락→고급(+20만), 샴페인은 고급 식사에 포함(0), 와인(+5만)
         assertThat(TravelPriceCalculator.calculateUnitPrice(p, config(p, "STAR5", "FINE", "CHAMPAGNE", "WINE")))
                 .isEqualTo(1_000_000 + 350_000 + 200_000 + 50_000);
-        // 하향 변경은 차액만큼 차감: 프리미엄(5등급) → 4등급 호텔 −20만, 고급 → 현지식 −12만
         TravelProduct premium = product(TourLevel.PREMIUM, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(premium, config(premium, "STAR4", "LOCAL")))
                 .isEqualTo(1_000_000 - 200_000 - 120_000);
-        // 올리고 내린 것이 섞이면 합산: 호텔 4→5등급 +20만, 식사 현지식→도시락 −8만
         TravelProduct grand = product(TourLevel.GRAND, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(grand, config(grand, "STAR5", "LUNCHBOX")))
                 .isEqualTo(1_000_000 + 200_000 - 80_000);
@@ -41,7 +38,7 @@ class PricingTest {
 
     @Test
     void unitPriceNeverBelowHalfOfBase() {
-        TravelProduct cheap = product(TourLevel.PREMIUM, 300_000); // 모두 최저로 낮추면 −55만 → 하한 15만
+        TravelProduct cheap = product(TourLevel.PREMIUM, 300_000); // 하한 15만
         assertThat(TravelPriceCalculator.calculateUnitPrice(cheap, config(cheap, "STAR3", "LUNCHBOX"))).isEqualTo(150_000);
     }
 

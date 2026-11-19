@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * 로그인 폼 제출을 {@link MemberManager#logIn} 으로 처리한다 (UC2).
- * 성공하면 LoginSession 을 인증 주체로 담아 Spring Security 가 사용자별 서버 세션에 보관한다.
- */
+/** 로그인 폼 제출을 {@link MemberManager#logIn} 으로 처리한다 (UC2). */
 @Component
 public class MemberAuthenticationProvider implements AuthenticationProvider {
 

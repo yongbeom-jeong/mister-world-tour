@@ -10,10 +10,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * 여행 상품·신청·이력 데이터의 저장과 조회. Travel Management 가 필요로 하는 인터페이스이며,
- * Data Access 서브시스템의 {@code DataAccessManager} 가 구현한다 (의존성 역전: 인터페이스는 쓰는 쪽이 가진다).
- *
- * <p>같은 상품을 잠그고 여러 조회·저장을 묶을 때는 {@link #runTravelTransaction} 을 쓴다.
+ * 여행 상품·신청·이력 저장과 조회. Data Access 의 {@code DataAccessManager} 가 구현한다.
+ * 같은 상품을 잠그고 여러 조회·저장을 묶을 때는 {@link #runTravelTransaction} 을 쓴다.
  */
 public interface TravelDataAccessAPI {
 
@@ -21,7 +19,6 @@ public interface TravelDataAccessAPI {
     record ProductFilter(Theme theme, TourLevel level, LocalDate departureAfter) {
     }
 
-    /** 상품과 그 상품의 신청 수. */
     record ProductApplicationCount(TravelProduct product, long applicationCount) {
     }
 

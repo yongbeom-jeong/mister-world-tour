@@ -16,17 +16,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 직원이 등록한 여행 상품 (설계 5.1 TravelProduct): 상품 이름·테마·투어 등급·기본 가격·여행 기간·출발일·정원과
- * 기본 구성(defaultConfiguration), 공동 출발 상태.
- *
- * <p>기념품은 상품이 아니라 테마에 연결된다. 출발 상태는 허니문 외 테마만 쓰고, 허니문은 null(신청별 상태).
- * 여행지·소개·사진은 화면 표시용으로 추가한 항목이다.
+ * 직원이 등록한 여행 상품 (설계 5.1 TravelProduct).
+ * 출발 상태는 허니문 외 테마만 쓰고, 허니문은 null(신청별 상태). 기념품은 상품이 아니라 테마에 연결된다.
  */
 @Entity
 @Table(name = "travel_product")
 public class TravelProduct {
 
-    // 입력 범위 (임시 정책)
+    // 입력 범위
     public static final int MAX_NAME = 100;
     public static final int MIN_PRICE = 10_000;
     public static final int MAX_PRICE = 50_000_000;
@@ -69,7 +66,7 @@ public class TravelProduct {
     @Column(name = "departure_date", nullable = false)
     private LocalDate departureDate;
 
-    // 기본 구성 (defaultConfiguration): 기본 서비스·호텔·교통·식사
+    // 기본 구성 (설계 defaultConfiguration)
     @Column(name = "theme_service", nullable = false, length = 100)
     private String themeService;
 
@@ -100,7 +97,7 @@ public class TravelProduct {
         update(productName, destination, description, theme, tourLevel, basePrice, travelPeriod, departureDate);
     }
 
-    /** 직원 입력값을 넣고 기본 구성·출발 상태를 다시 정한다 (신청이 없는 상품만 저장되므로 안전). */
+    /** 직원 입력값을 넣고 기본 구성·출발 상태를 다시 정한다. */
     public void update(String productName, String destination, String description, Theme theme, TourLevel tourLevel,
                        int basePrice, int travelPeriod, LocalDate departureDate) {
         this.productName = productName;
@@ -124,12 +121,7 @@ public class TravelProduct {
         }
     }
 
-    // ---------------------------------------------------------------- ValidateProduct
-
-    /**
-     * 필수 상품 정보·가격·기간·출발일·테마와 등급 검사 (UC6·UC7). 문제가 있는 항목별 안내, 비어 있으면 유효.
-     * 허니문·효도 상품의 초기 등급은 그랜드 또는 프리미엄만 가능하다 (계획서 1.다).
-     */
+    /** 상품 정보 검사 (설계 ValidateProduct, UC6·UC7). 문제 항목별 안내, 비어 있으면 유효. */
     public Map<String, String> validateProduct(LocalDate today) {
         Map<String, String> errors = new LinkedHashMap<>();
         if (productName == null || productName.isBlank()) {
@@ -137,7 +129,7 @@ public class TravelProduct {
         } else if (productName.length() > MAX_NAME) {
             errors.put("name", MAX_NAME + "자 이하로 입력해 주세요.");
         }
-        if (destination.isBlank()) { // 고객 화면 표시에 쓰므로 필수 (임시 정책)
+        if (destination.isBlank()) {
             errors.put("destination", "필수 항목입니다.");
         } else if (destination.length() > 100) {
             errors.put("destination", "100자 이하로 입력해 주세요.");
@@ -166,8 +158,6 @@ public class TravelProduct {
         return errors;
     }
 
-    // ---------------------------------------------------------------- 정원·출발
-
     /** 허니문은 신청마다 정확히 2명, 그 외는 상품 전체 정원 10명. 문제가 있으면 안내 문구, 없으면 null. */
     public String validateApplicationCapacity(int currentTravelerCount, int requestedTravelerCount) {
         if (isHoneymoon()) {
@@ -195,13 +185,11 @@ public class TravelProduct {
         return departureStatus;
     }
 
-    // ---------------------------------------------------------------- 기본 구성
-
     public TravelConfiguration getDefaultConfiguration() {
         return TravelConfiguration.defaultOf(this);
     }
 
-    /** 기본 구성을 정한다. 기본 서비스는 테마로 정해진다. 허니문 외 상품은 출발 상태를 미확정으로 시작한다. */
+    /** 기본 구성을 정한다. 허니문 외 상품은 출발 상태를 미확정으로 시작한다. */
     public void setDefaultConfiguration(TravelConfiguration configuration) {
         themeService = theme.getDefaultService();
         hotelLevel = HotelLevel.valueOf(configuration.hotelLevel());
@@ -231,7 +219,7 @@ public class TravelProduct {
         return departureDate.plusDays(Math.max(travelPeriod, 1) - 1L);
     }
 
-    /** 화면용 사진 주소: 직원이 올린 사진, 없으면 테마 기본 사진 (static/img/photos/theme_테마.jpg). */
+    /** 화면용 사진 주소. 올린 사진이 없으면 테마 기본 사진. */
     public String getPhotoUrl() {
         return photo(false);
     }

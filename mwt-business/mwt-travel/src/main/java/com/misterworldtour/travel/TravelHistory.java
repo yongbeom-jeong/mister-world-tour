@@ -12,8 +12,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 
 /**
- * 고객의 이전 여행 이력 (설계 5.1 TravelHistory). 여행 당시 상품 이름·여행 기간·투어 등급·가격과 완료 여부·완료일·
- * 완료 여행 식별값을 보관한다.
+ * 고객의 이전 여행 이력 (설계 5.1 TravelHistory).
  */
 @Entity
 @Table(name = "travel_history")

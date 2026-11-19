@@ -50,18 +50,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * 고객의 여행 상품 선택·구성 화면 (설계 3.1 TravelProductView, UC4).
- * 테마·등급으로 목록을 조회(LoadProducts)하고, 상품을 선택(SelectProduct)해 호텔·교통·식사·음료를 바꾸며
- * (ConfigureTravelProduct), 음성으로도 조건·상품을 고른다(SelectByVoice). 고른 상품·구성은 신청 화면으로 넘긴다.
- */
+/** 고객 여행 상품 선택·구성 화면 (설계 3.1 TravelProductView, UC4). */
 @Controller
 @CustomerRequired
 public class TravelProductView {
 
     private static final Logger log = LoggerFactory.getLogger(TravelProductView.class);
 
-    /** 화면 선택지 하나: 값, 이름, 기본 구성 대비 1인 금액 차이 문구('기본', '+150,000원', '−200,000원'). */
+    /** 선택지: 값, 이름, 기본 구성 대비 1인 금액 차이 문구. */
     record OptionChoice(String value, String label, String extra) {
         public String direction() {
             return extra.startsWith("+") ? "up" : extra.startsWith("−") ? "down" : "";
@@ -84,14 +80,12 @@ public class TravelProductView {
         this.json = json;
     }
 
-    // ---------------------------------------------------------------- UC4 상품 목록
-
-    /** LoadProducts: 테마·등급에 맞는 상품 목록. */
+    /** LoadProducts */
     @GetMapping("/travel/products/")
     String loadProducts(@RequestParam(required = false) String theme,
                          @RequestParam(name = "tour_level", required = false) String tourLevel,
                          Model model, HttpServletResponse response) {
-        Theme t = Theme.parse(theme);          // 잘못된 값은 조건 없음으로
+        Theme t = Theme.parse(theme);
         TourLevel lv = TourLevel.parse(tourLevel);
         String notice = null;
         boolean loadFailed = false;
@@ -101,7 +95,7 @@ public class TravelProductView {
         } else {
             try {
                 products = travelManager.loadProducts(t, lv);
-            } catch (DataAccessException e) {  // 조회 실패를 '상품 없음'으로 보이지 않게 구분 (UC4 2a·5a)
+            } catch (DataAccessException e) {  // '상품 없음'과 구분 (UC4 2a·5a)
                 log.error("상품 목록 조회 실패 theme={} level={}", t, lv, e);
                 loadFailed = true;
                 response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -117,9 +111,6 @@ public class TravelProductView {
         return "travel/customer/products";
     }
 
-    // ---------------------------------------------------------------- UC4 상품 선택·구성
-
-    /** 화면에 보여줄 선택지와 기본 구성 대비 1인 추가금. */
     private static List<OptionField> optionFields(TravelProduct product) {
         Theme theme = product.getTheme();
         return List.of(
@@ -143,7 +134,7 @@ public class TravelProductView {
         return new OptionChoice(value, label, extra);
     }
 
-    /** SelectProduct: 선택한 상품의 상세 정보·기본 구성·가격. */
+    /** SelectProduct */
     @GetMapping("/travel/products/{productId}/")
     String selectProduct(@PathVariable long productId, HttpSession session, Model model, RedirectAttributes redirect) {
         TravelProduct product;
@@ -176,7 +167,7 @@ public class TravelProductView {
         return "travel/customer/product_detail";
     }
 
-    /** ConfigureTravelProduct: 현재 구성 + 변경 항목 → 새 구성·1인 가격 (JSON). */
+    /** ConfigureTravelProduct (JSON) */
     @PostMapping("/travel/products/{productId}/configure/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> configureTravelProduct(@PathVariable long productId, @RequestBody(required = false) String body) {
@@ -215,7 +206,7 @@ public class TravelProductView {
         throw new ClassCastException("not an object");
     }
 
-    /** 선택한 상품·구성을 신청 화면으로 넘긴다 (TravelApplicationView.ShowApplication). 구성은 서버가 다시 검증한다. */
+    /** 신청 화면(ShowApplication)으로 넘긴다. 구성은 서버가 다시 검증한다. */
     @PostMapping("/travel/products/{productId}/apply/")
     String startApplication(@PathVariable long productId, @RequestParam(required = false) String config,
                             HttpSession session, RedirectAttributes redirect) {
@@ -240,13 +231,11 @@ public class TravelProductView {
         return "redirect:/travel/apply/";
     }
 
-    // ---------------------------------------------------------------- SelectByVoice
-
     private Map<String, Object> parseJson(String body) {
         return json.readValue(body == null || body.isBlank() ? "{}" : body, new TypeReference<Map<String, Object>>() { });
     }
 
-    /** SelectByVoice: 인식 문장 + 현재 화면 조건 → 선택 값 (JSON). 화면은 결과로 목록 조회·상품 선택을 이어 간다. */
+    /** SelectByVoice: 인식 문장 + 현재 조건 → 선택 값 (JSON). */
     @PostMapping("/speech/recognize/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> selectByVoice(@RequestBody(required = false) String body) {
@@ -268,7 +257,7 @@ public class TravelProductView {
         return ResponseEntity.ok(result.toMap());
     }
 
-    /** 브라우저 음성 인식 실패 기록 (UC4 4a·7a). 화면 안내는 브라우저가 이미 했으므로 본문 없이 응답. */
+    /** 브라우저 음성 인식 실패 기록 (UC4 4a·7a). */
     @PostMapping("/speech/failure/")
     @ResponseBody
     ResponseEntity<Void> browserFailure(@AuthenticationPrincipal LoginSession me,
@@ -278,7 +267,6 @@ public class TravelProductView {
             Object e = parseJson(body).get("error");
             error = e == null ? "" : e.toString();
         } catch (JacksonException ignored) {
-            // 잘못된 본문도 '기타'로 기록
         }
         speechRecognition.recordBrowserFailure(error.length() > 40 ? error.substring(0, 40) : error, me.getMemberId());
         return ResponseEntity.noContent().build();

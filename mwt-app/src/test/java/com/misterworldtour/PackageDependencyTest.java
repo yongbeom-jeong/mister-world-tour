@@ -19,13 +19,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 패키지(서브시스템) 의존 방향 검사. 소스의 {@code com.misterworldtour.<패키지>} 참조(주석 제외)로 의존 그래프를 만든다.
- * <ul>
- *   <li>패키지 사이에 순환 의존이 없어야 한다.</li>
- *   <li>Data Access → 업무 서브시스템 한 방향만: 업무·ui 는 dataaccess 를 참조하지 않는다
- *       (저장 인터페이스는 쓰는 쪽이 가진다).</li>
- * </ul>
- * 소스는 모든 모듈(mwt-*)에서 읽는다. 테스트는 mwt-app 폴더에서 실행된다.
+ * 패키지(서브시스템) 의존 방향 검사: 순환 없음, 업무·ui 는 dataaccess 를 참조하지 않음.
+ * 소스는 모든 모듈(mwt-*)에서 읽는다 (테스트는 mwt-app 폴더에서 실행).
  */
 class PackageDependencyTest {
 
@@ -50,7 +45,7 @@ class PackageDependencyTest {
         }
     }
 
-    /** 다른 서브시스템은 *API 로만 부른다: 다른 패키지의 *Manager 클래스를 참조하지 않는다 (데모 데이터 demo 는 제외). */
+    /** 다른 서브시스템의 *Manager 는 참조하지 않는다 (demo 제외). */
     @Test
     void otherSubsystemsUseApisNotManagers() throws IOException {
         Pattern managerRef = Pattern.compile("com\\.misterworldtour\\.(\\w+)\\.(\\w+Manager)\\b");
@@ -74,7 +69,7 @@ class PackageDependencyTest {
         assertThat(offenders).as("다른 서브시스템의 *Manager 직접 사용").isEmpty();
     }
 
-    /** start 로 돌아오는 경로를 찾으면 "a → b → a" 형태로 기록한다 (같은 순환은 가장 작은 패키지에서 시작한 것만). */
+    /** 같은 순환은 가장 작은 패키지에서 시작한 것만 기록한다. */
     private static void findCycle(Map<String, Set<String>> graph, String start, String current, List<String> path,
                                   List<String> cycles) {
         for (String next : graph.getOrDefault(current, Set.of())) {
@@ -107,7 +102,6 @@ class PackageDependencyTest {
         return graph;
     }
 
-    /** 모든 모듈(mwt-*, 계층 폴더 안의 패키지 모듈 포함)의 com/misterworldtour 아래 패키지 폴더. */
     private static List<Path> packageDirs() throws IOException {
         List<Path> dirs = new ArrayList<>();
         List<Path> modules = new ArrayList<>(mwtDirs(Path.of("..")));

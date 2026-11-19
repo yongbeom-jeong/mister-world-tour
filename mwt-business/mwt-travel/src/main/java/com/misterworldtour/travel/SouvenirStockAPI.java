@@ -3,9 +3,7 @@ package com.misterworldtour.travel;
 import java.util.List;
 
 /**
- * 신청 검토·출발 확정에 필요한 테마 기념품 재고 기능. Travel Management 가 필요로 하는 인터페이스이며,
- * Souvenir Management 의 {@code SouvenirManager} 가 구현한다 (의존성 역전: 인터페이스는 쓰는 쪽이 가진다).
- * 그래서 의존은 souvenir → travel 한 방향뿐이다.
+ * 신청 검토·출발 확정에 필요한 테마 기념품 재고 기능. Souvenir Management 의 {@code SouvenirManager} 가 구현한다.
  */
 public interface SouvenirStockAPI {
 

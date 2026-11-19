@@ -26,9 +26,8 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
- * 회원가입·로그인 화면 (설계 3.1 MemberView). 가입·인증은 Member Management 에 요청한다.
- * 로그인 제출은 Spring Security 가 받아 {@code MemberAuthenticationProvider} → MemberManagementAPI.logIn 으로 처리하고,
- * 성공하면 역할에 맞는 홈(MainView)으로, 고객이면 이전 여행 이력 팝업도 연다 ({@link LoginHandlers}).
+ * 회원가입·로그인 화면 (설계 3.1 MemberView).
+ * 로그인 제출은 Spring Security → {@code MemberAuthenticationProvider} → MemberManagementAPI.logIn.
  */
 @Controller
 @RequestMapping("/members")
@@ -78,7 +77,7 @@ public class MemberView {
                 return "members/signup";
             }
         } catch (DataAccessException e) {
-            // UC1 5a: 저장 결과를 확인해 안내 (가입 완료로 잘못 안내하지 않음)
+            // UC1 5a: 저장 결과를 확인해 안내
             log.error("회원가입 저장 중 DB 오류 username={}", form.getUsername(), e);
             Optional<Boolean> joined = joinedAfterError(form.getUsername(), started);
             if (joined.orElse(false)) {

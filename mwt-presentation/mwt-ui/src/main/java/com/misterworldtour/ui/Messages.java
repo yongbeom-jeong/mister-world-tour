@@ -7,13 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 화면 위쪽 안내 문구. 레이아웃이 {@code messages} 목록을 그린다.
- * <ul>
- *   <li>다른 화면으로 이동(redirect)한 뒤 보여 줄 때: {@link #flash}</li>
- *   <li>지금 그리는 화면에 보여 줄 때: {@link #now}</li>
- * </ul>
- */
+/** 화면 위쪽 안내 문구. redirect 뒤에는 {@link #flash}, 지금 화면에는 {@link #now}. */
 public final class Messages {
 
     public static final String ATTR = "messages";
@@ -21,7 +15,6 @@ public final class Messages {
     public enum Level { SUCCESS, INFO, WARNING, ERROR }
 
     public record Message(Level level, String text) implements Serializable {
-        /** Bootstrap alert 색 이름. */
         public String css() {
             return level == Level.ERROR ? "danger" : level.name().toLowerCase();
         }

@@ -8,10 +8,8 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * 로그인 세션 (설계 4.1 LoginSession). 로그인 성공 시 MemberManager 가 만들고 사용자별 서버 세션에 보관한다.
- * 이후 요청에서 현재 로그인한 회원과 역할을 확인하는 데 쓴다. 화면에서는 {@code currentMember} 로 쓴다.
- *
- * <p>설계의 회원 고유번호·역할 외에 화면 표시용 아이디·성명을 함께 담는다 (엔티티를 세션에 넣지 않기 위해).
+ * 로그인 세션 (설계 4.1 LoginSession). Spring Security 인증 주체로 서버 세션에 보관한다.
+ * 엔티티 대신 화면 표시용 아이디·성명을 함께 담는다. 화면에서는 {@code currentMember}.
  */
 public class LoginSession implements Serializable {
 
@@ -52,7 +50,6 @@ public class LoginSession implements Serializable {
         return name;
     }
 
-    /** 성명이 없으면 아이디. */
     public String getDisplayName() {
         return name == null || name.isBlank() ? account : name;
     }

@@ -1,6 +1,6 @@
 package com.misterworldtour.travel;
 
-/** 식사에 추가하는 음료 (임시 옵션: 1인 1세트 기준). */
+/** 식사에 추가하는 음료 (1인 1세트). */
 public enum DrinkOption {
     WINE("와인 페어링"),
     BEER("수제맥주 세트"),

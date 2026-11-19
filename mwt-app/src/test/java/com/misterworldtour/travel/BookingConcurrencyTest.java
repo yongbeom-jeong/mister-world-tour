@@ -25,7 +25,7 @@ class BookingConcurrencyTest extends BookingTestBase {
     void capacityAndStockNeverExceeded() throws Exception {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         jdbc.update("UPDATE souvenir SET stock_quantity = 10 WHERE name = '골프공'");
-        int customers = 5; // 각 3명씩 → 정원 10명이라 최대 3건만 성공
+        int customers = 5; // 각 3명, 정원 10명 → 최대 3건 성공
         List<ApplicationReviewResult> reviews = new ArrayList<>();
         List<LoginSession> members = new ArrayList<>();
         for (int i = 0; i < customers; i++) {
@@ -57,6 +57,6 @@ class BookingConcurrencyTest extends BookingTestBase {
 
         assertThat(ok).isEqualTo(3);
         assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(9);
-        assertThat(stock("골프공")).isEqualTo(1); // 확정 3명 + 추가 3명 + 3명 = 9개 차감
+        assertThat(stock("골프공")).isEqualTo(1);
     }
 }

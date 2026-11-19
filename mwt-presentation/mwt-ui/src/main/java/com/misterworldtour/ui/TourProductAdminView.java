@@ -39,10 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * 직원의 상품 등록 화면과 상품 관리 화면 (설계 3.1 TourProductAdminView, UC6·UC7). 두 화면은 구분하되 이 클래스에서 처리한다.
- * 테마·등급으로 정해지는 기본 구성은 확인용으로 보여 주고(LoadDefaultConfiguration), 신청이 있는 상품은 수정·삭제 불가로 안내한다.
- */
+/** 직원 상품 등록·관리 화면 (설계 3.1 TourProductAdminView, UC6·UC7). 신청이 있는 상품은 수정·삭제 불가. */
 @Controller
 @RequestMapping("/travel/staff")
 @StaffRoleRequired
@@ -79,9 +76,7 @@ public class TourProductAdminView {
         return clear != null ? ImageChange.DELETE : ImageChange.KEEP;
     }
 
-    // ---------------------------------------------------------------- 상품 등록 (UC6)
-
-    /** ShowRegistration: 등록 화면. 관리 화면과 분리되어 있고 항상 빈 입력으로 시작한다. */
+    /** ShowRegistration */
     @GetMapping("/products/new/")
     String showRegistration(Model model) {
         model.addAttribute("form", new ProductForm());
@@ -133,7 +128,7 @@ public class TourProductAdminView {
         }
     }
 
-    /** LoadDefaultConfiguration: 테마·등급의 기본 구성 (등록·수정 화면 확인용 JSON). */
+    /** LoadDefaultConfiguration (JSON) */
     @GetMapping("/default-configuration/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> loadDefaultConfiguration(@RequestParam(required = false) String theme,
@@ -146,9 +141,7 @@ public class TourProductAdminView {
         }
     }
 
-    // ---------------------------------------------------------------- 상품 관리 (UC7)
-
-    /** 관리 목록. 조회 실패는 '상품 없음'과 구분해 안내하고 다시 조회하게 한다 (UC7 2a). */
+    /** 조회 실패는 '상품 없음'과 구분 (UC7 2a). */
     private void manageContext(Model model, String theme, String level, HttpServletRequest request) {
         Theme t = Theme.parse(theme);
         TourLevel lv = TourLevel.parse(level);
@@ -167,7 +160,7 @@ public class TourProductAdminView {
         model.addAttribute("query", request.getQueryString() == null ? "" : "?" + request.getQueryString());
     }
 
-    /** ManageTourProduct: 관리 화면 첫 진입. 목록만 보이고 선택 대상은 비어 있다. */
+    /** ManageTourProduct */
     @GetMapping("/products/")
     String manageTourProduct(@RequestParam(required = false) String theme,
                   @RequestParam(name = "tour_level", required = false) String level,
@@ -176,7 +169,7 @@ public class TourProductAdminView {
         return "travel/staff/product_manage";
     }
 
-    /** SelectProduct: 목록에서 상품을 선택한 상태. 선택만으로는 아무것도 바뀌지 않고, 수정 버튼(POST)으로만 수정한다. */
+    /** SelectProduct */
     @GetMapping("/products/{productId}/")
     String selectProduct(@PathVariable long productId, @RequestParam(required = false) String theme,
                         @RequestParam(name = "tour_level", required = false) String level,
@@ -229,7 +222,7 @@ public class TourProductAdminView {
             } catch (ProductNotFoundException e) {
                 Messages.flash(redirect, Level.ERROR, "상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.");
                 return "redirect:/travel/staff/products/";
-            } catch (DataAccessException e) { // 수정은 한 트랜잭션이라 보통 반영되지 않는다. 저장된 값을 다시 보여 준다.
+            } catch (DataAccessException e) { // 한 트랜잭션이라 보통 반영 안 됨. 저장된 값을 다시 보여 준다
                 log.error("상품 수정 중 DB 오류 product={}", productId, e);
                 Messages.flash(redirect, Level.ERROR, "일시적인 오류로 수정이 반영되지 않았을 수 있습니다. "
                         + "아래에 다시 불러온 저장 내용을 확인한 뒤 필요하면 다시 수정해 주세요.");

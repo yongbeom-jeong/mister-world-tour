@@ -19,13 +19,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 /**
- * 비밀번호 규칙 4가지 (임시 정책).
- * <ul>
- *   <li>아이디·성명과 비슷함 (UserAttributeSimilarityValidator, 유사도 0.7)</li>
- *   <li>8자 이상 (MinimumLengthValidator)</li>
- *   <li>흔한 비밀번호 금지 (공개된 흔한 비밀번호 목록 약 2만 개)</li>
- *   <li>숫자로만 된 비밀번호 금지 (NumericPasswordValidator)</li>
- * </ul>
+ * 비밀번호 규칙 4가지 (임시 정책): 8자 이상, 숫자만 금지, 흔한 비밀번호(약 2만 개) 금지,
+ * 아이디·성명과 유사도 0.7 이상 금지. Django 기본 검사기와 같은 방식이다.
  */
 @Component
 public class PasswordPolicy {

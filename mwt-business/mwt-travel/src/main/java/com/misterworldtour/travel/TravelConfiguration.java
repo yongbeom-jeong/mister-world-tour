@@ -12,9 +12,7 @@ import java.util.TreeSet;
 
 /**
  * 여행 구성: 호텔·교통·식사·음료 (설계 5.1 TravelConfiguration). 화면·세션과 주고받는 값이라 enum 이름 문자열로 둔다.
- *
- * <p>상품의 기본 구성과 신청용 변경 구성은 별개의 값이다. 변경({@link #applyChanges})은 새 구성을 만들 뿐 상품을 덮어쓰지 않는다.
- * 기본 서비스는 테마로, 기념품은 테마에 연결된 품목으로 정해지므로 구성 값에 따로 두지 않는다.
+ * {@link #applyChanges} 는 새 구성을 만들 뿐 상품의 기본 구성을 덮어쓰지 않는다.
  */
 public record TravelConfiguration(String hotelLevel, String transport, String meal, List<String> drinks)
         implements Serializable {
@@ -40,8 +38,6 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
                 product.getMeal().name(), List.of());
     }
 
-    // ---------------------------------------------------------------- ApplyChanges
-
     /** 바뀐 항목만 적용한 새 구성. 키는 hotel_level·transport·meal·drinks, 값이 null 인 항목은 그대로 둔다. 검사는 하지 않는다. */
     public TravelConfiguration applyChanges(Map<String, ?> optionChanges) {
         Map<String, Object> merged = new LinkedHashMap<>(toMap());
@@ -54,12 +50,7 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
                 normalizeDrinks(merged.get(DRINKS)));
     }
 
-    // ---------------------------------------------------------------- ValidateConfiguration
-
-    /**
-     * 고객이 고른 구성이 이 상품에서 쓸 수 있는지. 문제가 있는 항목별 안내 (비어 있으면 유효).
-     * 허니문·효도는 그랜드 기본(4등급 호텔·현지식) 아래로 고를 수 없고, 교통은 테마 허용값만, 도시락에는 음료를 추가할 수 없다.
-     */
+    /** 고객이 고른 구성이 이 상품에서 쓸 수 있는지 (설계 ValidateConfiguration). 문제 항목별 안내, 비어 있으면 유효. */
     public Map<String, String> validateConfiguration(TravelProduct product) {
         Map<String, String> errors = new LinkedHashMap<>();
         Theme theme = product.getTheme();
@@ -91,10 +82,7 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
         return errors;
     }
 
-    /**
-     * 직원이 정한 상품 기본 구성이 테마·등급에 맞는지 (UC6 (3)). 호텔·식사는 등급 기본값 이상, 교통은 테마 허용값만.
-     * 문제가 있는 항목별 안내 (비어 있으면 유효).
-     */
+    /** 직원이 정한 상품 기본 구성이 테마·등급에 맞는지 (UC6 (3)). 문제 항목별 안내, 비어 있으면 유효. */
     public Map<String, String> validateConfiguration(Theme theme, TourLevel level) {
         Map<String, String> errors = new LinkedHashMap<>();
         BaseOptions allowed = baseOptionChoices(theme, level);
@@ -115,9 +103,7 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
         return errors;
     }
 
-    // ---------------------------------------------------------------- 선택지
-
-    /** 고객이 고를 수 있는 호텔. 허니문·효도는 4등급 이상 (그랜드 등급 이상만). */
+    /** 고객이 고를 수 있는 호텔. 허니문·효도는 4등급 이상. */
     public static List<HotelLevel> customerHotelChoices(Theme theme) {
         List<HotelLevel> all = TravelRules.HOTEL_ORDER;
         return theme.isLevelRestricted() ? all.subList(all.indexOf(TravelRules.RESTRICTED_MIN_HOTEL), all.size()) : all;
@@ -139,7 +125,7 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
     public record BaseOptions(List<HotelLevel> hotels, List<MealOption> meals, List<TransportOption> transports) {
     }
 
-    /** 호텔·식사는 등급 기본값 이상만 (프리미엄인데 도시락 같은 구성 방지), 교통은 테마에서 허용한 것만. */
+    /** 호텔·식사는 등급 기본값 이상, 교통은 테마에서 허용한 것만. */
     public static BaseOptions baseOptionChoices(Theme theme, TourLevel level) {
         List<HotelLevel> hotels = TravelRules.HOTEL_ORDER;
         List<MealOption> meals = TravelRules.MEAL_ORDER;
@@ -153,8 +139,6 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
         return new BaseOptions(hotels.subList(hotels.indexOf(level.getDefaultHotel()), hotels.size()),
                 meals.subList(meals.indexOf(level.getDefaultMeal()), meals.size()), transports);
     }
-
-    // ---------------------------------------------------------------- 표시·변환
 
     /** 화면 표시용 이름 (유효한 구성만). */
     public Map<String, String> describe() {

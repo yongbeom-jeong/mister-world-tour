@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.nio.file.Path;
 import java.util.List;
 
-/** 웹 설정: 화면 인터셉터({@link LayoutModelInterceptor} 등) 등록과 업로드 사진(/media/) 제공. */
+/** 화면 인터셉터 등록과 업로드 사진(/media/) 제공. */
 @Configuration
 class WebConfig implements WebMvcConfigurer {
 
@@ -28,7 +28,6 @@ class WebConfig implements WebMvcConfigurer {
         interceptors.forEach(registry::addInterceptor);
     }
 
-    /** 직원이 올린 상품 사진 (/media/ 로 제공). */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String location = Path.of(properties.mediaRoot()).toAbsolutePath().toUri().toString();

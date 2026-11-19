@@ -64,7 +64,7 @@ class SpeechTest {
         assertThat(r.level()).isEqualTo(TourLevel.GRAND);
         VoiceSelectionResult honeymoon = interpreter.interpretSelection("신혼여행", new VoiceSelectionContext(null, null, List.of()));
         assertThat(honeymoon.theme()).isEqualTo(Theme.HONEYMOON);
-        assertThat(honeymoon.level()).isNull(); // 말한 항목만
+        assertThat(honeymoon.level()).isNull();
     }
 
     @Test

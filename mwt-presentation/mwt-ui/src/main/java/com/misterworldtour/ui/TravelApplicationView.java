@@ -45,23 +45,20 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 고객의 여행 신청 화면 (설계 3.1 TravelApplicationView, UC5, 상태도 11.2).
- * 상품 화면에서 넘긴 상품·구성(ShowApplication)에 여행자를 입력해 검토(ReviewApplication)하고, 확인하면 등록한다
- * (SubmitTravelApplication). 검토 결과는 요청 키별로 세션에 두어 같은 키로만 다시 제출한다.
- * 설계 이후 추가: 내 신청 목록·상세, 출발 확정 전 신청 취소.
+ * 고객 여행 신청 화면 (설계 3.1 TravelApplicationView, UC5, 상태도 11.2).
+ * 설계 이후 추가: 내 신청 목록·상세, 출발 확정 전 취소.
  */
 @Controller
 @CustomerRequired
 public class TravelApplicationView {
 
-    /** 신청 화면으로 넘긴 상품·구성·입력 중인 여행자. */
+    /** 세션: 선택 상품·구성·입력 중인 여행자. */
     static final String DRAFT_KEY = "application_draft";
-    /** 요청 키별 검토 내용. */
+    /** 세션: 요청 키별 검토 결과, 최대 MAX_REVIEWS 개. 같은 키로만 제출한다. */
     static final String REVIEWS_KEY = "application_reviews";
     static final int MAX_REVIEWS = 10;
     static final int MAX_TRAVELER_ROWS = 10;
 
-    /** 세션에 두는 선택 상품·구성·입력 중인 여행자. */
     public record Draft(long productId, TravelConfiguration config, List<TravelerInput> travelers) implements Serializable {
     }
     private static final Logger log = LoggerFactory.getLogger(TravelApplicationView.class);
@@ -71,8 +68,6 @@ public class TravelApplicationView {
     TravelApplicationView(TravelManagementAPI travelManager) {
         this.travelManager = travelManager;
     }
-
-    // ---------------------------------------------------------------- UC5 신청
 
     private static List<TravelerInput> travelerRows(List<String> names, List<String> contacts) {
         List<String> n = names == null ? List.of() : names.subList(0, Math.min(names.size(), MAX_TRAVELER_ROWS));
@@ -99,7 +94,6 @@ public class TravelApplicationView {
         session.setAttribute(REVIEWS_KEY, reviews);
     }
 
-    /** 신청이 저장된 뒤 선택 상품·구성과 그 검토 내용을 세션에서 지운다. */
     private static void forgetReview(HttpSession session, String key) {
         session.removeAttribute(DRAFT_KEY);
         LinkedHashMap<String, ApplicationReviewResult> reviews = reviews(session);
@@ -107,11 +101,10 @@ public class TravelApplicationView {
         session.setAttribute(REVIEWS_KEY, reviews);
     }
 
-    /** 신청 화면에 보여 줄 선택 상품·구성. redirect 가 있으면 화면 대신 그 주소로 보낸다. */
+    /** redirect 가 있으면 화면 대신 그 주소로 보낸다. */
     private record ApplicationPage(Draft draft, TravelProduct product, String redirect) {
     }
 
-    /** 신청 화면 공통 값을 채운다. 선택한 상품·구성이 없거나 신청할 수 없는 상품이면 상품 목록으로 보낸다. */
     private ApplicationPage page(long memberId, HttpSession session, Model model, RedirectAttributes redirect) {
         if (!(session.getAttribute(DRAFT_KEY) instanceof Draft draft)) {
             Messages.flash(redirect, Level.INFO, "먼저 신청할 여행 상품과 구성을 선택해 주세요.");
@@ -137,7 +130,7 @@ public class TravelApplicationView {
         return new ApplicationPage(draft, product, null);
     }
 
-    /** ShowApplication: 상품 화면에서 넘긴 상품·구성으로 여행자 입력을 시작한다 (상태도 11.2 Editing). */
+    /** ShowApplication (상태도 11.2 Editing) */
     @GetMapping("/travel/apply/")
     String showApplication(@AuthenticationPrincipal LoginSession me, HttpSession session, Model model,
                            RedirectAttributes redirect) {
@@ -145,14 +138,13 @@ public class TravelApplicationView {
         return page.redirect() != null ? page.redirect() : "travel/customer/apply";
     }
 
-    /** 알 수 없는 제출(action 없음)은 입력 화면을 다시 보여 준다. */
     @PostMapping("/travel/apply/")
     String showApplicationAgain(@AuthenticationPrincipal LoginSession me, HttpSession session, Model model,
                                 RedirectAttributes redirect) {
         return showApplication(me, session, model, redirect);
     }
 
-    /** ReviewApplication: 여행자를 받아 신청 내용과 최종 금액(단골 할인 포함)을 검토한다 (Reviewing → Reviewed). */
+    /** ReviewApplication (Reviewing → Reviewed) */
     @PostMapping(value = "/travel/apply/", params = "action=review")
     String reviewApplication(@AuthenticationPrincipal LoginSession me,
                              @RequestParam(name = "traveler_name", required = false) List<String> names,
@@ -175,7 +167,7 @@ public class TravelApplicationView {
         } catch (BookingException e) {
             Messages.now(model, Level.ERROR, e.getMessage());
             model.addAttribute("errors", e.getErrors());
-        } catch (DataAccessException e) { // 가격·할인 계산 실패 (UC5 4a): 임의 금액을 쓰지 않고 다시 확인하게 한다
+        } catch (DataAccessException e) { // UC5 4a: 임의 금액을 쓰지 않고 다시 확인하게 한다
             log.error("신청 금액 계산 중 DB 오류 member={} product={}", memberId, product.getProductId(), e);
             Messages.now(model, Level.ERROR, "일시적인 오류로 신청 금액을 계산하지 못했습니다. "
                     + "입력한 여행자 정보는 그대로 두었으니 잠시 후 '금액 확인'을 다시 눌러 주세요.");
@@ -183,10 +175,7 @@ public class TravelApplicationView {
         return "travel/customer/apply";
     }
 
-    /**
-     * SubmitTravelApplication: 검토한 신청을 같은 요청 키로 등록한다 (Submitting → Registered / Outcome Unknown).
-     * 저장 여부를 알 수 없으면 같은 요청 키와 신청 내용을 유지해 다시 제출하게 한다.
-     */
+    /** SubmitTravelApplication (→ Registered / Outcome Unknown). 저장 여부를 모르면 같은 요청 키로 다시 제출하게 한다. */
     @PostMapping(value = "/travel/apply/", params = "action=submit")
     String submitTravelApplication(@AuthenticationPrincipal LoginSession me,
                                    @RequestParam(name = "request_key", required = false) String requestKey,
@@ -194,7 +183,7 @@ public class TravelApplicationView {
         long memberId = me.getMemberId();
         if (!reviews(session).containsKey(requestKey)) {
             Optional<Long> done = travelManager.findSubmittedApplication(memberId, requestKey);
-            if (done.isPresent()) { // 이미 처리된 신청을 다시 제출 (뒤로 가기 후 재제출 등): 기존 신청 안내
+            if (done.isPresent()) { // 뒤로 가기 후 재제출 등: 기존 신청 안내
                 Messages.flash(redirect, Level.INFO, "이미 처리된 신청입니다. 신청 내용을 확인해 주세요.");
                 return "redirect:/travel/applications/" + done.get() + "/";
             }
@@ -282,7 +271,7 @@ public class TravelApplicationView {
         return "travel/customer/application_detail";
     }
 
-    /** 출발 확정 전 신청 취소 (2026-11-12 결정). */
+    /** 출발 확정 전 신청 취소. */
     @PostMapping("/travel/applications/{applicationId}/cancel/")
     String cancelApplication(@AuthenticationPrincipal LoginSession me, @PathVariable long applicationId,
                              RedirectAttributes redirect) {

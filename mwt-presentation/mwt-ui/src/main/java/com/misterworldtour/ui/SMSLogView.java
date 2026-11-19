@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Map;
 import java.util.Objects;
 
-/** 직원의 문자 발송 기록 조회와 재발송 화면 (설계 이후 추가). 발송 기록은 SMSMessage 로 남는다. */
+/** 직원 문자 발송 기록·재발송 화면 (설계 이후 추가). */
 @Controller
 @RequestMapping("/sms/staff/logs")
 @StaffRoleRequired
@@ -42,7 +42,7 @@ public class SMSLogView {
         boolean problemsOnly = "problems".equals(filter);
         int pageNumber = page != null && page.matches("\\d{1,9}") ? Math.max(Integer.parseInt(page), 1) : 1;
         Page<SMSMessage> result = sms.loadMessages(problemsOnly, pageNumber - 1);
-        if (pageNumber > Math.max(result.getTotalPages(), 1)) { // 없는 페이지는 마지막 페이지
+        if (pageNumber > Math.max(result.getTotalPages(), 1)) {
             pageNumber = Math.max(result.getTotalPages(), 1);
             result = sms.loadMessages(problemsOnly, pageNumber - 1);
         }

@@ -19,16 +19,13 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 역할에 맞는 홈 화면과 메뉴 (설계 3.1 MainView), 사진 출처.
- * 각 기능 화면으로의 이동(OpenView)은 상단 메뉴·홈의 링크로 한다.
- */
+/** 역할별 홈 화면과 사진 출처 (설계 3.1 MainView). OpenView 는 메뉴·홈 링크로 한다. */
 @Controller
 public class MainView {
 
     private static final int FEATURED = 8;
     private static final int RECENT = 5;
-    /** 직원 대시보드에서 '재고 부족'으로 강조할 기준 (임시). */
+    /** 대시보드 '재고 부족' 기준 (임시). */
     static final int LOW_STOCK = 10;
 
     private final JsonMapper jsonMapper;
@@ -42,7 +39,7 @@ public class MainView {
         this.souvenirs = souvenirs;
     }
 
-    /** ShowHome: 역할별 홈. 고객·비로그인은 테마 검색과 곧 출발하는 여행, 직원은 직원 메뉴(통계·최근 상품·재고). */
+    /** ShowHome */
     @GetMapping("/")
     String showHome(@AuthenticationPrincipal LoginSession member, Model model) {
         if (member == null || member.isCustomer()) {
@@ -62,7 +59,6 @@ public class MainView {
         return "home";
     }
 
-    /** 사진 출처 (CC BY·BY-SA 라이선스의 저작자 표시 의무). */
     @GetMapping("/credits/")
     String credits(Model model) {
         model.addAttribute("credits", loadCredits());
