@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "spring",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "mvnw.cmd", "-q", "spring-boot:run", "-Dspring-boot.run.arguments=--seed-demo"],
+      "port": 8080
+    }
+  ]
+}
