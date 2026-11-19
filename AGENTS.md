@@ -150,5 +150,10 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 - 화면 문구·주석은 한국어. 코드 식별자는 영어 (설계서 이름 우선).
 - 비밀값(API 키, DB 비밀번호)은 `.env`에만 두고 `application.yml` 에서 `${이름}` 으로 읽는다.
 - `docs/`의 .doc/.hwpx/.mdj 파일은 코드 작업 중 수정하지 않는다.
+- UML 모델은 StarUML 파일 하나 `docs/MWT_UML.mdj`, Rational(Rose) 구조: Use Case View(행위자·유스케이스, 유스케이스마다 시스템 시퀀스도, 액티비티),
+  Logical View(설계 서브시스템·클래스도·상태도, Use Case Realizations 에 설계 시퀀스도), Component View(구현), Deployment View(배치). 같은 클래스·행위자는 한 요소를 여러 다이어그램이 함께 쓴다.
+  문서에 넣는 그림은 각 산출물 폴더의 `uml/` (StarUML SVG 내보내기 → PNG). 다이어그램을 고치면 그림과 문서 그림도 함께 바꾼다
+  - 다이어그램 이름 규칙 `MWT_<종류>_<대상>` (그림 파일 이름도 같음): UseCase·Activity·SSD(시스템 시퀀스도)·Architecture·Class·SD(설계 시퀀스도)·State·Component·ComponentPackages·ClassRealization·Subsystem·Deployment.
+    시퀀스도 대상은 `UC<번호>_<유스케이스 이름>` (예: `MWT_SSD_UC5_BookOrCancelTour`, `MWT_SD_UC5_BookOrCancelTour`). 그림 번호는 이름에 넣지 않는다(문서 캡션에만)
 - 외부 음성인식 API는 업체 미정, 문자는 솔라피: 인터페이스(`SpeechServiceClient`, `SMSServiceClient`) 뒤에 두고 개발·테스트에서는 가짜 구현을 쓴다.
 - 브랜치를 만들어 작업하고 PR로 `spring` 에 병합한다 (`main` 은 Django 판).
