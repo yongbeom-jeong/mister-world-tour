@@ -17,7 +17,7 @@
 					"_parent": {
 						"$ref": "MWT_USE_CASE_VIEW"
 					},
-					"name": "MWT_UseCaseDiagram",
+					"name": "MWT_UseCase_Overall",
 					"defaultDiagram": true,
 					"ownedViews": [
 						{
@@ -6881,7 +6881,7 @@
 											"_parent": {
 												"$ref": "MWT_UC1_INTERACTION"
 											},
-											"name": "MWT-UC1_SignUp",
+											"name": "MWT_SSD_UC1_SignUp",
 											"documentation": "분석산출물 UC3·UC4·UC5의 액터/:MWT 및 자기 메시지 표현 방식에 맞춘 시퀀스도. 함수·매개변수는 설계산출물을 참고한다. 번호는 유스케이스 주 흐름 단계와 대응한다. 분기의 대안 번호는 5.1/5.2처럼 점으로, 순차적인 세부 처리 번호는 4-1/4-2처럼 하이픈으로 구분한다. 이는 이 문서의 사용자 지정 번호 규칙이다. 일반 오류 부 흐름은 설명서를 따른다.",
 											"defaultDiagram": true,
 											"ownedViews": [
@@ -8507,7 +8507,7 @@
 											"_parent": {
 												"$ref": "MWT_UC2_INTERACTION"
 											},
-											"name": "MWT-UC2_LogIn",
+											"name": "MWT_SSD_UC2_LogIn",
 											"documentation": "분석산출물 UC3·UC4·UC5의 액터/:MWT 및 자기 메시지 표현 방식에 맞춘 시퀀스도. 함수·매개변수는 설계산출물을 참고한다. 번호는 유스케이스 주 흐름 단계와 대응한다. 분기의 대안 번호는 5.1/5.2처럼 점으로, 순차적인 세부 처리 번호는 4-1/4-2처럼 하이픈으로 구분한다. 이는 이 문서의 사용자 지정 번호 규칙이다. 일반 오류 부 흐름은 설명서를 따른다.",
 											"ownedViews": [
 												{
@@ -10191,7 +10191,7 @@
 											"_parent": {
 												"$ref": "MWT_UC3_REFERENCE_INTERACTION"
 											},
-											"name": "MWT-UC3_TravelHistory",
+											"name": "MWT_SSD_UC3_ViewTravelHistory",
 											"ownedViews": [
 												{
 													"_type": "UMLSeqLifelineView",
@@ -11543,7 +11543,7 @@
 											"_parent": {
 												"$ref": "MWT_UC4_INTERACTION"
 											},
-											"name": "MWT-UC4_SelectAndCustomizeTourPackage",
+											"name": "MWT_SSD_UC4_SelectAndCustomizeTourPackage",
 											"ownedViews": [
 												{
 													"_type": "UMLCombinedFragmentView",
@@ -15221,7 +15221,7 @@
 											"_parent": {
 												"$ref": "MWT_UC5_INTERACTION"
 											},
-											"name": "MWT-UC5_BookTour",
+											"name": "MWT_SSD_UC5_BookOrCancelTour",
 											"ownedViews": [
 												{
 													"_type": "UMLCombinedFragmentView",
@@ -19919,7 +19919,7 @@
 											"_parent": {
 												"$ref": "MWT_UC6_INTERACTION"
 											},
-											"name": "MWT-UC6_RegisterTourProduct",
+											"name": "MWT_SSD_UC6_CreateTourPackage",
 											"documentation": "분석산출물 UC3·UC4·UC5의 액터/:MWT 및 자기 메시지 표현 방식에 맞춘 시퀀스도. 함수·매개변수는 설계산출물을 참고한다. 번호는 유스케이스 주 흐름 단계와 대응한다. 분기의 대안 번호는 5.1/5.2처럼 점으로, 순차적인 세부 처리 번호는 4-1/4-2처럼 하이픈으로 구분한다. 이는 이 문서의 사용자 지정 번호 규칙이다. 일반 오류 부 흐름은 설명서를 따른다.",
 											"ownedViews": [
 												{
@@ -21700,7 +21700,7 @@
 											"_parent": {
 												"$ref": "MWT_UC7_INTERACTION"
 											},
-											"name": "MWT-UC7_ManageTourProduct",
+											"name": "MWT_SSD_UC7_EditOrDeleteTourPackage",
 											"documentation": "분석산출물 UC3·UC4·UC5의 액터/:MWT 및 자기 메시지 표현 방식에 맞춘 시퀀스도. 함수·매개변수는 설계산출물을 참고한다. 번호는 유스케이스 주 흐름 단계와 대응한다. 분기의 대안 번호는 5.1/5.2처럼 점으로, 순차적인 세부 처리 번호는 4-1/4-2처럼 하이픈으로 구분한다. 이는 이 문서의 사용자 지정 번호 규칙이다. 일반 오류 부 흐름은 설명서를 따른다.",
 											"ownedViews": [
 												{
@@ -24784,7 +24784,7 @@
 											"_parent": {
 												"$ref": "MWT_UC8_INTERACTION"
 											},
-											"name": "MWT-UC8_RecordSouvenirStockReceipt",
+											"name": "MWT_SSD_UC8_RecordAndManageSouvenirs",
 											"documentation": "분석산출물 UC3·UC4·UC5의 액터/:MWT 및 자기 메시지 표현 방식에 맞춘 시퀀스도. 함수·매개변수는 설계산출물을 참고한다. 번호는 유스케이스 주 흐름 단계와 대응한다. 분기의 대안 번호는 5.1/5.2처럼 점으로, 순차적인 세부 처리 번호는 4-1/4-2처럼 하이픈으로 구분한다. 이는 이 문서의 사용자 지정 번호 규칙이다. 일반 오류 부 흐름은 설명서를 따른다.",
 											"ownedViews": [
 												{
@@ -27532,7 +27532,7 @@
 							"_parent": {
 								"$ref": "MWT_OVERALL_ACTIVITY"
 							},
-							"name": "MWT_OverallActivityDiagram",
+							"name": "MWT_Activity_Overall",
 							"ownedViews": [
 								{
 									"_type": "UMLControlNodeView",
@@ -44526,7 +44526,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_UI"
 							},
-							"name": "MWT_UI_MainClassDiagram",
+							"name": "MWT_Class_UserInterface",
 							"documentation": "설계산출물 3.1 메인 클래스도. UI 7클래스와 외부 명세용 제공 인터페이스 4개.",
 							"ownedViews": [
 								{
@@ -51682,7 +51682,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_MEMBER"
 							},
-							"name": "MWT_MemberManagement_MainClassDiagram",
+							"name": "MWT_Class_MemberManagement",
 							"documentation": "설계산출물 4.1 메인 클래스도. MemberManager, Member, LoginSession의 3개 클래스와 MemberManagementAPI 제공 인터페이스, Data Access 외부 참조.",
 							"ownedViews": [
 								{
@@ -56230,7 +56230,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_TRAVEL"
 							},
-							"name": "MWT_TravelManagement_MainClassDiagram",
+							"name": "MWT_Class_TravelManagement",
 							"documentation": "2026-10-09 설계. 기존 클래스도와 같은 접근제어자·이름·매개변수 표기. 자료형·반환형·다중성은 모델과 명세에 보관한다.",
 							"ownedViews": [
 								{
@@ -62181,7 +62181,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_SOUVENIR"
 							},
-							"name": "MWT_SouvenirManagement_MainClassDiagram",
+							"name": "MWT_Class_SouvenirManagement",
 							"documentation": "2026-10-10 설계. 기존 회원·데이터 접근·문자 클래스도와 같은 흑백 상자·접근제어자·이름·매개변수 표기. 자료형·반환형·선택값 다중성은 모델과 상세 명세에 보관한다.",
 							"ownedViews": [
 								{
@@ -67272,7 +67272,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_DATA"
 							},
-							"name": "MWT_DataAccess_MainClassDiagram",
+							"name": "MWT_Class_DataAccess",
 							"documentation": "설계산출물 7.1 메인 클래스도 초안. 내부 클래스 4개, 제공 인터페이스 1개, 외부 Member 참조. 자료형·반환형은 상세 모델에 보관하고 공통 계약의 중복 연산은 그림에서 숨긴다.",
 							"ownedViews": [
 								{
@@ -72431,7 +72431,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_SPEECH"
 							},
-							"name": "MWT_SpeechRecognition_MainClassDiagram",
+							"name": "MWT_Class_SpeechRecognition",
 							"documentation": "2026-10-09 설계. 기존 클래스도와 같은 접근제어자·이름·매개변수 표기. 자료형·반환형·다중성은 모델과 명세에 보관한다.",
 							"ownedViews": [
 								{
@@ -77230,7 +77230,7 @@
 							"_parent": {
 								"$ref": "MWT_ARCH_SMS"
 							},
-							"name": "MWT_SMSNotification_MainClassDiagram",
+							"name": "MWT_Class_SMSNotification",
 							"documentation": "2026-10-09 설계. 기존 클래스도와 같은 접근제어자·이름·매개변수 표기. 자료형·반환형·다중성은 모델과 명세에 보관한다.",
 							"ownedViews": [
 								{
@@ -79735,7 +79735,7 @@
 					"_parent": {
 						"$ref": "MWT_LOGICAL_VIEW"
 					},
-					"name": "MWT_ArchitectureDiagram",
+					"name": "MWT_Architecture",
 					"defaultDiagram": true,
 					"ownedViews": [
 						{
@@ -81919,7 +81919,7 @@
 											"_parent": {
 												"$ref": "MWT_UC1_2ee500dd500b43cf8e6f383efa9b57b3"
 											},
-											"name": "MWT_UC1_SignUp_Design",
+											"name": "MWT_SD_UC1_SignUp",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -84484,7 +84484,7 @@
 											"_parent": {
 												"$ref": "MWT_UC2_bb36c2c59ee047ce83289704bdf36ccb"
 											},
-											"name": "MWT_UC2_LogIn_Design",
+											"name": "MWT_SD_UC2_LogIn",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -88748,7 +88748,7 @@
 											"_parent": {
 												"$ref": "UC03_INT"
 											},
-											"name": "MWT_UC03_Design",
+											"name": "MWT_SD_UC3_ViewTravelHistory",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -91675,7 +91675,7 @@
 											"_parent": {
 												"$ref": "UC04_INT"
 											},
-											"name": "MWT_UC04_GUI_Voice_Sequence",
+											"name": "MWT_SD_UC4_SelectAndCustomizeTourPackage",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -97766,7 +97766,7 @@
 											"_parent": {
 												"$ref": "UC05_INT"
 											},
-											"name": "MWT_UC05_Compact_Sequence",
+											"name": "MWT_SD_UC5_BookOrCancelTour",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -106876,7 +106876,7 @@
 											"_parent": {
 												"$ref": "MWT_UC6_6f5aaac6e61a47fb92baf6a8bf67d057"
 											},
-											"name": "MWT_UC6_RegisterTourProduct_Design",
+											"name": "MWT_SD_UC6_CreateTourPackage",
 											"documentation": "UC6 main flow at the same overview level as UC1/UC2. An authenticated Employee opens registration, previews defaults and submits through the existing UI methods. TravelManager maps input to TravelProduct and calls ValidateProduct. Only product-validation success regenerates canonical defaultConfiguration through existing LoadDefaultConfiguration; constructor and registered-souvenir lookup are encapsulated. ValidateConfiguration is retained explicitly. Only both successful validations call DataAccessManager.SaveProduct. Repository forwarding is encapsulated. A common ProductResult return represents either confirmed registration or correction information; validation failures perform no storage. Storage failures and unknown outcomes terminate/return error as specified in the footer. No new operation, field or status code is added, all copied class declarations/signatures remain unchanged, and UI-to-actor replies are unnamed.",
 											"defaultDiagram": true,
 											"ownedViews": [
@@ -110843,7 +110843,7 @@
 											"_parent": {
 												"$ref": "MWT_UC7_92eb614f7e754e918c3826c45f458752"
 											},
-											"name": "MWT_UC7_ManageTourProduct_Design",
+											"name": "MWT_SD_UC7_EditOrDeleteTourPackage",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -119514,7 +119514,7 @@
 											"_parent": {
 												"$ref": "MWT_UC8_20188379625546c3b9ec1110b3665100"
 											},
-											"name": "MWT_UC8_RecordSouvenirStockReceipt_Design",
+											"name": "MWT_SD_UC8_RecordAndManageSouvenirs",
 											"defaultDiagram": true,
 											"ownedViews": [
 												{
@@ -128310,7 +128310,7 @@
 							"_parent": {
 								"$ref": "MWTI_00001"
 							},
-							"name": "그림 1 전체 컴포넌트도",
+							"name": "MWT_Component_Overview",
 							"ownedViews": [
 								{
 									"_type": "UMLPackageView",
@@ -130797,7 +130797,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 2 Presentation Layer 컴포넌트 패키지 구성",
+							"name": "MWT_ComponentPackages_Presentation",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -134897,7 +134897,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 3 Business Layer 컴포넌트 패키지 구성",
+							"name": "MWT_ComponentPackages_Business",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -141431,7 +141431,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 4 Persistence Layer 컴포넌트 패키지 구성",
+							"name": "MWT_ComponentPackages_Persistence",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -144694,7 +144694,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 5 com.misterworldtour.ui 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_ui",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -150746,7 +150746,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 6 com.misterworldtour.members 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_members",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -154008,7 +154008,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 7 com.misterworldtour.travel 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_travel",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -160618,7 +160618,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 8 com.misterworldtour.souvenir 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_souvenir",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -162764,7 +162764,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 9 com.misterworldtour.speech 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_speech",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -164631,7 +164631,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 10 com.misterworldtour.sms 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_sms",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -168172,7 +168172,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 11 com.misterworldtour.dataaccess 컴포넌트의 클래스 실현",
+							"name": "MWT_ClassRealization_dataaccess",
 							"ownedViews": [
 								{
 									"_type": "UMLComponentView",
@@ -170318,7 +170318,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 12 Presentation Layer 서브시스템 컴포넌트",
+							"name": "MWT_Subsystem_Presentation",
 							"ownedViews": [
 								{
 									"_type": "UMLSubsystemView",
@@ -170704,7 +170704,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 13 Business Layer 서브시스템 컴포넌트",
+							"name": "MWT_Subsystem_Business",
 							"ownedViews": [
 								{
 									"_type": "UMLSubsystemView",
@@ -171850,7 +171850,7 @@
 							"_parent": {
 								"$ref": "MWTI_00002"
 							},
-							"name": "그림 14 Persistence Layer 서브시스템 컴포넌트",
+							"name": "MWT_Subsystem_Persistence",
 							"ownedViews": [
 								{
 									"_type": "UMLSubsystemView",
@@ -172592,7 +172592,7 @@
 					"_parent": {
 						"$ref": "MWT_DEPLOYMENT_VIEW"
 					},
-					"name": "그림 15 배치도",
+					"name": "MWT_Deployment",
 					"ownedViews": [
 						{
 							"_type": "UMLNodeView",
