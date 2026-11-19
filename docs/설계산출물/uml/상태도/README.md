@@ -6,12 +6,12 @@ Three native UML state machines, with English model text and neutral black-and-w
 
 ## Files
 
-- MWT_State_SMSMessage.png / .mdj
-- MWT_State_TravelApplicationView.png / .mdj
-- MWT_State_SouvenirStockView.png / .mdj
-- MWT_ObjectStateDiagrams.mdj: combined editable StarUML project
+- MWT_ObjectStateDiagrams.mdj: the editable StarUML project with all three state machines
+- MWT_State_SMSMessage.png
+- MWT_State_TravelApplicationView.png
+- MWT_State_SouvenirStockView.png
 
-PNG files have white backgrounds, three-times rendering resolution and 300 dpi metadata. Keep their aspect ratio when inserting them in Word. Use a full page or a landscape page if required for readable labels.
+PNG files are the figures used in the design document (11.1–11.3), with white backgrounds and three-times rendering resolution. Keep their aspect ratio when inserting them in Word. Use a full page or a landscape page if required for readable labels.
 
 ## UML notation and scope
 
