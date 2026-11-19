@@ -130,7 +130,7 @@ public class TravelApplicationView {
         return new ApplicationPage(draft, product, null);
     }
 
-    /** ShowApplication (상태도 11.2 Editing) */
+    /** 상태도 11.2 Editing */
     @GetMapping("/travel/apply/")
     String showApplication(@AuthenticationPrincipal LoginSession me, HttpSession session, Model model,
                            RedirectAttributes redirect) {
@@ -144,7 +144,7 @@ public class TravelApplicationView {
         return showApplication(me, session, model, redirect);
     }
 
-    /** ReviewApplication (Reviewing → Reviewed) */
+    /** 상태도 11.2 Reviewing → Reviewed */
     @PostMapping(value = "/travel/apply/", params = "action=review")
     String reviewApplication(@AuthenticationPrincipal LoginSession me,
                              @RequestParam(name = "traveler_name", required = false) List<String> names,

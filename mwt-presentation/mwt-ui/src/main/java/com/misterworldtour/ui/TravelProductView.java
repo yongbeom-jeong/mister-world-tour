@@ -80,7 +80,6 @@ public class TravelProductView {
         this.json = json;
     }
 
-    /** LoadProducts */
     @GetMapping("/travel/products/")
     String loadProducts(@RequestParam(required = false) String theme,
                          @RequestParam(name = "tour_level", required = false) String tourLevel,
@@ -134,7 +133,6 @@ public class TravelProductView {
         return new OptionChoice(value, label, extra);
     }
 
-    /** SelectProduct */
     @GetMapping("/travel/products/{productId}/")
     String selectProduct(@PathVariable long productId, HttpSession session, Model model, RedirectAttributes redirect) {
         TravelProduct product;
@@ -167,7 +165,6 @@ public class TravelProductView {
         return "travel/customer/product_detail";
     }
 
-    /** ConfigureTravelProduct (JSON) */
     @PostMapping("/travel/products/{productId}/configure/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> configureTravelProduct(@PathVariable long productId, @RequestBody(required = false) String body) {

@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** 발송 기록과 직원 재발송. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

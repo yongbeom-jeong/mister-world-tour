@@ -76,7 +76,6 @@ public class TourProductAdminView {
         return clear != null ? ImageChange.DELETE : ImageChange.KEEP;
     }
 
-    /** ShowRegistration */
     @GetMapping("/products/new/")
     String showRegistration(Model model) {
         model.addAttribute("form", new ProductForm());
@@ -128,7 +127,6 @@ public class TourProductAdminView {
         }
     }
 
-    /** LoadDefaultConfiguration (JSON) */
     @GetMapping("/default-configuration/")
     @ResponseBody
     ResponseEntity<Map<String, Object>> loadDefaultConfiguration(@RequestParam(required = false) String theme,
@@ -160,7 +158,6 @@ public class TourProductAdminView {
         model.addAttribute("query", request.getQueryString() == null ? "" : "?" + request.getQueryString());
     }
 
-    /** ManageTourProduct */
     @GetMapping("/products/")
     String manageTourProduct(@RequestParam(required = false) String theme,
                   @RequestParam(name = "tour_level", required = false) String level,
@@ -169,7 +166,6 @@ public class TourProductAdminView {
         return "travel/staff/product_manage";
     }
 
-    /** SelectProduct */
     @GetMapping("/products/{productId}/")
     String selectProduct(@PathVariable long productId, @RequestParam(required = false) String theme,
                         @RequestParam(name = "tour_level", required = false) String level,

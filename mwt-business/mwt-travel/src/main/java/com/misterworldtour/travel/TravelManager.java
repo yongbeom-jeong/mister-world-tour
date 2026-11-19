@@ -124,7 +124,6 @@ public class TravelManager implements TravelManagementAPI {
         return Math.max(TravelRules.GROUP_CAPACITY - currentTravelerCount(product.getProductId()), 0);
     }
 
-    /** 상품 테마에 연결된 기념품 이름. */
     public List<String> themeSouvenirNames(TravelProduct product) {
         return souvenirs.souvenirNamesForTheme(product.getTheme());
     }
@@ -412,7 +411,6 @@ public class TravelManager implements TravelManagementAPI {
                 app.currentDepartureStatus(), newlyConfirmed, false, issued, recipients, null), plan, smsRecipients);
     }
 
-    /** 취소할 수 없는 이유. 취소할 수 있으면 null. */
     public String cancelBlockReason(TravelApplication app) {
         if (app.isCancelled()) {
             return "이미 취소한 신청입니다.";
@@ -460,7 +458,6 @@ public class TravelManager implements TravelManagementAPI {
         return dataAccess.findMemberApplication(memberId, applicationId);
     }
 
-    /** 취소하지 않은 신청 수. */
     @Transactional(readOnly = true)
     public long activeApplicationCount(long memberId) {
         return dataAccess.countMemberApplications(memberId);

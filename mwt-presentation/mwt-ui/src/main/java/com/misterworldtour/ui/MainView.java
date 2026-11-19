@@ -39,7 +39,6 @@ public class MainView {
         this.souvenirs = souvenirs;
     }
 
-    /** ShowHome */
     @GetMapping("/")
     String showHome(@AuthenticationPrincipal LoginSession member, Model model) {
         if (member == null || member.isCustomer()) {

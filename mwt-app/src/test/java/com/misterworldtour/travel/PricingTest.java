@@ -7,7 +7,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** 가격·단골 할인. */
 class PricingTest {
 
     static TravelProduct product(TourLevel level, int price) {
