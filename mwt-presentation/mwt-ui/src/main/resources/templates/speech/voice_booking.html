@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::#page-head}, ~{::#main}, ~{::#scripts})}">
+<head><title>음성 예약 | 미스터 월드 투어</title></head>
+<body>
+<section id="page-head" class="mwt-page-head pb-0 text-center">
+  <div class="container">
+    <h1>음성 예약</h1>
+    <p>상담원과 이야기하듯 말하면 여행을 골라 예약해 드려요.</p>
+  </div>
+</section>
+
+<div id="main" class="container pb-5">
+  <div class="row g-4 g-lg-5 voice-booking">
+    <div class="col-lg-8">
+      <div class="mwt-card voice-chat-card">
+        <div class="voice-chat" id="chat" aria-live="polite">
+          <div class="bubble system" th:text="${greeting}">인사</div>
+        </div>
+        <div class="voice-chat-foot">
+          <div id="start-box" class="text-center py-2">
+            <button type="button" class="btn btn-primary btn-lg" id="start-btn">
+              <i class="bi bi-mic-fill me-1" aria-hidden="true"></i>말로 예약 시작하기
+            </button>
+            <div class="small text-muted mt-2">시작하면 인사를 읽어 드리고 바로 들을게요. 마이크가 없으면 아래 칸에 입력하세요.</div>
+          </div>
+          <form id="talk-form" class="voice-search-bar" aria-label="상담원에게 말하기">
+            <button type="button" class="mic-btn" id="mic-btn" aria-label="말하기" aria-pressed="false" title="말하기">
+              <i class="bi bi-mic-fill" aria-hidden="true"></i>
+            </button>
+            <input id="talk-text" class="voice-input" aria-label="상담원에게 할 말" maxlength="200" autocomplete="off"
+                   placeholder="말하거나 입력하세요. 예: 멋진 여행 상품 추천해주세요">
+            <button class="btn btn-primary voice-submit" type="submit">보내기</button>
+          </form>
+          <div id="voice-status" class="voice-status" role="status">마이크를 누르고 말하거나, 칸에 입력하세요.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="mwt-card voice-selection">
+        <div class="mwt-card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h6 m-0">고른 내용</h2>
+            <span class="tag tag-muted" id="mode-tag" hidden>규칙 대화로 답함</span>
+          </div>
+          <dl id="selection" class="voice-selection-list mb-0">
+            <dt class="text-muted fw-normal">아직 고른 내용이 없어요.</dt>
+          </dl>
+          <a id="done-link" class="btn btn-primary w-100 mt-3" hidden>신청 내용 보기</a>
+          <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-outline-primary btn-sm flex-fill" id="reset-btn">
+              <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm flex-fill" id="mute-btn" aria-pressed="false">
+              <i class="bi bi-volume-up me-1" aria-hidden="true"></i>소리 켜짐
+            </button>
+          </div>
+          <p class="small text-muted mt-3 mb-0">허니문은 2인(고객님과 동반자 1명) 신청이에요. 동반자 이름은 신청 뒤 '내 신청'에서 확인할 수 있어요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="scripts" th:inline="javascript">
+  (() => {
+    const TALK_URL = /*[[@{/speech/booking/talk/}]]*/ "";
+    const RESET_URL = /*[[@{/speech/booking/reset/}]]*/ "";
+    const FAILURE_URL = /*[[@{/speech/failure/}]]*/ "";
+    const csrf = /*[[${_csrf.token}]]*/ "";
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ "X-CSRF-TOKEN";
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("talk-text");
+    const status = document.getElementById("voice-status");
+    const micBtn = document.getElementById("mic-btn");
+    const micIcon = micBtn.querySelector("i");
+    const startBox = document.getElementById("start-box");
+    const selection = document.getElementById("selection");
+    const doneLink = document.getElementById("done-link");
+    const modeTag = document.getElementById("mode-tag");
+    const muteBtn = document.getElementById("mute-btn");
+    const HINT = status.textContent;
+    let muted = false;
+    let voiceMode = false;   // 마지막 말을 마이크로 했으면 대답을 읽은 뒤 바로 다시 듣는다
+    let busy = false;
+    let done = false;
+
+    function bubble(role, text) {
+      const div = document.createElement("div");
+      div.className = "bubble " + role;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    function renderSelection(sel) {
+      selection.replaceChildren();
+      const entries = Object.entries(sel || {});
+      if (!entries.length) {
+        const dt = document.createElement("dt");
+        dt.className = "text-muted fw-normal";
+        dt.textContent = "아직 고른 내용이 없어요.";
+        selection.appendChild(dt);
+        return;
+      }
+      for (const [k, v] of entries) {
+        const dt = document.createElement("dt"); dt.textContent = k;
+        const dd = document.createElement("dd"); dd.textContent = v;
+        selection.append(dt, dd);
+      }
+    }
+
+    // ------------------------------------------------------------ 소리 내어 읽기 (speechSynthesis)
+    function speak(text, then) {
+      if (muted || !window.speechSynthesis || !text) { if (then) then(); return; }
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ko-KR";
+      const ko = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ko"));
+      if (ko) u.voice = ko;
+      u.rate = 1.05;
+      u.onend = () => { if (then) then(); };
+      u.onerror = () => { if (then) then(); };
+      speechSynthesis.speak(u);
+    }
+    if (window.speechSynthesis) speechSynthesis.getVoices();   // 목소리 목록 미리 불러오기
+
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      if (muted && window.speechSynthesis) speechSynthesis.cancel();
+      muteBtn.setAttribute("aria-pressed", muted ? "true" : "false");
+      muteBtn.innerHTML = muted ? '<i class="bi bi-volume-mute me-1" aria-hidden="true"></i>소리 꺼짐'
+                                : '<i class="bi bi-volume-up me-1" aria-hidden="true"></i>소리 켜짐';
+    });
+
+    // ------------------------------------------------------------ 서버와 한 턴
+    function applyTurn(r) {
+      bubble("system", r.reply);
+      renderSelection(r.selection);
+      modeTag.hidden = !r.fallback;
+      done = !!r.done;
+      if (r.application_url) { doneLink.href = r.application_url; doneLink.hidden = false; }
+      speak(r.reply, () => { if (voiceMode && !done) listen(); });
+    }
+
+    async function send(text) {
+      if (busy || !text) return;
+      busy = true;
+      bubble("customer", text);
+      input.value = "";
+      const thinking = bubble("system thinking", "생각 중…");
+      status.textContent = "생각 중…";
+      try {
+        const res = await fetch(TALK_URL, {
+          method: "POST",
+          headers: { [csrfHeader]: csrf, "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript: text }),
+        });
+        if (res.status === 401 || res.status === 403) { thinking.remove(); bubble("system", "로그인이 만료되었어요. 다시 로그인해 주세요."); return; }
+        const r = await res.json();
+        thinking.remove();
+        applyTurn(r);
+      } catch (e) {
+        thinking.remove();
+        bubble("system", "대답을 받지 못했어요. 잠시 후 다시 말씀해 주세요.");
+      } finally {
+        busy = false;
+        status.textContent = HINT;
+      }
+    }
+
+    document.getElementById("talk-form").addEventListener("submit", ev => {
+      ev.preventDefault();
+      voiceMode = false;
+      const v = input.value.trim();
+      if (v) send(v); else input.focus();
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", async () => {
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      if (rec) { stoppedByUser = true; rec.abort(); }
+      try {
+        const res = await fetch(RESET_URL, { method: "POST", headers: { [csrfHeader]: csrf } });
+        const r = await res.json();
+        chat.replaceChildren();
+        doneLink.hidden = true;
+        applyTurn(r);
+      } catch (e) {
+        bubble("system", "처음부터 다시 시작하지 못했어요. 화면을 새로 고쳐 주세요.");
+      }
+    });
+
+    // ------------------------------------------------------------ 듣기 (Web Speech API)
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    let stoppedByUser = false;
+
+    function setListening(on) {
+      micBtn.classList.toggle("listening", on);
+      micBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      micBtn.setAttribute("aria-label", on ? "듣기 끄기" : "말하기");
+      micIcon.className = on ? "bi bi-stop-fill" : "bi bi-mic-fill";
+    }
+
+    function listen() {
+      if (!Recognition || rec || busy) return;
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      stoppedByUser = false;
+      rec = new Recognition();
+      rec.lang = "ko-KR";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onstart = () => { setListening(true); status.textContent = "듣는 중… 말씀하세요 (마이크를 다시 누르면 꺼집니다)"; };
+      rec.onend = () => { rec = null; setListening(false); if (!busy) status.textContent = stoppedByUser ? "듣기를 껐습니다." : HINT; };
+      rec.onerror = e => {
+        if (stoppedByUser || e.error === "aborted") return;
+        voiceMode = false;
+        const why = { "no-speech": "음성이 들리지 않았어요.", "not-allowed": "마이크 권한이 필요해요.",
+                      "audio-capture": "마이크를 찾을 수 없어요." }[e.error] || "음성을 인식하지 못했어요.";
+        status.textContent = why + " 마이크를 다시 누르거나 칸에 입력해 주세요.";
+        fetch(FAILURE_URL, {
+          method: "POST", headers: { [csrfHeader]: csrf, "Content-Type": "application/json" },
+          body: JSON.stringify({ error: e.error }),
+        }).catch(() => {});
+      };
+      rec.onresult = e => {
+        voiceMode = true;
+        send(e.results[0][0].transcript);
+      };
+      rec.start();
+    }
+
+    if (!Recognition) {
+      micBtn.disabled = true;
+      micBtn.title = "이 브라우저는 음성인식을 지원하지 않습니다";
+      status.textContent = "이 브라우저는 음성인식을 지원하지 않아요 (Chrome·Edge 권장). 칸에 입력해 대화할 수 있어요.";
+    }
+
+    micBtn.addEventListener("click", () => {
+      if (rec) { stoppedByUser = true; voiceMode = false; rec.abort(); return; }
+      startBox.hidden = true;
+      listen();
+    });
+
+    // 브라우저는 사용자가 누르기 전에는 소리를 내지 못하게 하므로 시작 버튼으로 인사를 읽는다
+    document.getElementById("start-btn").addEventListener("click", () => {
+      startBox.hidden = true;
+      voiceMode = !!Recognition;
+      const first = chat.querySelector(".bubble.system");
+      speak(first ? first.textContent : "", () => { if (voiceMode) listen(); });
+    });
+  })();
+</script>
+</body>
+</html>

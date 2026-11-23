@@ -366,6 +366,20 @@ input:disabled + .option-tile { opacity: .45; cursor: not-allowed; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(193, 53, 21, .45); } 70% { box-shadow: 0 0 0 12px rgba(193, 53, 21, 0); } 100% { box-shadow: 0 0 0 0 rgba(193, 53, 21, 0); } }
 .voice-status { font-size: .85rem; color: var(--mwt-muted); margin: .5rem 0 0; text-align: center; }
 
+/* 음성 예약 대화 */
+.voice-chat-card { display: flex; flex-direction: column; overflow: hidden; }
+.voice-chat { display: flex; flex-direction: column; gap: .6rem; padding: 1.25rem; min-height: 360px; max-height: 60vh; overflow-y: auto; background: var(--mwt-surface); }
+.voice-chat .bubble { max-width: 85%; padding: .7rem 1rem; border-radius: 16px; line-height: 1.5; white-space: pre-wrap; }
+.voice-chat .bubble.system { align-self: flex-start; background: #fff; border: 1px solid var(--mwt-line); border-bottom-left-radius: 4px; }
+.voice-chat .bubble.customer { align-self: flex-end; background: var(--mwt-accent); color: #fff; border-bottom-right-radius: 4px; }
+.voice-chat .bubble.thinking { color: var(--mwt-muted); font-style: italic; }
+.voice-chat-foot { padding: 1rem; border-top: 1px solid var(--mwt-line); background: #fff; }
+.voice-selection { position: sticky; top: 96px; }
+.voice-selection-list { display: grid; grid-template-columns: auto 1fr; gap: .45rem 1rem; font-size: .92rem; }
+.voice-selection-list dt { font-weight: 600; color: var(--mwt-muted); }
+.voice-selection-list dt:only-child { grid-column: 1 / -1; }
+.voice-selection-list dd { margin: 0; }
+
 /* ---------------------------------------------------------------- 푸터 */
 .mwt-footer { background: var(--mwt-surface); border-top: 1px solid var(--mwt-line); color: var(--mwt-ink-2); padding: 3rem 0 1.5rem; margin-top: 4rem; font-size: .9rem; }
 .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 1.5rem; padding-bottom: 2rem; }

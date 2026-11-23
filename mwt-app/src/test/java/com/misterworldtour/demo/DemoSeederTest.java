@@ -33,7 +33,7 @@ class DemoSeederTest {
         int apps = count("travel_application");
         seeder.seed();
         assertThat(count("member")).isEqualTo(members).isEqualTo(4);
-        assertThat(count("travel_product")).isEqualTo(products).isEqualTo(12);
+        assertThat(count("travel_product")).isEqualTo(products).isEqualTo(13);
         assertThat(count("travel_application")).isEqualTo(apps).isEqualTo(2);
         assertThat(count("travel_history")).isEqualTo(7);
         assertThat(jdbc.queryForObject("SELECT stock_quantity FROM souvenir WHERE name = '건강 인삼'", Integer.class))

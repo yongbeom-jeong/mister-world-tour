@@ -43,12 +43,12 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 
 | 패키지 | 서브시스템 (설계 장) | 클래스 |
 |---|---|---|
-| `ui` | User Interface (3장) | `MainView`, `MemberView`, `TravelHistoryView`, `TravelProductView`, `TravelApplicationView`, `TourProductAdminView`, `SouvenirStockView` / 설계 이후 추가 화면 `SouvenirAdminView`, `SMSLogView` |
+| `ui` | User Interface (3장) | `MainView`, `MemberView`, `TravelHistoryView`, `TravelProductView`, `TravelApplicationView`, `TourProductAdminView`, `SouvenirStockView` / 설계 이후 추가 화면 `SouvenirAdminView`, `SMSLogView`, `VoiceBookingView` |
 | `members` | Member Management (4장) | `MemberManagementAPI`, `MemberManager`(signUp·logIn), `Member`(checkPassword·getMemberId·getRole), `LoginSession` |
 | `travel` | Travel Management (5장) | `TravelManagementAPI`, `TravelManager`, `TravelProduct`(validateProduct·validateApplicationCapacity·updateDepartureStatus), `TravelConfiguration`(applyChanges·validateConfiguration), `TravelPriceCalculator`(calculateUnitPrice·isRegularCustomer·calculateApplicationPrice), `TravelApplication`(validateTravelers·getTravelerCount·confirmHoneymoonDeparture), `TravelHistory`(isCompletedWithinThreeYears) / 추가 `SouvenirStockAPI`(기념품 재고 검사·출발 차감, `SouvenirManager` 가 구현) |
 | `souvenir` | Souvenir Management (6장) | `SouvenirManagementAPI`, `SouvenirManager`(loadSouvenirs·prepareStockReceipt·recordSouvenirStockReceipt), `Souvenir`, `StockReceipt`(validateReceipt·matchesRequest) / 추가 `StockIssue` |
 | `dataaccess` | Data Access (7장) | `DataAccessAPI`(아래 저장 인터페이스 4개를 묶음), `DataAccessManager`, `MemberRepository`, `TravelRepository`(runTravelTransaction 등), `SouvenirRepository` / 추가 `SMSMessageRepository` |
-| `speech` | Speech Recognition Integration (8장) | `SpeechRecognitionAPI`, `SpeechRecognitionManager`(recognizeSelection), `SpeechServiceClient`(recognize), `VoiceSelectionInterpreter`(interpretSelection) |
+| `speech` | Speech Recognition Integration (8장) | `SpeechRecognitionAPI`, `SpeechRecognitionManager`(recognizeSelection), `SpeechServiceClient`(recognize), `VoiceSelectionInterpreter`(interpretSelection) / 추가 음성 예약 `VoiceBookingAPI`·`VoiceBookingManager`(startVoiceBooking·talk), `VoiceDialogClient`(`ScriptedDialogClient`·`OpenAIDialogClient`) |
 | `sms` | SMS Notification (9장) | `SMSNotificationAPI`, `SMSNotificationManager`(sendDepartureConfirmation), `SMSServiceClient`(sendSMS), `SMSMessage`(recordResult·canRetry, 상태 Pending/Success/Failure/Unknown) |
 
 - 호출 방향: `ui` 의 View → 업무 서브시스템의 `*API`/`*Manager` → 자기 저장 인터페이스. View 와 업무 클래스는 Repository·EntityManager 를 직접 쓰지 않는다
@@ -56,7 +56,7 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
   `dataaccess.DataAccessAPI` 는 이 넷을 묶고 `DataAccessManager` 가 구현한다. 의존은 dataaccess → 업무 한 방향뿐이며, 업무·ui 가 `dataaccess` 를 참조하면 `PackageDependencyTest` 가 실패한다
 - 패키지 사이 순환 의존 금지 (`PackageDependencyTest`). 같은 방법으로 travel 이 souvenir 를 부르지 않고 `travel.SouvenirStockAPI` 를 쓴다 (souvenir → travel 한 방향).
 - 설정은 쓰는 쪽이 가진다 (별도 설정 서브시스템 없음): 보안·웹 설정(`SecurityConfig`·`WebConfig`)과 직원 가입 코드(`UiProperties`)는 `ui`,
-  사진 저장 위치(`TravelProperties.mediaRoot`)는 `travel`, 문자 설정(`SMSProperties`)은 `sms`, 업무 날짜 기준 `Clock`(`mwt.time-zone`)은 `mwt-app` 의 `MwtApplication`. 설정 키(`mwt.*`, `.env`)는 그대로
+  사진 저장 위치(`TravelProperties.mediaRoot`)는 `travel`, 문자 설정(`SMSProperties`)은 `sms`, 음성 예약 대화 설정(`VoiceDialogProperties`)은 `speech`, 업무 날짜 기준 `Clock`(`mwt.time-zone`)은 `mwt-app` 의 `MwtApplication`. 설정 키(`mwt.*`, `.env`)는 그대로
 - 다른 서브시스템은 그 서브시스템의 `*API` 로만 부른다. `*Manager` 를 직접 참조하면 `PackageDependencyTest` 가 실패한다 (데모 데이터 `demo` 는 예외).
   화면이 쓰는 조회·관리 기능, 다른 서브시스템이 쓰는 기능(연락처 조회, 문자 발송 준비 등)과 그 결과·예외 타입도 `*API` 에 둔다
 - 다른 서브시스템의 엔티티는 id 로 참조하고 직접 수정하지 않는다 (예: 신청은 회원을 `memberId` 로만)
@@ -113,6 +113,13 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
   - 브라우저에서 끝난 인식 실패(무음·마이크 권한 등)도 `/speech/failure/`로 보내 서버 로그에 기록 (UC4 4a·7a)
   - 해석 별칭(`VoiceSelectionInterpreter`): 신혼→허니문, 부모님→효도, 등산→트레킹 등. 상품은 고유 단어(여행지 등)나 순서("두 번째", "3번")
   - 상품 목록 화면의 음성 검색창은 [마이크][문장 입력칸][찾기] 한 줄. 마이크 없이 문장으로도 시험 가능. 듣는 중 마이크를 다시 누르면 꺼지고, 사용자가 끈 것은 실패로 기록하지 않음
+- 음성 예약(2026-11-23, 최종발표 시나리오 2.1): 상단 탭 '음성 예약' `/speech/booking/`(`VoiceBookingView`). 상담원과 대화하며 테마 → 스타일(등급) → 상품 → 음료 → 확인 순으로 고르고 확인하면 신청까지 한다
+  - 대화 흐름은 화면과 같이 테마 → 등급(스타일) → 상품(그 테마·등급의 여행지·출발일을 알려 주고 고름, 원하는 날짜와 딱 맞거나 하나뿐이면 바로) → 구성 변경 → 확인. 여행지를 먼저 말하면 그 상품으로 바로 정한다. 시나리오 대화는 프롬프트의 참고 예시
+  - 대화 상대 `VoiceDialogClient`: `.env` 의 `VOICE_DIALOG_CLIENT` = `Scripted`(기본, 규칙 대화) / `OpenAI`(LLM, `OPENAI_API_KEY`·`OPENAI_MODEL`, 기본 gpt-4o-mini). 테스트는 `.env` 와 무관하게 Scripted
+  - LLM 프롬프트(시나리오 예시 대화 포함)는 `mwt-speech/src/main/resources/speech/voice-dialog-prompt.md`. LLM 은 JSON 스키마(structured outputs)로 대사와 값만 내고, `VoiceBookingManager` 가 상품 목록·구성 규칙·남은 자리로 다시 검사한다
+  - 신청은 고객이 최종 확인한 턴(값이 직전과 같고 BOOK)에만, 화면 신청과 같은 reviewApplication → submitTravelApplication 으로. 동반자는 음성으로 받지 않고 이름을 비워 넘겨 신청 규칙대로 `동반자 N`으로 저장된다. 음료는 종류별 수량(신청 전체 기준)으로 듣고 LLM 응답도 종류→수량
+  - LLM 호출 실패·시간 초과(`VOICE_DIALOG_TIMEOUT`, 기본 15초)는 그 턴만 규칙 대화로 답한다(화면에 '규칙 대화로 답함' 표시). 키 없이 OpenAI 로 두면 시작 때 오류 로그 후 Scripted
+  - 대답은 브라우저 `speechSynthesis` 로 읽는다. 브라우저가 첫 소리를 막아서 '말로 예약 시작하기' 버튼으로 인사를 읽고, 마이크로 말한 뒤에는 대답을 읽고 바로 다시 듣는다. 대화 상태는 세션 `voice_booking`
 - 신청 취소는 `cancelled_at` 기록(행 삭제 아님). 취소한 신청은 정원·출발 판정·문자·차감·홈 통계에서 제외, 출발일이 지난 신청도 취소 불가
 - 완료 이력: 여행 마지막 날 = 출발일 + 기간 − 1, 그다음 날부터 완료. 신청 고객 계정에 상품당 이력 1건(`completedTravelId=product-<id>`, 같은 상품 신청이 여럿이어도 다녀온 여행 1회), 가격은 그 신청 금액 합계
   - 이력 조회·신청 금액 계산 직전에 그 고객 것을 반영(`TravelManager.completeFinishedTrips`). 일괄은 `--complete-trips`
@@ -122,6 +129,7 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
 - 기념품 관리 `/souvenir/staff/souvenirs/` (`SouvenirAdminView`): 이름·테마 수정, 삭제, 차감 내역(`issues/`). 재고는 입고·차감으로만 변경
   - 삭제: 입고·차감 내역이 없으면 실제 삭제, 있으면 `is_active=false`로 숨김(신청 검사·차감·입고에서 제외, 같은 이름 재등록 불가)
 - 데모 신청: customer2가 다낭 골프 2명(1명 더 오면 확정), 제주 효도 8명(확정, 남은 2자리)
+- 데모 상품 '괌 투몬 선셋 허니문'(프리미엄)은 시드 실행일의 다음 달 같은 날 출발 (음성 예약 시나리오 "다음달 오늘에 결혼해요", 11/24 시드 → 12/24)
 
 ## 화면 디자인
 - 2026-11-13 리뉴얼: 에어비앤비식 배치를 참고한 깔끔한 화면 (로고·색·아이콘은 가져오지 않음). 공통 스타일은 `mwt-presentation/mwt-ui/src/main/resources/static/css/mwt.css` 하나에서 관리

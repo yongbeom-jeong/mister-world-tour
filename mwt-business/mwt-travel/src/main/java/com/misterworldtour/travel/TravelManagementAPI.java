@@ -167,7 +167,7 @@ public interface TravelManagementAPI {
     /** 삭제한 상품 이름을 돌려준다. */
     String deleteTourProduct(long productId);
 
-    /** 상품의 남은 자리 (허니문은 정원 없음 → -1). */
+    /** 상품의 남은 자리 (허니문은 정원 없이 신청마다 2인이라 항상 2). */
     int remainingSeats(TravelProduct product);
 
     /** 상품 테마에 연결된 기념품 이름. */

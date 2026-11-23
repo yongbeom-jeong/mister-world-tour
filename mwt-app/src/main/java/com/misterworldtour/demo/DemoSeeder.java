@@ -47,6 +47,9 @@ class DemoSeeder implements ApplicationRunner {
                        int daysUntilDeparture, String description, String photo) {
     }
 
+    /** daysUntilDeparture 대신 '다음 달 오늘' 출발 (음성 예약 시나리오: "다음달 오늘에 결혼해요"). */
+    static final int NEXT_MONTH = -1;
+
     static final List<DemoMember> MEMBERS = List.of(
             new DemoMember("staff1", Role.STAFF, "김직원", "서울시 중구 세종대로 110", "010-1000-0001"),
             new DemoMember("regular1", Role.CUSTOMER, "박단골", "서울시 강남구 테헤란로 1", "010-2000-0001"),
@@ -58,6 +61,8 @@ class DemoSeeder implements ApplicationRunner {
                     "수상 빌라에서 보내는 둘만의 6일. 선셋 크루즈 포함.", "maldives"),
             new DemoProduct("발리 우붓 로맨틱 허니문", "인도네시아 발리", Theme.HONEYMOON, TourLevel.GRAND, 2_400_000, 5, 30,
                     "우붓 정글 풀빌라와 짐바란 해변 디너.", "bali"),
+            new DemoProduct("괌 투몬 선셋 허니문", "미국령 괌", Theme.HONEYMOON, TourLevel.PREMIUM, 2_900_000, 5, NEXT_MONTH,
+                    "투몬 비치 오션뷰 스위트와 선셋 디너 크루즈.", "theme_honeymoon"),
             new DemoProduct("하와이 마우이 허니문", "미국 하와이", Theme.HONEYMOON, TourLevel.PREMIUM, 3_800_000, 7, 60,
                     "마우이 할레아칼라 일출과 오아후 자유일정.", "maui"),
             new DemoProduct("제주 힐링 효도 여행", "제주도", Theme.FILIAL, TourLevel.GRAND, 890_000, 3, 20,
@@ -142,7 +147,8 @@ class DemoSeeder implements ApplicationRunner {
                 continue;
             }
             TravelProduct p = travel.registerTourProduct(new TravelProduct(d.name(), d.destination(), d.description(),
-                    d.theme(), d.level(), d.price(), d.days(), today.plusDays(d.daysUntilDeparture())));
+                    d.theme(), d.level(), d.price(), d.days(), d.daysUntilDeparture() == NEXT_MONTH
+                    ? today.plusMonths(1) : today.plusDays(d.daysUntilDeparture())));
             travel.setProductImage(p.getProductId(), copyPhoto(d.photo()));
             newProducts++;
         }
