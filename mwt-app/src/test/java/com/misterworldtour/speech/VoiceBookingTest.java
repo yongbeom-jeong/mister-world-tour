@@ -141,14 +141,35 @@ class VoiceBookingTest {
         assertThat(String.valueOf(app.get("extra_drinks"))).contains("COFFEE").contains("CHAMPAGNE");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM traveler WHERE application_id = ?", Integer.class,
                 turn.applicationId())).isEqualTo(2);
-        // 허니문은 신청과 함께 출발 확정 → 커플 기념티 2개 차감
+        // 허니문은 신청과 함께 출발 확정. 기념품은 직원이 출발 처리할 때 차감하므로 아직 그대로
+        assertThat(jdbc.queryForObject("SELECT departure_status FROM travel_application WHERE id = ?", String.class,
+                turn.applicationId())).isEqualTo("CONFIRMED");
         assertThat(jdbc.queryForObject("SELECT stock_quantity FROM souvenir WHERE name = '커플 기념티'", Integer.class))
-                .isEqualTo(98);
+                .isEqualTo(100);
+        // 동반자 이름은 비워 넘기고 신청 규칙대로 '동반자 1'로 저장
+        assertThat(jdbc.queryForList("SELECT name FROM traveler WHERE application_id = ? ORDER BY id", String.class,
+                turn.applicationId())).containsExactly("박단골", "동반자 1");
 
         // 끝난 대화에 더 말해도 다시 신청하지 않는다
         VoiceDialogTurn again = manager.talk(state, "없어요");
         assertThat(again.done()).isTrue();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM travel_application", Integer.class)).isEqualTo(1);
+    }
+
+    @Test
+    void drinkQuantitiesAreHeardAndBooked() {
+        VoiceDialogState state = manager.talk(manager.startVoiceBooking().state(), "괌 투몬 선셋 허니문으로 할게요").state();
+        VoiceDialogTurn turn = manager.talk(state, "커피 2포트랑 샴페인 한 병 추가해 주세요");
+        assertThat(turn.reply()).contains("커피 2포트, 샴페인 1병 추가하셨습니다.");
+        assertThat(turn.selection()).containsKey("음료 금액");
+        turn = manager.talk(turn.state(), "커피는 빼 주세요");
+        assertThat(turn.reply()).contains("샴페인 1병").doesNotContain("커피");
+        turn = manager.talk(turn.state(), "커피 3포트로 해 주세요");
+        turn = manager.talk(turn.state(), "맞아요");
+        turn = manager.talk(turn.state(), "없어요");
+        assertThat(turn.done()).isTrue();
+        assertThat(jdbc.queryForObject("SELECT extra_drinks FROM travel_application WHERE id = ?", String.class,
+                turn.applicationId())).isEqualTo("CHAMPAGNE,COFFEE,COFFEE,COFFEE");
     }
 
     @Test
@@ -254,7 +275,8 @@ class VoiceBookingTest {
     void openAiResponseIsParsedAndHttpErrorsThrow() throws Exception {
         String content = JsonMapper.builder().build().writeValueAsString(Map.of("reply", "무슨 기념일인가요?",
                 "theme", "HONEYMOON", "tour_level", "PREMIUM", "product_id", 7, "departure_date", "2026-12-24",
-                "traveler_count", 2, "hotel_level", "STAR5", "meal", "FINE", "drinks", List.of("COFFEE", "CHAMPAGNE"),
+                "traveler_count", 2, "hotel_level", "STAR5", "meal", "FINE",
+                "drinks", Map.of("COFFEE", 2, "CHAMPAGNE", 1, "WINE", 0, "BEER", 0),
                 "action", "ASK"));
         String ok = JsonMapper.builder().build().writeValueAsString(Map.of("choices",
                 List.of(Map.of("message", Map.of("role", "assistant", "content", content)))));
@@ -263,7 +285,7 @@ class VoiceBookingTest {
         assertThat(r.reply()).isEqualTo("무슨 기념일인가요?");
         assertThat(r.action()).isEqualTo(Action.ASK);
         assertThat(r.slots().productId()).isEqualTo(7L);
-        assertThat(r.slots().drinks()).containsExactly("CHAMPAGNE", "COFFEE");
+        assertThat(r.slots().drinks()).containsExactly("CHAMPAGNE", "COFFEE", "COFFEE");
 
         assertThatThrownBy(() -> client(500, "{\"error\":{}}").reply(
                 new DialogRequest("박단골", today, List.of(), DialogSlots.EMPTY, List.of(), "추천")))

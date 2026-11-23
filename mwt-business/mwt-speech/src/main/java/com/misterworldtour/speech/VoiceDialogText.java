@@ -2,6 +2,7 @@ package com.misterworldtour.speech;
 
 import com.misterworldtour.speech.VoiceDialogClient.DialogSlots;
 import com.misterworldtour.speech.VoiceDialogClient.ProductInfo;
+import com.misterworldtour.travel.DrinkOption;
 import com.misterworldtour.travel.HotelLevel;
 import com.misterworldtour.travel.MealOption;
 
@@ -14,14 +15,14 @@ import java.util.Map;
 /** 음성 예약 대사 문구 (시나리오 말투). 규칙 대화와 서버 확인 문구가 함께 쓴다. */
 final class VoiceDialogText {
 
-    /** 음료는 1인 1세트지만 말로는 시나리오처럼 단위를 붙인다. 순서도 시나리오(커피, 샴페인) 순. */
-    static final Map<String, String> DRINK_PHRASES = new LinkedHashMap<>();
+    /** 말로 부를 음료 이름. 순서도 시나리오(커피, 샴페인) 순. 단위는 DrinkOption 의 것(포트·병·세트). */
+    static final Map<String, String> DRINK_NAMES = new LinkedHashMap<>();
 
     static {
-        DRINK_PHRASES.put("COFFEE", "커피 1포트");
-        DRINK_PHRASES.put("CHAMPAGNE", "샴페인 1병");
-        DRINK_PHRASES.put("WINE", "와인 1병");
-        DRINK_PHRASES.put("BEER", "수제맥주 1세트");
+        DRINK_NAMES.put("COFFEE", "커피");
+        DRINK_NAMES.put("CHAMPAGNE", "샴페인");
+        DRINK_NAMES.put("WINE", "와인");
+        DRINK_NAMES.put("BEER", "수제맥주");
     }
 
     private VoiceDialogText() {
@@ -35,11 +36,13 @@ final class VoiceDialogText {
         return d.getMonthValue() + "월 " + d.getDayOfMonth() + "일";
     }
 
+    /** "커피 1포트, 샴페인 1병". */
     static String drinks(List<String> codes) {
         List<String> out = new ArrayList<>();
-        DRINK_PHRASES.forEach((code, phrase) -> {
-            if (codes.contains(code)) {
-                out.add(phrase);
+        DRINK_NAMES.forEach((code, name) -> {
+            int q = java.util.Collections.frequency(codes, code);
+            if (q > 0) {
+                out.add(name + " " + q + DrinkOption.valueOf(code).getUnit());
             }
         });
         return String.join(", ", out);

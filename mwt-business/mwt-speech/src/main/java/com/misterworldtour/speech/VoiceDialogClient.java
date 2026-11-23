@@ -18,6 +18,7 @@ public interface VoiceDialogClient {
      * 대화로 모은 값. 코드 값은 enum 이름(theme=HONEYMOON 등), 비어 있으면 null.
      *
      * @param departureDate 고객이 원하는 출발일 (yyyy-MM-dd)
+     * @param drinks        추가 음료. 신청 전체 기준 수량만큼 같은 코드를 담는다 (커피 2포트 = COFFEE, COFFEE)
      * @param pending       규칙 대화가 직전에 무엇을 물었는지 (LLM 은 쓰지 않음)
      */
     record DialogSlots(String theme, String tourLevel, Long productId, String departureDate, Integer travelerCount,
@@ -26,7 +27,7 @@ public interface VoiceDialogClient {
         public static final DialogSlots EMPTY = new DialogSlots(null, null, null, null, null, null, null, List.of(), null);
 
         public DialogSlots {
-            drinks = drinks == null ? List.of() : drinks.stream().distinct().sorted().toList();
+            drinks = drinks == null ? List.of() : drinks.stream().sorted().toList();
         }
 
         public DialogSlots withPending(String value) {

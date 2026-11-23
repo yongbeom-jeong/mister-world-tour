@@ -196,10 +196,15 @@ public class ScriptedDialogClient implements VoiceDialogClient {
         }
         boolean remove = containsAny(t, REMOVE);
         for (Map.Entry<String, String> d : DRINK_WORDS.entrySet()) {
-            if (t.contains(d.getKey())) {
-                drinks.remove(d.getValue());
+            Matcher dm = Pattern.compile(d.getKey() + "\\s*(\\d{1,2}|한|두|세|네|다섯)?\\s*(포트|병|세트|잔|개|캔)?").matcher(raw);
+            if (dm.find()) { // 말한 음료는 말한 수량으로 (수량을 안 말하면 1)
+                drinks.removeIf(d.getValue()::equals);
                 if (!remove) {
-                    drinks.add(d.getValue());
+                    String q = dm.group(1);
+                    int n = q == null ? 1 : q.chars().allMatch(Character::isDigit) ? Integer.parseInt(q) : COUNT_WORDS.get(q);
+                    for (int i = 0; i < n; i++) {
+                        drinks.add(d.getValue());
+                    }
                 }
             }
         }

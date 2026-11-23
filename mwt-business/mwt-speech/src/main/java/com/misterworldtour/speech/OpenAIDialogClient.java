@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * OpenAI 채팅 API 로 하는 음성 예약 대화. 시스템 프롬프트(speech/voice-dialog-prompt.md, 시나리오 예시 포함)와
@@ -125,13 +124,15 @@ public class OpenAIDialogClient implements VoiceDialogClient {
 
     private static Map<String, Object> optionPrices() {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("설명", "호텔·식사는 상품 기본값보다 올리면 차액만큼 더하고 내리면 뺀다. 음료는 1인 1세트 추가 금액");
+        m.put("설명", "호텔·식사는 1인 금액으로, 상품 기본값보다 올리면 차액만큼 더하고 내리면 뺀다. "
+                + "음료는 신청 전체 기준 1개(병·포트·세트) 금액이고 고른 수량만큼 더한다");
         Map<String, Integer> hotel = TravelPriceCalculator.OPTION_PRICE_TABLE.get(TravelConfiguration.HOTEL);
         Map<String, Integer> meal = TravelPriceCalculator.OPTION_PRICE_TABLE.get(TravelConfiguration.MEAL);
         m.put("호텔", Map.of("STAR3", hotel.get("STAR3"), "STAR4", hotel.get("STAR4"), "STAR5", hotel.get("STAR5")));
         m.put("식사", Map.of("LUNCHBOX", meal.get("LUNCHBOX"), "LOCAL", meal.get("LOCAL"), "FINE", meal.get("FINE")));
         m.put("음료", TravelPriceCalculator.DRINK_PRICES);
-        m.put("포함", "고급 레스토랑 식사(FINE)에는 샴페인이 기본 포함(0원)");
+        m.put("포함", "고급 레스토랑 식사(FINE)에는 샴페인이 기본 포함(0원). 샴페인을 더 원하면 추가 수량으로 받는다");
+        m.put("음료 최대 수량", TravelConfiguration.MAX_DRINK_QUANTITY + "개 (종류마다)");
         return m;
     }
 
@@ -167,9 +168,17 @@ public class OpenAIDialogClient implements VoiceDialogClient {
         now.put("traveler_count", s.travelerCount());
         now.put("hotel_level", s.hotelLevel());
         now.put("meal", s.meal());
-        now.put("drinks", s.drinks());
+        now.put("drinks", drinkQuantities(s.drinks()));
         c.put("현재 값", now);
         return c;
+    }
+
+    static Map<String, Integer> drinkQuantities(List<String> drinks) {
+        Map<String, Integer> m = new LinkedHashMap<>();
+        for (DrinkOption d : DrinkOption.values()) {
+            m.put(d.name(), java.util.Collections.frequency(drinks, d.name()));
+        }
+        return m;
     }
 
     private static List<Object> namesOrNull(Enum<?>[] values) {
@@ -192,8 +201,12 @@ public class OpenAIDialogClient implements VoiceDialogClient {
         props.put("traveler_count", Map.of("type", List.of("integer", "null")));
         props.put("hotel_level", nullableEnum(HotelLevel.values()));
         props.put("meal", nullableEnum(MealOption.values()));
-        props.put("drinks", Map.of("type", "array", "items", Map.of("type", "string", "enum",
-                Stream.of(DrinkOption.values()).map(Enum::name).toList())));
+        Map<String, Object> drinkProps = new LinkedHashMap<>();
+        for (DrinkOption d : DrinkOption.values()) {
+            drinkProps.put(d.name(), Map.of("type", "integer", "description", "추가 수량(" + d.getUnit() + "), 없으면 0"));
+        }
+        props.put("drinks", Map.of("type", "object", "properties", drinkProps,
+                "required", new ArrayList<>(drinkProps.keySet()), "additionalProperties", false));
         props.put("action", Map.of("type", "string", "enum", List.of("ASK", "BOOK")));
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("type", "object");
@@ -209,7 +222,12 @@ public class OpenAIDialogClient implements VoiceDialogClient {
 
     static DialogReply parseReply(JsonNode out) {
         List<String> drinks = new ArrayList<>();
-        out.path("drinks").forEach(d -> drinks.add(d.asString("")));
+        for (DrinkOption d : DrinkOption.values()) { // 종류별 수량 → 수량만큼 같은 코드 (한도 넘는 값은 서버 검사가 거른다)
+            int q = Math.max(0, Math.min(out.path("drinks").path(d.name()).asInt(0), TravelConfiguration.MAX_DRINK_QUANTITY + 1));
+            for (int i = 0; i < q; i++) {
+                drinks.add(d.name());
+            }
+        }
         JsonNode pid = out.path("product_id");
         JsonNode count = out.path("traveler_count");
         DialogSlots slots = new DialogSlots(text(out.path("theme")), text(out.path("tour_level")),

@@ -21,6 +21,7 @@ import com.misterworldtour.travel.TravelManagementAPI.ApplicationResult;
 import com.misterworldtour.travel.TravelManagementAPI.ApplicationReviewResult;
 import com.misterworldtour.travel.TravelManagementAPI.ConfigurationException;
 import com.misterworldtour.travel.TravelManagementAPI.ConfigurationResult;
+import com.misterworldtour.travel.TravelPriceCalculator;
 import com.misterworldtour.travel.TravelProduct;
 
 import org.slf4j.Logger;
@@ -48,8 +49,6 @@ public class VoiceBookingManager implements VoiceBookingAPI {
     private static final Logger log = LoggerFactory.getLogger(VoiceBookingManager.class);
 
     static final int MAX_HISTORY = 40;
-    /** 음성으로는 동반자 이름을 받지 않는다 (인식이 부정확). 신청 상세에서 확인할 수 있게 자리 이름을 넣는다. */
-    static final String COMPANION = "동반자 ";
 
     private final TravelManagementAPI travel;
     private final SpeechServiceClient speech;
@@ -218,8 +217,9 @@ public class VoiceBookingManager implements VoiceBookingAPI {
             MemberManagementAPI.Contact me = travel.applicantContact(memberId);
             List<TravelerInput> travelers = new ArrayList<>();
             travelers.add(new TravelerInput(me.name(), me.contact(), true));
+            // 음성으로는 동반자 이름을 받지 않는다 (인식이 부정확). 비우면 신청 규칙대로 '동반자 N'으로 저장된다
             for (int i = 1; i < s.travelerCount(); i++) {
-                travelers.add(new TravelerInput(COMPANION + i, "", false));
+                travelers.add(new TravelerInput("", "", false));
             }
             review = travel.reviewApplication(product.productId(), config, travelers);
             ApplicationResult result = travel.submitTravelApplication(product.productId(), config, travelers,
@@ -314,6 +314,10 @@ public class VoiceBookingManager implements VoiceBookingAPI {
             m.put("식사", described.get(TravelConfiguration.MEAL));
             m.put("음료", described.get(TravelConfiguration.DRINKS));
             m.put("1인 금액", "%,d원".formatted(c.unitPrice()));
+            int drinkPrice = TravelPriceCalculator.calculateDrinkPrice(c.configuration());
+            if (drinkPrice > 0) {
+                m.put("음료 금액", "%,d원 (신청 전체)".formatted(drinkPrice));
+            }
         } catch (ConfigurationException e) {
             // 검사에서 이미 걸러져 여기 오지 않는다
         }
