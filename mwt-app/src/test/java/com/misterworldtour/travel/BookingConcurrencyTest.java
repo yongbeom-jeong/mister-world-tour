@@ -57,6 +57,8 @@ class BookingConcurrencyTest extends BookingTestBase {
 
         assertThat(ok).isEqualTo(3);
         assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(9);
+        assertThat(stock("골프공")).isEqualTo(10); // 차감은 직원 출발 처리 때
+        booking.departTrip(p.getProductId());
         assertThat(stock("골프공")).isEqualTo(1);
     }
 }

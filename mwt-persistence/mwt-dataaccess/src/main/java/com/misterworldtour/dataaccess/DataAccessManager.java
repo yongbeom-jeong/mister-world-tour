@@ -208,10 +208,6 @@ public class DataAccessManager implements DataAccessAPI {
         return travelRepository.findApplicationsByIds(applicationIds);
     }
 
-    @Override
-    public List<TravelApplication> findConfirmedApplicationsDepartedBefore(LocalDate today, Long memberId) {
-        return travelRepository.findConfirmedApplicationsDepartedBefore(today, memberId);
-    }
 
     @Override
     public List<TravelHistory> findTravelHistories(long memberId) {
@@ -228,10 +224,6 @@ public class DataAccessManager implements DataAccessAPI {
         return travelRepository.existsTravelHistory(memberId, completedTravelId);
     }
 
-    @Override
-    public Set<String> findCompletedTravelKeys(String prefix, Long memberId) {
-        return travelRepository.findCompletedTravelKeys(prefix, memberId);
-    }
 
     @Override
     public List<Souvenir> findSouvenirs() {

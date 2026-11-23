@@ -4,6 +4,7 @@ import com.misterworldtour.members.StaffRoleRequired;
 import com.misterworldtour.travel.ProductImages.InvalidImageException;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
+import com.misterworldtour.travel.BookingException;
 import com.misterworldtour.travel.TravelManagementAPI.ImageChange;
 import com.misterworldtour.travel.TravelManagementAPI.ProductHasApplicationsException;
 import com.misterworldtour.travel.TravelManagementAPI.ProductNotFoundException;
@@ -187,6 +188,8 @@ public class TourProductAdminView {
         model.addAttribute("form", form);
         model.addAttribute("errors", errors);
         model.addAttribute("hasApplications", travel.hasApplications(selected.getProductId()));
+        model.addAttribute("departBlock", travel.departBlockReason(selected));
+        model.addAttribute("completeBlock", travel.completeBlockReason(selected));
         model.addAttribute("minDate", LocalDate.now(clock).plusDays(1));
         return "travel/staff/product_manage";
     }
@@ -226,6 +229,42 @@ public class TourProductAdminView {
             }
         }
         return detailView(selected, form, errors, null, null, request, model);
+    }
+
+    /** 직원 출발 처리: 출발 확정된 신청의 기념품을 차감한다. */
+    @PostMapping("/products/{productId}/depart/")
+    String departTrip(@PathVariable long productId, RedirectAttributes redirect) {
+        try {
+            int issued = travel.departTrip(productId);
+            Messages.flash(redirect, Level.SUCCESS, "출발 처리했습니다. 기념품 " + issued + "개를 차감했습니다.");
+        } catch (ProductNotFoundException e) {
+            Messages.flash(redirect, Level.ERROR, "상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.");
+            return "redirect:/travel/staff/products/";
+        } catch (BookingException e) {
+            Messages.flash(redirect, Level.ERROR, e.getMessage());
+        } catch (DataAccessException e) {
+            log.error("출발 처리 중 DB 오류 product={}", productId, e);
+            Messages.flash(redirect, Level.ERROR, "일시적인 오류로 출발 처리되지 않았습니다. 다시 시도해 주세요.");
+        }
+        return "redirect:/travel/staff/products/" + productId + "/";
+    }
+
+    /** 직원 완료 처리: 신청 고객마다 완료 여행 이력을 만든다. */
+    @PostMapping("/products/{productId}/complete/")
+    String completeTrip(@PathVariable long productId, RedirectAttributes redirect) {
+        try {
+            int created = travel.completeTrip(productId);
+            Messages.flash(redirect, Level.SUCCESS, "여행을 완료 처리했습니다. 고객 완료 이력 " + created + "건을 만들었습니다.");
+        } catch (ProductNotFoundException e) {
+            Messages.flash(redirect, Level.ERROR, "상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.");
+            return "redirect:/travel/staff/products/";
+        } catch (BookingException e) {
+            Messages.flash(redirect, Level.ERROR, e.getMessage());
+        } catch (DataAccessException e) {
+            log.error("완료 처리 중 DB 오류 product={}", productId, e);
+            Messages.flash(redirect, Level.ERROR, "일시적인 오류로 완료 처리되지 않았습니다. 다시 시도해 주세요.");
+        }
+        return "redirect:/travel/staff/products/" + productId + "/";
     }
 
     @PostMapping("/products/{productId}/delete/")
