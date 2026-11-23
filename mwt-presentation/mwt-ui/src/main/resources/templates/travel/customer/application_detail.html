@@ -45,7 +45,8 @@
       <div class="mwt-card mwt-card-body h-100">
         <h2 class="h5 mb-3">금액</h2>
         <table class="table price-table">
-          <tr><td th:text="|1인 ${@mwt.won(app.unitPrice)} × ${travelers.size()}명|">1인</td><td class="text-end" th:text="${@mwt.won(app.subtotal)}">0원</td></tr>
+          <tr><td th:text="|1인 ${@mwt.won(app.unitPrice)} × ${travelers.size()}명|">1인</td><td class="text-end" th:text="${@mwt.won(app.unitPrice * travelers.size())}">0원</td></tr>
+          <tr th:if="${app.drinkPrice > 0}"><td>추가 음료 (신청 전체)</td><td class="text-end" th:text="${@mwt.won(app.drinkPrice)}">0원</td></tr>
           <tr th:if="${app.discountAmount > 0}" class="text-success"><td>단골 할인 10%</td><td class="text-end" th:text="|−${@mwt.won(app.discountAmount)}|">0원</td></tr>
           <tr class="total"><td>최종 금액</td><td class="text-end" th:text="${@mwt.won(app.finalAmount)}">0원</td></tr>
         </table>
@@ -57,6 +58,14 @@
         </ul>
       </div>
     </div>
+  </div>
+  <div class="mwt-card mwt-card-body mt-4" id="change-section">
+    <h2 class="h6 mb-2">구성 변경</h2>
+    <th:block th:if="${changeBlock == null}">
+      <p class="small text-muted mb-3">출발 전까지는 출발이 확정된 뒤에도 호텔·교통·식사·음료를 바꿀 수 있어요. 여행자와 인원은 그대로이고, 금액은 다시 계산됩니다.</p>
+      <a class="btn btn-outline-primary" th:href="@{/travel/applications/{id}/change/(id=${app.applicationId})}"><i class="bi bi-pencil-square me-1"></i>구성 변경</a>
+    </th:block>
+    <p th:if="${changeBlock != null}" class="small text-muted mb-0" th:text="${changeBlock}">안내</p>
   </div>
   <div class="mwt-card mwt-card-body mt-4" id="cancel-section">
     <h2 class="h6 mb-2">신청 취소</h2>

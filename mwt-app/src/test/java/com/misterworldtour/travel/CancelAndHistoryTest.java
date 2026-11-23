@@ -27,7 +27,7 @@ class CancelAndHistoryTest extends BookingTestBase {
     @Autowired
     TravelManager travel;
 
-    /** 신청 뒤 출발일을 과거로 옮긴다 (여행 기간 4일). */
+    /** 신청 뒤 출발일을 과거로 옮긴다 (여행 기간 4일). 완료는 날짜와 상관없이 직원 처리로만 된다. */
     void travel(TravelProduct p, int daysAgo) {
         jdbc.update("UPDATE travel_product SET departure_date = ? WHERE id = ?", LocalDate.now().minusDays(daysAgo), p.getProductId());
     }
@@ -56,7 +56,70 @@ class CancelAndHistoryTest extends BookingTestBase {
         ApplicationResult r = book(bob, p, "x", "y"); // 취소한 앨리스는 빠짐
         assertThat(r.newlyConfirmed()).isTrue();
         assertThat(r.recipientMemberIds()).containsExactly(bob.getMemberId());
-        assertThat(r.souvenirsIssued()).isEqualTo(3);
+        assertThat(r.souvenirsIssued()).isZero(); // 차감은 직원 출발 처리 때
+    }
+
+    @Test
+    void confirmedApplicationConfigurationCanBeChanged() {
+        TravelProduct p = product(Theme.TREKKING, TourLevel.CLASSIC);
+        ApplicationResult r = book(alice, p, "", "");
+        assertThat(r.newlyConfirmed()).isTrue();
+        TravelApplication before = booking.getMyApplication(alice.getMemberId(), r.applicationId()).orElseThrow();
+        assertThat(booking.changeBlockReason(before)).isNull();
+        TravelConfiguration grand = new TravelConfiguration("STAR4", p.getTransport().name(), "LOCAL",
+                List.of("COFFEE", "COFFEE", "CHAMPAGNE"));
+        TravelPriceCalculator.PriceBreakdown after = booking.changeApplicationConfiguration(alice.getMemberId(),
+                r.applicationId(), grand);
+        assertThat(after.subtotal()).isEqualTo((1_000_000 + 150_000 + 80_000) * 3 + 2 * 10_000 + 60_000);
+        TravelApplication saved = booking.getMyApplication(alice.getMemberId(), r.applicationId()).orElseThrow();
+        assertThat(saved.getConfiguration()).isEqualTo(grand);
+        assertThat(saved.getFinalAmount()).isEqualTo(after.finalAmount());
+        assertThat(saved.getDrinkPrice()).isEqualTo(80_000);
+        assertThat(saved.getTravelerCount()).isEqualTo(3);
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(3); // 정원·출발 상태 그대로
+        assertThat(saved.currentDepartureStatus()).isEqualTo(DepartureStatus.CONFIRMED);
+    }
+
+    @Test
+    void cannotChangeInvalidCancelledOrDepartedApplication() {
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        ApplicationResult r = book(alice, p, "a", "b");
+        TravelConfiguration lunchboxWithWine = new TravelConfiguration("STAR4", p.getTransport().name(), "LUNCHBOX",
+                List.of("WINE"));
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), r.applicationId(),
+                lunchboxWithWine)).hasMessageContaining("구성");
+        long bob = customer("bob").getMemberId();
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(bob, r.applicationId(),
+                TravelConfiguration.defaultOf(p))).hasMessageContaining("찾을 수 없");
+        travel.departTrip(p.getProductId());
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), r.applicationId(),
+                TravelConfiguration.defaultOf(p))).hasMessageContaining("이미 출발");
+        TravelProduct q = product(Theme.GOLF, TourLevel.GRAND);
+        ApplicationResult c = book(alice, q);
+        booking.cancelApplication(alice.getMemberId(), c.applicationId());
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), c.applicationId(),
+                TravelConfiguration.defaultOf(q))).hasMessageContaining("취소한");
+    }
+
+    @Test
+    void changeHttpFlow() throws Exception {
+        TravelProduct p = product(Theme.HONEYMOON, TourLevel.PREMIUM);
+        ApplicationResult r = book(alice, p, "");
+        String url = "/travel/applications/" + r.applicationId() + "/";
+        mvc.perform(get(url).with(login(alice))).andExpect(content().string(containsString("구성 변경")));
+        mvc.perform(get(url + "change/").with(login(alice)))
+                .andExpect(content().string(containsString("이 구성으로 변경하기")));
+        mvc.perform(post(url + "change/configure/").with(login(alice)).with(csrf())
+                        .contentType("application/json").content("{\"current\":{},\"changes\":{\"drinks\":[\"COFFEE\"]}}"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.drink_price").value(10_000));
+        mvc.perform(post(url + "change/").with(login(alice)).with(csrf())
+                        .param("config", "{\"drinks\":[\"COFFEE\",\"CHAMPAGNE\"]}"))
+                .andExpect(redirectedUrl(url));
+        assertThat(dataAccess.findApplication(r.applicationId()).orElseThrow().getConfiguration().drinks())
+                .containsExactly("CHAMPAGNE", "COFFEE");
+        mvc.perform(get(url).with(login(alice))).andExpect(content().string(containsString("샴페인 1병 추가")));
+        mvc.perform(get(url + "change/").with(login(customer("bob")))).andExpect(status().isNotFound());
     }
 
     @Test
@@ -99,31 +162,36 @@ class CancelAndHistoryTest extends BookingTestBase {
     }
 
     @Test
-    void confirmedTripBecomesHistoryAfterLastDay() {
+    void tripBecomesHistoryOnlyWhenStaffCompletes() {
         TravelProduct p = product(Theme.HONEYMOON, TourLevel.PREMIUM);
         ApplicationResult r = book(alice, p, "배우자");
-        travel(p, 3); // 4일 여행의 마지막 날이 오늘 → 아직 여행 중
-        assertThat(travel.completeFinishedTrips(alice.getMemberId())).isZero();
-        travel(p, 4); // 어제 끝남
-        assertThat(travel.completeFinishedTrips(alice.getMemberId())).isEqualTo(1);
+        travel(p, 10); // 날짜가 지나도 자동으로 완료되지 않는다
+        assertThat(travel.viewPreviousTravelHistory(alice.getMemberId())).isEmpty();
+        assertThatThrownBy(() -> travel.completeTrip(p.getProductId())).hasMessageContaining("출발 처리한 뒤");
+        travel.departTrip(p.getProductId());
+        assertThat(travel.completeTrip(p.getProductId())).isEqualTo(1);
         TravelHistory h = travel.viewPreviousTravelHistory(alice.getMemberId()).get(0);
         assertThat(h.isCompleted()).isTrue();
-        assertThat(h.getCompletedAt()).isEqualTo(LocalDate.now().minusDays(1));
+        assertThat(h.getCompletedAt()).isEqualTo(LocalDate.now());
         assertThat(h.getProductName()).isEqualTo(p.getProductName());
         assertThat(h.getPrice()).isEqualTo(dataAccess.findApplication(r.applicationId()).orElseThrow().getFinalAmount());
-        assertThat(travel.completeFinishedTrips(alice.getMemberId())).isZero();
+        assertThatThrownBy(() -> travel.completeTrip(p.getProductId())).hasMessageContaining("이미 완료");
     }
 
     @Test
-    void unconfirmedOrCancelledTripIsNotHistory() {
+    void unconfirmedTripCannotDepartAndCancelledIsNotHistory() {
         TravelProduct pending = product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "미확정");
         book(alice, pending);
-        TravelProduct cancelled = product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "취소");
-        ApplicationResult r = book(alice, cancelled);
-        booking.cancelApplication(alice.getMemberId(), r.applicationId());
-        travel(pending, 30);
-        travel(cancelled, 30);
-        assertThat(travel.completeFinishedTrips(null)).isZero();
+        assertThatThrownBy(() -> travel.departTrip(pending.getProductId())).hasMessageContaining("확정되지 않은");
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND, 1_000_000, 30, "취소 포함");
+        ApplicationResult cancelled = book(alice, p);
+        booking.cancelApplication(alice.getMemberId(), cancelled.applicationId());
+        LoginSession bob = customer("bob");
+        book(bob, p, "x", "y");
+        travel.departTrip(p.getProductId());
+        assertThat(travel.completeTrip(p.getProductId())).isEqualTo(1);
+        assertThat(historyNames(alice)).isEmpty();
+        assertThat(historyNames(bob)).containsExactly("취소 포함");
     }
 
     @Test
@@ -133,8 +201,8 @@ class CancelAndHistoryTest extends BookingTestBase {
         int a1 = dataAccess.findApplication(book(alice, p).applicationId()).orElseThrow().getFinalAmount();
         int a2 = dataAccess.findApplication(book(alice, p).applicationId()).orElseThrow().getFinalAmount();
         book(bob, p);
-        travel(p, 10);
-        assertThat(travel.completeFinishedTrips(null)).isEqualTo(2);
+        travel.departTrip(p.getProductId());
+        assertThat(travel.completeTrip(p.getProductId())).isEqualTo(2);
         assertThat(historyNames(alice)).hasSize(1); // 같은 상품 신청 2건이어도 다녀온 여행은 1회
         assertThat(historyNames(bob)).hasSize(1);
         assertThat(jdbc.queryForObject("SELECT price FROM travel_history WHERE member_id = ?", Integer.class,
@@ -142,11 +210,37 @@ class CancelAndHistoryTest extends BookingTestBase {
     }
 
     @Test
-    void historyPopupAndDiscountReflectFinishedTrips() throws Exception {
+    void departedProductTakesNoMoreApplications() {
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        book(alice, p, "a", "b");
+        travel.departTrip(p.getProductId());
+        assertThatThrownBy(() -> review(customer("bob"), p)).hasMessageContaining("신청할 수 없습니다");
+        assertThatThrownBy(() -> travel.departTrip(p.getProductId())).hasMessageContaining("이미 출발");
+    }
+
+    @Test
+    void staffDepartAndCompleteHttpFlow() throws Exception {
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        book(alice, p, "a", "b");
+        LoginSession staff = principals.create("emp", com.misterworldtour.members.Role.STAFF);
+        String url = "/travel/staff/products/" + p.getProductId() + "/";
+        mvc.perform(get(url).with(login(staff))).andExpect(content().string(containsString("출발 처리")));
+        mvc.perform(post(url + "complete/").with(login(staff)).with(csrf())).andExpect(redirectedUrl(url));
+        assertThat(historyNames(alice)).isEmpty();
+        mvc.perform(post(url + "depart/").with(login(staff)).with(csrf())).andExpect(redirectedUrl(url));
+        assertThat(stock("골프공")).isEqualTo(97);
+        mvc.perform(post(url + "complete/").with(login(staff)).with(csrf())).andExpect(redirectedUrl(url));
+        assertThat(historyNames(alice)).hasSize(1);
+        mvc.perform(post(url + "depart/").with(login(alice)).with(csrf())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void historyPopupAndDiscountReflectCompletedTrips() throws Exception {
         for (int i = 0; i < 3; i++) { // 다녀온 허니문 3번 → 단골
             TravelProduct p = product(Theme.HONEYMOON, TourLevel.PREMIUM, 1_000_000, 30, "다녀온 여행 " + i);
             book(alice, p, "배우자");
-            travel(p, 20);
+            travel.departTrip(p.getProductId());
+            travel.completeTrip(p.getProductId());
         }
         mvc.perform(get("/travel/history/").with(login(alice)))
                 .andExpect(content().string(containsString("다녀온 여행 0")))

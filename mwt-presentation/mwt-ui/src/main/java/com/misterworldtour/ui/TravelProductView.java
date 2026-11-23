@@ -9,6 +9,8 @@ import com.misterworldtour.speech.SpeechRecognitionAPI;
 import com.misterworldtour.speech.SpeechServiceClient;
 import com.misterworldtour.travel.BookingException;
 import com.misterworldtour.travel.DrinkOption;
+import com.misterworldtour.travel.TravelApplication;
+import com.misterworldtour.travel.TravelPriceCalculator.PriceBreakdown;
 import com.misterworldtour.travel.Theme;
 import com.misterworldtour.travel.TourLevel;
 import com.misterworldtour.travel.TravelConfiguration;
@@ -64,7 +66,7 @@ public class TravelProductView {
         }
     }
 
-    record DrinkChoice(String value, String label, int price) {
+    record DrinkChoice(String value, String label, String unit, int price) {
     }
 
     record OptionField(String field, String title, List<OptionChoice> choices) {
@@ -147,6 +149,13 @@ public class TravelProductView {
         if (session.getAttribute(TravelApplicationView.DRAFT_KEY) instanceof TravelApplicationView.Draft draft && draft.productId() == product.getProductId()) {
             config = draft.config();
         }
+        detailModel(product, config, model);
+        model.addAttribute("configureUrl", "/travel/products/" + productId + "/configure/");
+        return "travel/customer/product_detail";
+    }
+
+    /** 상품 상세(구성 화면) 공통 모델. 신청 구성 변경 화면도 같은 템플릿을 쓴다. */
+    private void detailModel(TravelProduct product, TravelConfiguration config, Model model) {
         Map<String, List<String>> included = new LinkedHashMap<>();
         TravelRules.INCLUDED_DRINKS.forEach((meal, drinks) ->
                 included.put(meal.name(), drinks.stream().map(Enum::name).sorted().toList()));
@@ -155,14 +164,17 @@ public class TravelProductView {
         model.addAttribute("configJson", json.writeValueAsString(config.toMap()));
         model.addAttribute("unitPrice", travelManager.calculateUnitPrice(product, config));
         model.addAttribute("optionFields", optionFields(product));
+        model.addAttribute("drinkPrice", TravelPriceCalculator.calculateDrinkPrice(config));
+        model.addAttribute("drinkQuantities", config.drinkQuantities());
+        model.addAttribute("maxDrinkQuantity", TravelConfiguration.MAX_DRINK_QUANTITY);
         model.addAttribute("drinkChoices", Arrays.stream(DrinkOption.values())
-                .map(d -> new DrinkChoice(d.name(), d.getLabel(), TravelPriceCalculator.DRINK_PRICES.get(d.name()))).toList());
+                .map(d -> new DrinkChoice(d.name(), d.getLabel(), d.getUnit(),
+                        TravelPriceCalculator.DRINK_PRICES.get(d.name()))).toList());
         model.addAttribute("noDrinkMeals", TravelRules.NO_DRINK_MEALS.stream().map(Enum::name).sorted().toList());
         model.addAttribute("includedDrinks", included);
         model.addAttribute("remaining", travelManager.remainingSeats(product));
         model.addAttribute("souvenirs", travelManager.themeSouvenirNames(product));
         model.addAttribute("bodyClass", "product-detail-page");
-        return "travel/customer/product_detail";
     }
 
     @PostMapping("/travel/products/{productId}/configure/")
@@ -186,7 +198,8 @@ public class TravelProductView {
             ConfigurationResult result = travelManager.configureTravelProduct(product.getProductId(),
                     product.getDefaultConfiguration().applyChanges(current), changes);
             return ResponseEntity.ok(Map.of("ok", true, "config", result.configuration().toMap(),
-                    "described", result.configuration().describe(), "unit_price", result.unitPrice()));
+                    "described", result.configuration().describe(), "unit_price", result.unitPrice(),
+                    "drink_price", TravelPriceCalculator.calculateDrinkPrice(result.configuration())));
         } catch (TravelManagementAPI.ConfigurationException e) {
             return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage(), "errors", e.getErrors()));
         }
@@ -226,6 +239,81 @@ public class TravelProductView {
         }
         session.setAttribute(TravelApplicationView.DRAFT_KEY, new TravelApplicationView.Draft(product.getProductId(), chosen, List.of()));
         return "redirect:/travel/apply/";
+    }
+
+    // ---------------------------------------------------------------- 신청 구성 변경 (출발 확정 후에도 출발 전까지)
+
+    private TravelApplication myApplication(LoginSession me, long applicationId) {
+        return travelManager.getMyApplication(me.getMemberId(), applicationId)
+                .orElseThrow(() -> new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,
+                        "신청을 찾을 수 없습니다."));
+    }
+
+    /** 신청 구성 변경 화면: 상품 상세의 구성 화면에 지금 신청 구성을 채워 보여 준다. */
+    @GetMapping("/travel/applications/{applicationId}/change/")
+    String showApplicationChange(@AuthenticationPrincipal LoginSession me, @PathVariable long applicationId,
+                                 Model model, RedirectAttributes redirect) {
+        TravelApplication app = myApplication(me, applicationId);
+        String block = travelManager.changeBlockReason(app);
+        if (block != null) {
+            Messages.flash(redirect, Level.ERROR, block);
+            return "redirect:/travel/applications/" + applicationId + "/";
+        }
+        TravelConfiguration config = app.getConfiguration();
+        detailModel(app.getProduct(), config, model);
+        model.addAttribute("changeApp", app);
+        model.addAttribute("changePrice", travelManager.previewApplicationChange(me.getMemberId(), applicationId, config));
+        model.addAttribute("configureUrl", "/travel/applications/" + applicationId + "/change/configure/");
+        return "travel/customer/product_detail";
+    }
+
+    /** 구성 변경 화면의 옵션 변경: 상품 구성 검사 + 이 신청 인원·할인으로 계산한 금액 (저장하지 않음). */
+    @PostMapping("/travel/applications/{applicationId}/change/configure/")
+    @ResponseBody
+    ResponseEntity<Map<String, Object>> configureApplicationChange(@AuthenticationPrincipal LoginSession me,
+                                                                   @PathVariable long applicationId,
+                                                                   @RequestBody(required = false) String body) {
+        TravelApplication app = myApplication(me, applicationId);
+        TravelProduct product = app.getProduct();
+        try {
+            Map<String, Object> parsed = parseJson(body);
+            TravelConfiguration changed = product.getDefaultConfiguration().applyChanges(asMap(parsed.get("current")))
+                    .applyChanges(asMap(parsed.get("changes")));
+            Map<String, String> errors = changed.validateConfiguration(product);
+            if (!errors.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("ok", false,
+                        "message", errors.values().iterator().next(), "errors", errors));
+            }
+            PriceBreakdown price = travelManager.previewApplicationChange(me.getMemberId(), applicationId, changed);
+            return ResponseEntity.ok(Map.of("ok", true, "config", changed.toMap(), "described", changed.describe(),
+                    "unit_price", price.unitPrice(), "drink_price", price.drinkPrice(),
+                    "final_amount", price.finalAmount(), "discount", price.discountAmount()));
+        } catch (JacksonException | ClassCastException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "잘못된 요청입니다."));
+        } catch (BookingException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+        }
+    }
+
+    /** 신청 구성 변경 저장. 금액은 서버가 다시 계산한다. */
+    @PostMapping("/travel/applications/{applicationId}/change/")
+    String changeApplicationConfiguration(@AuthenticationPrincipal LoginSession me, @PathVariable long applicationId,
+                                          @RequestParam(required = false) String config, RedirectAttributes redirect) {
+        TravelApplication app = myApplication(me, applicationId);
+        int before = app.getFinalAmount();
+        String back = "redirect:/travel/applications/" + applicationId + "/";
+        try {
+            TravelConfiguration chosen = app.getProduct().getDefaultConfiguration().applyChanges(asMap(parseJson(config)));
+            PriceBreakdown after = travelManager.changeApplicationConfiguration(me.getMemberId(), applicationId, chosen);
+            Messages.flash(redirect, Level.SUCCESS, "신청 구성을 변경했습니다. 신청 금액 %,d원 → %,d원".formatted(before,
+                    after.finalAmount()));
+            return back;
+        } catch (JacksonException | ClassCastException e) {
+            Messages.flash(redirect, Level.ERROR, "여행 구성을 다시 확인해 주세요.");
+        } catch (BookingException e) {
+            Messages.flash(redirect, Level.ERROR, e.getMessage());
+        }
+        return back + "change/";
     }
 
     private Map<String, Object> parseJson(String body) {

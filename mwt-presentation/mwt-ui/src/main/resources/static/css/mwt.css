@@ -288,6 +288,14 @@ span.flatpickr-weekday { color: var(--mwt-muted); font-weight: 600; }
 .option-tile:hover { border-color: var(--mwt-ink); }
 .option-tile .opt-diff { font-size: .85rem; font-weight: 600; color: var(--mwt-muted); white-space: nowrap; }
 .option-tile .opt-diff.up { color: var(--mwt-ink); }
+/* 음료 수량 (신청 전체) */
+.drink-list { display: grid; gap: .5rem; }
+.drink-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .6rem 1rem; border: 1px solid var(--mwt-line-strong); border-radius: var(--mwt-radius-sm); background: #fff; }
+.drink-row .drink-name { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; }
+.drink-row .opt-diff { font-size: .85rem; font-weight: 600; color: var(--mwt-ink); white-space: nowrap; }
+.qty-stepper { display: flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+.qty-stepper .btn { width: 2rem; height: 2rem; padding: 0; line-height: 1; }
+.qty-stepper .qty { min-width: 3rem; text-align: center; font-weight: 600; }
 .option-tile .opt-diff.down { color: var(--mwt-success); }
 input:checked + .option-tile { border-color: var(--mwt-ink); box-shadow: inset 0 0 0 1px var(--mwt-ink); background: var(--mwt-surface); }
 input:focus-visible + .option-tile { outline: 2px solid var(--mwt-accent); outline-offset: 2px; }

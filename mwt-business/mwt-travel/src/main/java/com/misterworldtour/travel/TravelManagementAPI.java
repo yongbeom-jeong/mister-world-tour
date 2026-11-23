@@ -184,6 +184,27 @@ public interface TravelManagementAPI {
     /** 출발 확정 전 신청을 취소한다. */
     void cancelApplication(long memberId, long applicationId);
 
+    /** 신청 구성을 바꿀 수 없는 이유 (가능하면 null). 출발 확정 후에도 출발 전이면 바꿀 수 있다. */
+    String changeBlockReason(TravelApplication app);
+
+    /** 바꾼 구성으로 다시 계산한 금액 (저장하지 않음). */
+    PriceBreakdown previewApplicationChange(long memberId, long applicationId, TravelConfiguration configuration);
+
+    /** 신청 구성(호텔·교통·식사·음료)을 바꾸고 금액을 다시 계산해 저장한다. 여행자·인원은 그대로. */
+    PriceBreakdown changeApplicationConfiguration(long memberId, long applicationId, TravelConfiguration configuration);
+
+    /** 직원 출발 처리를 할 수 없는 이유 (가능하면 null). */
+    String departBlockReason(TravelProduct product);
+
+    /** 직원 완료 처리를 할 수 없는 이유 (가능하면 null). */
+    String completeBlockReason(TravelProduct product);
+
+    /** 직원 출발 처리: 출발 확정된 신청의 테마 기념품을 차감한다. 차감한 개수. 처리할 수 없으면 BookingException. */
+    int departTrip(long productId);
+
+    /** 직원 완료 처리: 신청 고객마다 완료 이력을 만든다. 만든 이력 수. 처리할 수 없으면 BookingException. */
+    int completeTrip(long productId);
+
     /** 같은 요청 키로 저장된 신청 번호 (신청 등록 결과가 불명할 때 다시 확인). */
     Optional<Long> findSubmittedApplication(long memberId, String requestKey);
 

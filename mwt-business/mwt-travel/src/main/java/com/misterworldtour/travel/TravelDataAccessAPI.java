@@ -86,9 +86,6 @@ public interface TravelDataAccessAPI {
 
     List<TravelApplication> findApplicationsByIds(Collection<Long> applicationIds);
 
-    /** 출발이 확정되고 취소하지 않은 신청 중 출발일이 today 이전인 것. memberId 가 null 이면 전체. */
-    List<TravelApplication> findConfirmedApplicationsDepartedBefore(LocalDate today, Long memberId);
-
 
     /** 고객의 이전 여행 이력 (완료일 최근 순, 완료일 없는 기록은 뒤로). */
     List<TravelHistory> findTravelHistories(long memberId);
@@ -96,7 +93,4 @@ public interface TravelDataAccessAPI {
     TravelHistory saveTravelHistory(TravelHistory history);
 
     boolean existsTravelHistory(long memberId, String completedTravelId);
-
-    /** 식별값이 prefix 로 시작하는 이력의 "회원번호:식별값" 목록. memberId 가 null 이면 전체. */
-    Set<String> findCompletedTravelKeys(String prefix, Long memberId);
 }

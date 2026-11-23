@@ -89,6 +89,18 @@ class BookingServiceTest extends BookingTestBase {
     }
 
     @Test
+    void companionNameIsOptional() {
+        TravelProduct p = product(Theme.TREKKING, TourLevel.GRAND);
+        ApplicationReviewResult r = review(alice, p, "", "");
+        assertThat(r.travelers()).extracting(TravelApplication.TravelerInput::name)
+                .containsExactly("앨리스", "동반자 1", "동반자 2");
+        assertThat(booking.submitTravelApplication(alice.getMemberId(), r).newlyConfirmed()).isTrue();
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(3);
+        TravelProduct honeymoon = product(Theme.HONEYMOON, TourLevel.PREMIUM);
+        assertThat(book(alice, honeymoon, "").honeymoon()).isTrue(); // 동반 1명 이름 없이도 허니문 신청
+    }
+
+    @Test
     void souvenirStockShortage() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         jdbc.update("UPDATE souvenir SET stock_quantity = 1 WHERE theme = 'GOLF'");
@@ -219,20 +231,33 @@ class BookingServiceTest extends BookingTestBase {
     }
 
     @Test
-    void groupDeductsAllTravelersWhenConfirmed() {
+    void groupDeductsAllTravelersAtStaffDeparture() {
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         book(customer("bob"), p, "동반");
-        assertThat(stock("골프공")).isEqualTo(100);
-        assertThat(book(alice, p).souvenirsIssued()).isEqualTo(3);
-        assertThat(stock("골프공")).isEqualTo(97);
+        assertThat(book(alice, p).newlyConfirmed()).isTrue();
         book(customer("carol"), p, "x");
+        assertThat(stock("골프공")).isEqualTo(100); // 확정만으로는 차감하지 않는다
+        assertThat(booking.departTrip(p.getProductId())).isEqualTo(5);
         assertThat(stock("골프공")).isEqualTo(95);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM stock_issue", Integer.class)).isEqualTo(3);
     }
 
     @Test
+    void departureShortageChangesNothing() {
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        book(alice, p, "a", "b");
+        jdbc.update("UPDATE souvenir SET stock_quantity = 2 WHERE name = '골프공'");
+        assertThatThrownBy(() -> booking.departTrip(p.getProductId())).hasMessageContaining("재고가 부족");
+        assertThat(stock("골프공")).isEqualTo(2);
+        assertThat(dataAccess.findProduct(p.getProductId()).orElseThrow().isDeparted()).isFalse();
+    }
+
+    @Test
     void honeymoonDeductsPerApplication() {
-        book(alice, product(Theme.HONEYMOON, TourLevel.GRAND), "배우자");
+        TravelProduct p = product(Theme.HONEYMOON, TourLevel.GRAND);
+        book(alice, p, "배우자");
+        assertThat(stock("커플 기념티")).isEqualTo(100);
+        booking.departTrip(p.getProductId());
         assertThat(stock("커플 기념티")).isEqualTo(98);
     }
 
@@ -241,13 +266,16 @@ class BookingServiceTest extends BookingTestBase {
         jdbc.update("INSERT INTO souvenir (name, name_key, theme, stock_quantity) VALUES ('골프 장갑', '골프 장갑', 'GOLF', 10)");
         TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
         book(alice, p, "a", "b");
+        booking.departTrip(p.getProductId());
         assertThat(List.of(stock("골프공"), stock("골프 장갑"))).containsExactly(97, 7);
         assertThat(booking.themeSouvenirNames(p)).containsExactly("골프공", "골프 장갑");
     }
 
     @Test
     void otherThemeNotDeducted() {
-        book(alice, product(Theme.GOLF, TourLevel.GRAND), "a", "b");
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        book(alice, p, "a", "b");
+        booking.departTrip(p.getProductId());
         assertThat(stock("기념품 스카프")).isEqualTo(100);
     }
 
@@ -269,7 +297,7 @@ class BookingServiceTest extends BookingTestBase {
         jdbc.update("UPDATE souvenir SET stock_quantity = 1 WHERE name = '골프 장갑'"); // 검토 뒤 재고가 줄어듦
         assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), r)).isInstanceOf(BookingException.class);
         assertThat(applicationCount()).isZero();
-        assertThat(stock("골프공")).isEqualTo(100); // 앞 품목 차감도 되돌아감
+        assertThat(stock("골프공")).isEqualTo(100);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM stock_issue", Integer.class)).isZero();
     }
 

@@ -37,7 +37,7 @@ class DemoSeederTest {
         assertThat(count("travel_application")).isEqualTo(apps).isEqualTo(2);
         assertThat(count("travel_history")).isEqualTo(7);
         assertThat(jdbc.queryForObject("SELECT stock_quantity FROM souvenir WHERE name = '건강 인삼'", Integer.class))
-                .isEqualTo(22);
+                .isEqualTo(30); // 확정된 효도 8명은 직원이 출발 처리할 때 차감
         assertThat(jdbc.queryForObject("SELECT departure_status FROM travel_product WHERE name = '다낭 골프 챌린지'",
                 String.class)).isEqualTo("PENDING");
         TestDb.clean(jdbc);

@@ -239,24 +239,6 @@ class TravelRepository {
                 TravelApplication.class).setParameter("ids", ids).getResultList();
     }
 
-    /** 출발 확정(허니문은 신청 상태, 그 외는 상품 상태)·미취소 신청 중 출발일이 today 이전인 것. */
-    List<TravelApplication> findConfirmedApplicationsDepartedBefore(LocalDate today, Long memberId) {
-        String q = """
-                select a from TravelApplication a join fetch a.product p
-                where a.cancelledAt is null and p.departureDate < :today
-                  %s
-                  and ((p.theme = com.misterworldtour.travel.Theme.HONEYMOON
-                        and a.departureStatus = com.misterworldtour.travel.DepartureStatus.CONFIRMED)
-                    or (p.theme <> com.misterworldtour.travel.Theme.HONEYMOON
-                        and p.departureStatus = com.misterworldtour.travel.DepartureStatus.CONFIRMED))
-                order by a.applicationId""".formatted(memberId == null ? "" : "and a.memberId = :memberId");
-        TypedQuery<TravelApplication> query = em.createQuery(q, TravelApplication.class).setParameter("today", today);
-        if (memberId != null) {
-            query.setParameter("memberId", memberId);
-        }
-        return query.getResultList();
-    }
-
     List<TravelHistory> findTravelHistories(long memberId) {
         return em.createQuery("""
                         select h from TravelHistory h where h.memberId = :memberId
@@ -278,13 +260,4 @@ class TravelRepository {
                 .setMaxResults(1).getResultList().isEmpty();
     }
 
-    Set<String> findCompletedTravelKeys(String prefix, Long memberId) {
-        String q = "select concat(h.memberId, ':', h.completedTravelId) from TravelHistory h "
-                + "where h.completedTravelId like :prefix" + (memberId == null ? "" : " and h.memberId = :memberId");
-        TypedQuery<String> query = em.createQuery(q, String.class).setParameter("prefix", prefix + "%");
-        if (memberId != null) {
-            query.setParameter("memberId", memberId);
-        }
-        return new HashSet<>(query.getResultList());
-    }
 }

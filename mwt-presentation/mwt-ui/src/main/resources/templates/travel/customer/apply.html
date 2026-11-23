@@ -27,7 +27,8 @@
           <div class="mwt-card-head px-4 pt-4 pb-3 fw-bold fs-5">신청 금액 확인</div>
           <div class="mwt-card-body">
             <table class="table price-table mb-2">
-              <tr><td th:text="|1인 ${@mwt.won(b.unitPrice)} × ${b.travelerCount}명|">1인</td><td class="text-end" th:text="${@mwt.won(b.subtotal)}">0원</td></tr>
+              <tr><td th:text="|1인 ${@mwt.won(b.unitPrice)} × ${b.travelerCount}명|">1인</td><td class="text-end" th:text="${@mwt.won(b.unitPrice * b.travelerCount)}">0원</td></tr>
+              <tr th:if="${b.drinkPrice() > 0}"><td>추가 음료 (신청 전체)</td><td class="text-end" th:text="${@mwt.won(b.drinkPrice())}">0원</td></tr>
               <tr th:if="${b.regular}" class="text-success"><td><i class="bi bi-award"></i> 단골 할인 10% <div class="small text-muted">최근 3년 완료 여행 3회 이상</div></td><td class="text-end" th:text="|−${@mwt.won(b.discountAmount)}|">0원</td></tr>
               <tr class="total"><td>최종 금액</td><td class="text-end" th:text="${@mwt.won(b.finalAmount)}">0원</td></tr>
             </table>
@@ -88,7 +89,7 @@
             </div>
             <th:block th:each="t, st : ${travelers}">
               <div th:unless="${st.first}" class="row g-2 mb-2 traveler-row align-items-center">
-                <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명" th:value="${t.name}"></div>
+                <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명 (선택)" th:value="${t.name}"></div>
                 <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)" th:value="${t.contact}"></div>
                 <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
               </div>
@@ -98,13 +99,14 @@
 
           <template id="row-template">
             <div class="row g-2 mb-2 traveler-row align-items-center">
-              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명"></div>
+              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명 (선택)"></div>
               <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)"></div>
               <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
             </div>
           </template>
           <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="add-row"><i class="bi bi-person-plus"></i> 동반 여행자 추가</button>
-          <div class="form-text mt-3"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
+          <div class="form-text mt-3"><i class="bi bi-info-circle"></i> 동반 여행자는 이름·연락처를 비워도 신청할 수 있어요. 이름을 비우면 &#39;동반자 1&#39;처럼 표시됩니다.</div>
+          <div class="form-text"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
           <button th:class="|btn ${review != null ? 'btn-outline-primary' : 'btn-dark'} btn-lg w-100 mt-3|" th:text="${review != null} ? '다시 금액 확인' : '금액 확인'">금액 확인</button>
         </div>
       </form>

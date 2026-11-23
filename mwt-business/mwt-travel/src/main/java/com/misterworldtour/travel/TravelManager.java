@@ -41,7 +41,8 @@ import java.util.UUID;
 
 /**
  * 여행 관리 업무 처리 (설계 5.1 TravelManager).
- * 신청은 상품을 잠근 트랜잭션에서 정원·재고·금액을 다시 확인해 저장하고, 출발이 확정되면 기념품을 차감한다.
+ * 신청은 상품을 잠근 트랜잭션에서 정원·재고·금액을 다시 확인해 저장한다.
+ * 기념품 차감과 완료 이력은 직원의 출발 처리·완료 처리 때 만든다.
  */
 @Service
 public class TravelManager implements TravelManagementAPI {
@@ -87,24 +88,27 @@ public class TravelManager implements TravelManagementAPI {
         return viewPreviousTravelHistory(customerId());
     }
 
-    /** 이전 여행 이력: 완료일 최근 순, 완료일 없는 기록은 뒤로. 끝난 여행을 먼저 이력에 반영한다. */
-    @Transactional
+    /** 이전 여행 이력: 완료일 최근 순, 완료일 없는 기록은 뒤로. */
+    @Transactional(readOnly = true)
     public List<TravelHistory> viewPreviousTravelHistory(long memberId) {
-        completeFinishedTrips(memberId, today());
         return dataAccess.findTravelHistories(memberId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TravelProduct> loadProducts(Theme theme, TourLevel level) {
-        return dataAccess.findProducts(new ProductFilter(theme, level, staffSession() ? null : today()));
+        if (staffSession()) {
+            return dataAccess.findProducts(new ProductFilter(theme, level, null));
+        }
+        return dataAccess.findProducts(new ProductFilter(theme, level, today())).stream()
+                .filter(p -> !p.isDeparted()).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public TravelProduct selectProduct(long productId) {
         TravelProduct product = dataAccess.findProduct(productId).orElseThrow(ProductNotFoundException::new);
-        if (!staffSession() && !product.getDepartureDate().isAfter(today())) {
+        if (!staffSession() && (!product.getDepartureDate().isAfter(today()) || product.isDeparted())) {
             throw new BookingException("출발일이 지난 상품은 신청할 수 없습니다.");
         }
         return product;
@@ -227,13 +231,13 @@ public class TravelManager implements TravelManagementAPI {
         }
     }
 
-    /** 1인 가격과 전체 신청 금액. 다녀온 여행을 이력에 반영한 뒤 단골 여부를 판단한다. */
+    /** 1인 가격과 전체 신청 금액. 완료 이력으로 단골 여부를 판단한다. */
     private PriceBreakdown price(TravelProduct product, long memberId, TravelConfiguration configuration,
                                  int travelerCount) {
-        completeFinishedTrips(memberId, today());
         int unitPrice = TravelPriceCalculator.calculateUnitPrice(product, configuration);
         return TravelPriceCalculator.calculateApplicationPrice(unitPrice, travelerCount,
-                dataAccess.findTravelHistories(memberId), today());
+                TravelPriceCalculator.calculateDrinkPrice(configuration), dataAccess.findTravelHistories(memberId),
+                today());
     }
 
     /** 첫 행을 신청 고객 본인(계정 성명·연락처)으로 바꾼 여행자 입력. */
@@ -289,7 +293,7 @@ public class TravelManager implements TravelManagementAPI {
     }
 
     /**
-     * 신청 등록. 상품을 잠근 트랜잭션에서 저장·출발 판정·기념품 차감·문자 기록 준비를 하고, 끝난 뒤 문자를 보낸다.
+     * 신청 등록. 상품을 잠근 트랜잭션에서 저장·출발 판정·문자 기록 준비를 하고, 끝난 뒤 문자를 보낸다.
      * 문자 실패는 저장된 신청·출발 상태를 되돌리지 않는다 (기록은 Pending 으로 남아 직원이 재발송).
      */
     public ApplicationResult submitTravelApplication(long memberId, long productId, TravelConfiguration configuration,
@@ -337,7 +341,7 @@ public class TravelManager implements TravelManagementAPI {
                     e.currentDepartureStatus(), false, true, 0, List.of(), null), null, List.of());
         }
 
-        if (!product.getDepartureDate().isAfter(today())) {
+        if (!product.getDepartureDate().isAfter(today()) || product.isDeparted()) {
             throw new BookingException("출발일이 지난 상품은 신청할 수 없습니다.");
         }
         checkConfiguration(product, configuration);
@@ -360,10 +364,8 @@ public class TravelManager implements TravelManagementAPI {
 
         boolean newlyConfirmed = false;
         List<Long> recipients;
-        List<IssueItem> toIssue;
         if (product.isHoneymoon()) {
             recipients = List.of(memberId);
-            toIssue = List.of(new IssueItem(app.getApplicationId(), count));
         } else {
             boolean wasConfirmed = product.isConfirmed();
             DepartureStatus status = product.updateDepartureStatus(dataAccess.countTravelers(product.getProductId()));
@@ -372,22 +374,11 @@ public class TravelManager implements TravelManagementAPI {
             if (newlyConfirmed) { // 새로 확정: 이 상품의 모든 신청 고객 (취소 제외, 중복 제거)
                 List<TravelApplication> all = dataAccess.findApplications(product.getProductId());
                 recipients = List.copyOf(new TreeSet<>(all.stream().map(TravelApplication::getMemberId).toList()));
-                toIssue = all.stream().map(a -> new IssueItem(a.getApplicationId(), a.getTravelerCount())).toList();
             } else if (wasConfirmed) { // 이미 확정된 상품의 추가 신청: 새 신청 고객만
                 recipients = List.of(memberId);
-                toIssue = List.of(new IssueItem(app.getApplicationId(), count));
             } else {
                 recipients = List.of();
-                toIssue = List.of();
             }
-        }
-
-        // 출발 확정된 신청의 기념품 차감. 모자라면 신청 저장까지 모두 취소된다.
-        int issued;
-        try {
-            issued = souvenirs.issueForDeparture(product.getTheme(), toIssue);
-        } catch (SouvenirShortage e) {
-            throw new BookingException(shortageMessage(count, e.getName(), e.getNeeded(), e.getStock()));
         }
         // 문자 대상과 발송 기록(Pending)을 신청과 같은 트랜잭션에서 만든다 (보내기 전 중단 대비).
         // 실제 발송은 저장이 끝난 뒤에 한다. 기록 준비에 실패해도 신청은 저장한다.
@@ -408,7 +399,7 @@ public class TravelManager implements TravelManagementAPI {
             }
         }
         return new Saved(new ApplicationResult(app.getApplicationId(), product.isHoneymoon(),
-                app.currentDepartureStatus(), newlyConfirmed, false, issued, recipients, null), plan, smsRecipients);
+                app.currentDepartureStatus(), newlyConfirmed, false, 0, recipients, null), plan, smsRecipients);
     }
 
     public String cancelBlockReason(TravelApplication app) {
@@ -440,6 +431,51 @@ public class TravelManager implements TravelManagementAPI {
             return null;
         });
         log.info("신청 취소 application={} member={}", applicationId, memberId);
+    }
+
+    @Override
+    public String changeBlockReason(TravelApplication app) {
+        if (app.isCancelled()) {
+            return "취소한 신청은 구성을 바꿀 수 없습니다.";
+        }
+        if (app.getProduct().isDeparted() || !app.getProduct().getDepartureDate().isAfter(today())) {
+            return "이미 출발한 여행은 구성을 바꿀 수 없습니다.";
+        }
+        return null;
+    }
+
+    /** 바꾼 구성으로 다시 계산한 금액 (저장하지 않음). 구성이 이 상품에 맞지 않으면 BookingException. */
+    @Override
+    @Transactional(readOnly = true)
+    public PriceBreakdown previewApplicationChange(long memberId, long applicationId, TravelConfiguration configuration) {
+        TravelApplication app = dataAccess.findMemberApplication(memberId, applicationId)
+                .orElseThrow(() -> new BookingException("신청을 찾을 수 없습니다."));
+        checkConfiguration(app.getProduct(), configuration);
+        return price(app.getProduct(), memberId, configuration, app.getTravelerCount());
+    }
+
+    /**
+     * 신청 구성 변경 (출발 확정 후에도 출발 전까지). 여행자·인원은 그대로라 정원·출발 판정·기념품은 바뀌지 않고,
+     * 호텔·교통·식사·음료와 금액(단골 할인 포함)만 다시 계산해 저장한다. 바뀐 금액을 돌려준다.
+     */
+    @Override
+    public PriceBreakdown changeApplicationConfiguration(long memberId, long applicationId,
+                                                         TravelConfiguration configuration) {
+        long productId = dataAccess.findApplicationProductId(memberId, applicationId)
+                .orElseThrow(() -> new BookingException("신청을 찾을 수 없습니다."));
+        PriceBreakdown result = dataAccess.runTravelTransaction(productId, locked -> {
+            TravelApplication app = dataAccess.findApplication(applicationId).orElseThrow();
+            String reason = changeBlockReason(app);
+            if (reason != null) {
+                throw new BookingException(reason);
+            }
+            checkConfiguration(app.getProduct(), configuration);
+            PriceBreakdown price = price(app.getProduct(), memberId, configuration, app.getTravelerCount());
+            app.changeConfiguration(configuration, price);
+            return price;
+        });
+        log.info("신청 구성 변경 application={} member={} 금액={}", applicationId, memberId, result.finalAmount());
+        return result;
     }
 
     /** 같은 요청 키로 이미 저장된 이 고객의 신청 (재제출 안내용). */
@@ -593,44 +629,98 @@ public class TravelManager implements TravelManagementAPI {
         dataAccess.findProduct(productId).ifPresent(p -> p.setImage(imagePath));
     }
 
-    @Transactional
-    public int completeFinishedTrips(Long memberId) {
-        return completeFinishedTrips(memberId, today());
+    /** 출발 처리·완료 처리 대상 신청: 취소하지 않고 출발이 확정된 신청. */
+    private List<TravelApplication> confirmedApplications(TravelProduct product) {
+        return dataAccess.findApplications(product.getProductId()).stream()
+                .filter(a -> a.currentDepartureStatus() == DepartureStatus.CONFIRMED).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String departBlockReason(TravelProduct product) {
+        if (product.isDeparted()) {
+            return "이미 출발 처리한 상품입니다.";
+        }
+        if (!product.isHoneymoon() && !product.isConfirmed()) {
+            return "출발이 확정되지 않은 상품입니다. (여행자 %d명 이상 필요)".formatted(TravelRules.GROUP_MIN_DEPARTURE);
+        }
+        if (product.isHoneymoon() && confirmedApplications(product).isEmpty()) {
+            return "출발이 확정된 신청이 없습니다.";
+        }
+        return null;
+    }
+
+    @Override
+    public String completeBlockReason(TravelProduct product) {
+        if (product.isCompleted()) {
+            return "이미 완료 처리한 여행입니다.";
+        }
+        if (!product.isDeparted()) {
+            return "출발 처리한 뒤에 완료 처리할 수 있습니다.";
+        }
+        return null;
     }
 
     /**
-     * 출발 확정된 신청 중 여행 마지막 날이 지난 것을 완료 이력으로 만들고, 만든 이력 수를 돌려준다.
-     * 고객·상품마다 1건(가격은 신청 금액 합계)이라 여러 번 호출해도 중복되지 않는다.
+     * 직원 출발 처리. 상품을 잠근 뒤 출발 확정된 신청 전부의 테마 기념품을 차감하고 출발 시각을 기록한다.
+     * 품목마다 여행자 1인당 1개. 하나라도 모자라면 아무것도 바꾸지 않고 BookingException. 차감한 개수를 돌려준다.
      */
-    @Transactional
-    public int completeFinishedTrips(Long memberId, LocalDate today) {
-        List<TravelApplication> apps = dataAccess.findConfirmedApplicationsDepartedBefore(today, memberId);
-        Set<String> done = dataAccess.findCompletedTravelKeys(HISTORY_ID_PREFIX, memberId);
-        Map<String, TravelHistory> trips = new LinkedHashMap<>(); // "회원:식별값" → 다녀온 여행 1건
-        Map<String, Integer> prices = new HashMap<>();
-        for (TravelApplication a : apps) {
-            TravelProduct p = a.getProduct();
-            String travelId = HISTORY_ID_PREFIX + p.getProductId();
-            String key = a.getMemberId() + ":" + travelId;
-            LocalDate end = p.getTripEndDate();
-            if (done.contains(key) || !end.isBefore(today)) {
-                continue;
+    @Override
+    public int departTrip(long productId) {
+        int issued = dataAccess.runTravelTransaction(productId, locked -> {
+            TravelProduct product = locked.orElseThrow(ProductNotFoundException::new);
+            String reason = departBlockReason(product);
+            if (reason != null) {
+                throw new BookingException(reason);
             }
-            trips.computeIfAbsent(key, k -> new TravelHistory(a.getMemberId(), travelId, p.getProductName(),
-                    p.getTourLevel(), p.getTravelPeriod(), 0, true, end));
-            prices.merge(key, a.getFinalAmount(), Integer::sum);
-        }
-        int created = 0;
-        for (Map.Entry<String, TravelHistory> e : trips.entrySet()) {
-            TravelHistory h = e.getValue();
-            dataAccess.saveTravelHistory(new TravelHistory(h.getMemberId(), h.getCompletedTravelId(),
-                    h.getProductName(), h.getTourLevel(), h.getTravelPeriod(), prices.get(e.getKey()), true,
-                    h.getCompletedAt()));
-            created++;
-        }
-        if (created > 0) {
-            log.info("완료 여행 이력 {}건 생성 member={}", created, memberId != null ? memberId : "전체");
-        }
+            List<IssueItem> items = confirmedApplications(product).stream()
+                    .map(a -> new IssueItem(a.getApplicationId(), a.getTravelerCount())).toList();
+            int count;
+            try {
+                count = souvenirs.issueForDeparture(product.getTheme(), items);
+            } catch (SouvenirShortage e) {
+                throw new BookingException("기념품 '%s' 재고가 부족해 출발 처리할 수 없습니다. (필요 %d개, 재고 %d개)"
+                        .formatted(e.getName(), e.getNeeded(), e.getStock()));
+            }
+            product.markDeparted(OffsetDateTime.now(clock));
+            dataAccess.updateProduct(product);
+            return count;
+        });
+        log.info("여행 출발 처리 product={} 기념품 차감 {}개", productId, issued);
+        return issued;
+    }
+
+    /**
+     * 직원 완료 처리. 출발 확정된 신청 고객마다 완료 이력 1건(가격은 그 고객의 신청 금액 합계, 완료일은 오늘)을 만들고
+     * 완료 시각을 기록한다. 만든 이력 수를 돌려준다.
+     */
+    @Override
+    public int completeTrip(long productId) {
+        int created = dataAccess.runTravelTransaction(productId, locked -> {
+            TravelProduct product = locked.orElseThrow(ProductNotFoundException::new);
+            String reason = completeBlockReason(product);
+            if (reason != null) {
+                throw new BookingException(reason);
+            }
+            String travelId = HISTORY_ID_PREFIX + product.getProductId();
+            Map<Long, Integer> prices = new LinkedHashMap<>();
+            for (TravelApplication a : confirmedApplications(product)) {
+                prices.merge(a.getMemberId(), a.getFinalAmount(), Integer::sum);
+            }
+            int count = 0;
+            for (Map.Entry<Long, Integer> e : prices.entrySet()) {
+                if (dataAccess.existsTravelHistory(e.getKey(), travelId)) {
+                    continue;
+                }
+                dataAccess.saveTravelHistory(new TravelHistory(e.getKey(), travelId, product.getProductName(),
+                        product.getTourLevel(), product.getTravelPeriod(), e.getValue(), true, today()));
+                count++;
+            }
+            product.markCompleted(OffsetDateTime.now(clock));
+            dataAccess.updateProduct(product);
+            return count;
+        });
+        log.info("여행 완료 처리 product={} 완료 이력 {}건", productId, created);
         return created;
     }
 

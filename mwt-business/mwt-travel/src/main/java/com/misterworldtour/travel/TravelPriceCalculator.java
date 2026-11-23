@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** 가격·단골 할인 계산 (설계 5.1 TravelPriceCalculator). */
 public final class TravelPriceCalculator {
@@ -16,16 +15,21 @@ public final class TravelPriceCalculator {
             TravelConfiguration.TRANSPORT, Map.of("LUXURY_VAN_10", 0, "LUXURY_CAR_2", 0, "LIMOUSINE", 150_000),
             TravelConfiguration.MEAL, Map.of("LUNCHBOX", 0, "LOCAL", 80_000, "FINE", 200_000));
 
-    /** 추가 음료 1인 금액(원). 식사에 기본 포함된 음료는 0원. */
+    /** 추가 음료 1개(병·포트·세트) 금액(원). 신청 전체 기준 수량만큼 더한다. 식사 포함 음료는 따로 0원으로 제공. */
     public static final Map<String, Integer> DRINK_PRICES =
             Map.of("WINE", 50_000, "BEER", 20_000, "CHAMPAGNE", 60_000, "COFFEE", 10_000);
 
     /** 1인 가격 하한: 기본 가격의 50%. */
     public static final double MIN_UNIT_PRICE_RATIO = 0.5;
 
-    /** 신청 금액 계산 결과. 검토 때와 등록 때 값이 같아야 신청한다 (equals 로 비교). */
+    /** 신청 금액 계산 결과. subtotal = 1인 가격 × 인원 + 추가 음료. 검토 때와 등록 때 값이 같아야 신청한다 (equals 로 비교). */
     public record PriceBreakdown(int unitPrice, int travelerCount, int subtotal, boolean regular, int discountAmount,
                                  int finalAmount) implements Serializable {
+
+        /** 추가 음료 금액 (신청 전체). */
+        public int drinkPrice() {
+            return subtotal - unitPrice * travelerCount;
+        }
     }
 
     private TravelPriceCalculator() {
@@ -46,22 +50,23 @@ public final class TravelPriceCalculator {
         return table.getOrDefault(chosen, 0) - table.getOrDefault(productValue(product, field), 0);
     }
 
-    /** 기본 구성과 다른 항목의 차액 합계 + 추가 음료. */
+    /** 기본 구성과 다른 항목(호텔·교통·식사)의 1인 차액 합계. */
     static int optionSurcharge(TravelProduct product, TravelConfiguration configuration) {
-        int total = optionDifference(product, TravelConfiguration.HOTEL, configuration.hotelLevel())
+        return optionDifference(product, TravelConfiguration.HOTEL, configuration.hotelLevel())
                 + optionDifference(product, TravelConfiguration.TRANSPORT, configuration.transport())
                 + optionDifference(product, TravelConfiguration.MEAL, configuration.meal());
-        Set<String> included = TravelRules.includedDrinks(MealOption.valueOf(configuration.meal())).stream()
-                .map(Enum::name).collect(Collectors.toSet());
+    }
+
+    /** 추가 음료 금액 (신청 전체): 고른 수량 × 1개 금액. */
+    public static int calculateDrinkPrice(TravelConfiguration configuration) {
+        int total = 0;
         for (String d : configuration.drinks()) {
-            if (!included.contains(d)) {
-                total += DRINK_PRICES.getOrDefault(d, 0);
-            }
+            total += DRINK_PRICES.getOrDefault(d, 0);
         }
         return total;
     }
 
-    /** 1인 가격 = 1인 기본 가격 + 옵션 추가금(음수 가능), 하한은 기본 가격의 50%. */
+    /** 1인 가격 = 1인 기본 가격 + 옵션 추가금(음수 가능), 하한은 기본 가격의 50%. 음료는 포함하지 않는다. */
     public static int calculateUnitPrice(TravelProduct product, TravelConfiguration configuration) {
         int floor = (int) (product.getBasePrice() * MIN_UNIT_PRICE_RATIO);
         return Math.max(product.getBasePrice() + optionSurcharge(product, configuration), floor);
@@ -78,10 +83,16 @@ public final class TravelPriceCalculator {
         return trips.size() >= TravelRules.REGULAR_MIN_TRIPS;
     }
 
-    /** 실제 여행자 수를 반영한 전체 신청 금액. 단골이면 10% 할인 (원 미만 버림). */
+    /** 음료 없는 전체 신청 금액. */
     public static PriceBreakdown calculateApplicationPrice(int unitPrice, int travelerCount,
                                                            Iterable<TravelHistory> histories, LocalDate applicationDate) {
-        int subtotal = unitPrice * travelerCount;
+        return calculateApplicationPrice(unitPrice, travelerCount, 0, histories, applicationDate);
+    }
+
+    /** 실제 여행자 수와 추가 음료를 반영한 전체 신청 금액. 단골이면 10% 할인 (원 미만 버림). */
+    public static PriceBreakdown calculateApplicationPrice(int unitPrice, int travelerCount, int drinkPrice,
+                                                           Iterable<TravelHistory> histories, LocalDate applicationDate) {
+        int subtotal = unitPrice * travelerCount + drinkPrice;
         boolean regular = isRegularCustomer(histories, applicationDate);
         int discount = regular ? (int) ((long) subtotal * TravelRules.REGULAR_DISCOUNT_PERCENT / 100) : 0;
         return new PriceBreakdown(unitPrice, travelerCount, subtotal, regular, discount, subtotal - discount);
