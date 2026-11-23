@@ -66,7 +66,7 @@ class BookingSmsTest extends BookingTestBase {
     void rolledBackApplicationLeavesNoLog() {
         TravelProduct p = product(Theme.HONEYMOON, TourLevel.GRAND);
         ApplicationReviewResult r = review(alice, p, "배우자");
-        jdbc.update("UPDATE souvenir SET stock_quantity = 1 WHERE theme = 'HONEYMOON'"); // 차감 단계에서 실패
+        jdbc.update("UPDATE souvenir SET stock_quantity = 1 WHERE theme = 'HONEYMOON'"); // 재고 검사에서 실패
         assertThatThrownBy(() -> booking.submitTravelApplication(alice.getMemberId(), r)).isInstanceOf(BookingException.class);
         assertThat(logCount()).isZero();
         assertThat(applicationCount()).isZero();

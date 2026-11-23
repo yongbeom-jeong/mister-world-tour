@@ -59,6 +59,8 @@
             <span class="text-truncate" th:text="${selected.productName}">상품</span>
             <span th:if="${selected.departureStatus != null}" th:class="|tag ${selected.confirmed ? 'tag-success' : 'tag-muted'}|" th:text="${selected.departureStatus.label}">상태</span>
             <span th:if="${selected.departureStatus == null}" class="tag tag-dark">신청별 출발 확정</span>
+            <span th:if="${selected.departed and !selected.completed}" class="tag tag-accent">출발</span>
+            <span th:if="${selected.completed}" class="tag tag-success">여행 완료</span>
           </div>
           <div class="mwt-card-body">
             <div th:if="${hasApplications}" class="alert alert-warning"><i class="bi bi-lock-fill me-1"></i>이 상품에는 여행 신청이 있어 수정·삭제할 수 없습니다.</div>
@@ -71,6 +73,29 @@
             <button class="btn btn-primary" th:disabled="${hasApplications}"><i class="bi bi-check2 me-1"></i>수정</button>
           </div>
         </form>
+
+        <div class="mwt-card mt-4">
+          <div class="mwt-card-head">여행 진행</div>
+          <div class="mwt-card-body">
+            <ol class="list-unstyled mb-3 small">
+              <li class="mb-1"><i th:class="|bi ${selected.departed ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'} me-1|"></i>출발 처리
+                <span class="text-muted" th:if="${selected.departed}" th:text="|${@mwt.date(selected.departedAt, 'yyyy-MM-dd HH:mm')} · 기념품 차감|">시각</span></li>
+              <li><i th:class="|bi ${selected.completed ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'} me-1|"></i>완료 처리
+                <span class="text-muted" th:if="${selected.completed}" th:text="|${@mwt.date(selected.completedAt, 'yyyy-MM-dd HH:mm')} · 고객 완료 이력 생성|">시각</span></li>
+            </ol>
+            <p class="small text-muted mb-3">출발 처리하면 출발 확정된 신청의 여행자 1인당 테마 기념품을 품목마다 1개씩 차감합니다. 완료 처리하면 신청 고객의 완료 여행 이력이 만들어집니다.</p>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <form method="post" th:action="@{/travel/staff/products/{id}/depart/(id=${selected.productId})}">
+                <button class="btn btn-primary" th:disabled="${departBlock != null}"><i class="bi bi-airplane me-1"></i>출발 처리</button>
+              </form>
+              <form method="post" th:action="@{/travel/staff/products/{id}/complete/(id=${selected.productId})}">
+                <button class="btn btn-dark" th:disabled="${completeBlock != null}"><i class="bi bi-flag me-1"></i>완료 처리</button>
+              </form>
+              <span class="small text-muted" th:if="${departBlock != null and !selected.departed}" th:text="${departBlock}">안내</span>
+              <span class="small text-muted" th:if="${selected.departed and completeBlock != null}" th:text="${completeBlock}">안내</span>
+            </div>
+          </div>
+        </div>
 
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered"><div class="modal-content">

@@ -121,20 +121,26 @@ public class TravelApplication {
 
     static final int MAX_TRAVELER_NAME = 50;
 
-    /** 여행자 정보 검증 (설계 ValidateTravelers). 첫 행은 신청 고객 본인. 성명 필수, 연락처 선택. 허니문은 정확히 2명. */
+    /** 이름을 비운 동반 여행자에게 붙이는 이름 (동반자 1, 동반자 2 …). */
+    static final String COMPANION_NAME_PREFIX = "동반자 ";
+
+    /**
+     * 여행자 정보 검증 (설계 ValidateTravelers). 첫 행은 신청 고객 본인(계정 정보), 나머지는 동반 여행자.
+     * 동반 여행자는 성명·연락처 모두 선택이라 행 수가 곧 인원이며, 성명을 비우면 '동반자 N'으로 저장한다. 허니문은 정확히 2명.
+     */
     public static List<TravelerInput> validateTravelers(Theme theme, List<TravelerInput> rows) {
         Map<String, String> errors = new LinkedHashMap<>();
         List<TravelerInput> cleaned = new ArrayList<>();
         for (int i = 0; i < rows.size(); i++) {
             String name = strip(rows.get(i).name());
             String contactRaw = strip(rows.get(i).contact());
-            if (name.isEmpty() && contactRaw.isEmpty()) {
-                continue;
-            }
             String key = "traveler_" + i;
             if (name.isEmpty()) {
-                errors.put(key, (i + 1) + "번째 여행자의 성명을 입력해 주세요.");
-                continue;
+                if (i == 0) {
+                    errors.put(key, "신청 고객 정보를 찾을 수 없습니다. 다시 로그인해 주세요.");
+                    continue;
+                }
+                name = COMPANION_NAME_PREFIX + i;
             }
             if (name.length() > MAX_TRAVELER_NAME) {
                 errors.put(key, (i + 1) + "번째 여행자의 성명이 너무 깁니다.");

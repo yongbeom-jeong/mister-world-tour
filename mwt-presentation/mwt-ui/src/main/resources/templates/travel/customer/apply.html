@@ -88,7 +88,7 @@
             </div>
             <th:block th:each="t, st : ${travelers}">
               <div th:unless="${st.first}" class="row g-2 mb-2 traveler-row align-items-center">
-                <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명" th:value="${t.name}"></div>
+                <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명 (선택)" th:value="${t.name}"></div>
                 <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)" th:value="${t.contact}"></div>
                 <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
               </div>
@@ -98,13 +98,14 @@
 
           <template id="row-template">
             <div class="row g-2 mb-2 traveler-row align-items-center">
-              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명"></div>
+              <div class="col-5 col-md-6"><input class="form-control" name="traveler_name" placeholder="동반 여행자 성명 (선택)"></div>
               <div class="col-5"><input class="form-control" name="traveler_contact" placeholder="연락처 (선택)"></div>
               <div class="col-2 col-md-1 text-center px-0"><button type="button" class="btn btn-outline-danger btn-sm remove-row" title="삭제" aria-label="여행자 삭제">&times;</button></div>
             </div>
           </template>
           <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="add-row"><i class="bi bi-person-plus"></i> 동반 여행자 추가</button>
-          <div class="form-text mt-3"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
+          <div class="form-text mt-3"><i class="bi bi-info-circle"></i> 동반 여행자는 이름·연락처를 비워도 신청할 수 있어요. 이름을 비우면 &#39;동반자 1&#39;처럼 표시됩니다.</div>
+          <div class="form-text"><i class="bi bi-gift"></i> 여행자 1인당 테마 기념품 1개가 제공됩니다.</div>
           <button th:class="|btn ${review != null ? 'btn-outline-primary' : 'btn-dark'} btn-lg w-100 mt-3|" th:text="${review != null} ? '다시 금액 확인' : '금액 확인'">금액 확인</button>
         </div>
       </form>

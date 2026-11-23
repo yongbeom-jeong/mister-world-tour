@@ -89,6 +89,14 @@ public class TravelProduct {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
+    /** 직원이 출발 처리한 시각 (이때 기념품 차감). 없으면 아직 출발 전. */
+    @Column(name = "departed_at")
+    private OffsetDateTime departedAt;
+
+    /** 직원이 여행 완료 처리한 시각 (이때 완료 이력 생성). */
+    @Column(name = "completed_at")
+    private OffsetDateTime completedAt;
+
     protected TravelProduct() {
     }
 
@@ -212,6 +220,32 @@ public class TravelProduct {
 
     public boolean isConfirmed() {
         return departureStatus == DepartureStatus.CONFIRMED;
+    }
+
+    /** 직원 출발 처리. */
+    public void markDeparted(OffsetDateTime at) {
+        departedAt = at;
+    }
+
+    /** 직원 완료 처리. */
+    public void markCompleted(OffsetDateTime at) {
+        completedAt = at;
+    }
+
+    public boolean isDeparted() {
+        return departedAt != null;
+    }
+
+    public boolean isCompleted() {
+        return completedAt != null;
+    }
+
+    public OffsetDateTime getDepartedAt() {
+        return departedAt;
+    }
+
+    public OffsetDateTime getCompletedAt() {
+        return completedAt;
     }
 
     /** 여행 마지막 날 (출발일이 1일째). */
