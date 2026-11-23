@@ -27,7 +27,8 @@
           <div class="mwt-card-head px-4 pt-4 pb-3 fw-bold fs-5">신청 금액 확인</div>
           <div class="mwt-card-body">
             <table class="table price-table mb-2">
-              <tr><td th:text="|1인 ${@mwt.won(b.unitPrice)} × ${b.travelerCount}명|">1인</td><td class="text-end" th:text="${@mwt.won(b.subtotal)}">0원</td></tr>
+              <tr><td th:text="|1인 ${@mwt.won(b.unitPrice)} × ${b.travelerCount}명|">1인</td><td class="text-end" th:text="${@mwt.won(b.unitPrice * b.travelerCount)}">0원</td></tr>
+              <tr th:if="${b.drinkPrice() > 0}"><td>추가 음료 (신청 전체)</td><td class="text-end" th:text="${@mwt.won(b.drinkPrice())}">0원</td></tr>
               <tr th:if="${b.regular}" class="text-success"><td><i class="bi bi-award"></i> 단골 할인 10% <div class="small text-muted">최근 3년 완료 여행 3회 이상</div></td><td class="text-end" th:text="|−${@mwt.won(b.discountAmount)}|">0원</td></tr>
               <tr class="total"><td>최종 금액</td><td class="text-end" th:text="${@mwt.won(b.finalAmount)}">0원</td></tr>
             </table>

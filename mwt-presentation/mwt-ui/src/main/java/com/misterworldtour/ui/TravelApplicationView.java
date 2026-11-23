@@ -267,6 +267,7 @@ public class TravelApplicationView {
         model.addAttribute("described", app.getConfiguration().describe());
         model.addAttribute("status", app.currentDepartureStatus());
         model.addAttribute("cancelBlock", travelManager.cancelBlockReason(app));
+        model.addAttribute("changeBlock", travelManager.changeBlockReason(app));
         model.addAttribute("cancelRule", TravelManagementAPI.CANCEL_RULE);
         return "travel/customer/application_detail";
     }

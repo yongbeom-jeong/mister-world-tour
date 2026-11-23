@@ -26,13 +26,39 @@ class PricingTest {
         TravelProduct p = product(TourLevel.CLASSIC, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(p, TravelConfiguration.defaultOf(p))).isEqualTo(1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(p, config(p, "STAR5", "FINE", "CHAMPAGNE", "WINE")))
-                .isEqualTo(1_000_000 + 350_000 + 200_000 + 50_000);
+                .isEqualTo(1_000_000 + 350_000 + 200_000); // 음료는 1인 가격에 넣지 않는다
         TravelProduct premium = product(TourLevel.PREMIUM, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(premium, config(premium, "STAR4", "LOCAL")))
                 .isEqualTo(1_000_000 - 200_000 - 120_000);
         TravelProduct grand = product(TourLevel.GRAND, 1_000_000);
         assertThat(TravelPriceCalculator.calculateUnitPrice(grand, config(grand, "STAR5", "LUNCHBOX")))
                 .isEqualTo(1_000_000 + 200_000 - 80_000);
+    }
+
+    @Test
+    void drinksAreQuantitiesForWholeApplication() {
+        TravelProduct p = product(TourLevel.GRAND, 1_000_000);
+        TravelConfiguration c = config(p, "STAR4", "LOCAL", "COFFEE", "CHAMPAGNE", "COFFEE");
+        assertThat(c.drinkQuantities()).containsExactly(java.util.Map.entry("CHAMPAGNE", 1), java.util.Map.entry("COFFEE", 2));
+        assertThat(c.describe().get(TravelConfiguration.DRINKS)).isEqualTo("샴페인 1병, 스페셜티 커피 2포트");
+        assertThat(TravelPriceCalculator.calculateDrinkPrice(c)).isEqualTo(60_000 + 2 * 10_000);
+        TravelPriceCalculator.PriceBreakdown b = TravelPriceCalculator.calculateApplicationPrice(1_000_000, 3,
+                TravelPriceCalculator.calculateDrinkPrice(c), List.of(), LocalDate.of(2026, 11, 1));
+        assertThat(b.subtotal()).isEqualTo(3_080_000); // 1인 × 3명 + 음료 (인원과 무관)
+        assertThat(b.drinkPrice()).isEqualTo(80_000);
+        // 맵({코드: 수량})으로 받은 값도 같은 구성, 한도를 넘으면 검사에서 거부
+        assertThat(c.applyChanges(java.util.Map.of(TravelConfiguration.DRINKS, java.util.Map.of("COFFEE", 2, "CHAMPAGNE", 1))))
+                .isEqualTo(c);
+        TravelConfiguration tooMany = c.applyChanges(java.util.Map.of(TravelConfiguration.DRINKS, java.util.Map.of("WINE", 9)));
+        assertThat(tooMany.validateConfiguration(p)).containsKey(TravelConfiguration.DRINKS);
+    }
+
+    @Test
+    void fineMealShowsIncludedChampagneAndChargesExtraBottles() {
+        TravelProduct p = product(TourLevel.PREMIUM, 1_000_000);
+        TravelConfiguration c = config(p, "STAR5", "FINE", "CHAMPAGNE");
+        assertThat(c.describe().get(TravelConfiguration.DRINKS)).isEqualTo("샴페인(식사 포함), 샴페인 1병 추가");
+        assertThat(TravelPriceCalculator.calculateDrinkPrice(c)).isEqualTo(60_000);
     }
 
     @Test
