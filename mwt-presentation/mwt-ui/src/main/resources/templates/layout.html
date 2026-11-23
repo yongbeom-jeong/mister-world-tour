@@ -29,6 +29,7 @@
       <nav class="mwt-tabs" aria-label="주 메뉴">
         <th:block th:if="${m != null and m.customer}">
           <a th:class="|mwt-tab ${path.startsWith('/travel/products/') or path == '/travel/apply/' ? 'active' : ''}|" th:href="@{/travel/products/}"><i class="bi bi-compass" aria-hidden="true"></i>여행 상품</a>
+          <a th:class="|mwt-tab ${path.startsWith('/speech/booking/') ? 'active' : ''}|" th:href="@{/speech/booking/}"><i class="bi bi-mic" aria-hidden="true"></i>음성 예약</a>
           <a th:class="|mwt-tab ${path.startsWith('/travel/applications/') ? 'active' : ''}|" th:href="@{/travel/applications/}"><i class="bi bi-suitcase2" aria-hidden="true"></i>내 신청</a>
           <button type="button" class="mwt-tab" data-history-open><i class="bi bi-clock-history" aria-hidden="true"></i>이전 여행 이력</button>
         </th:block>

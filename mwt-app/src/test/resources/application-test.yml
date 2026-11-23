@@ -6,3 +6,5 @@ mwt:
   staff-signup-code: TEST-STAFF-CODE
   sms:
     client: Console   # 테스트는 .env 와 무관하게 가짜 문자
+  voice-dialog:
+    client: Scripted   # 테스트는 .env 와 무관하게 규칙 대화 (LLM 호출 없음)
