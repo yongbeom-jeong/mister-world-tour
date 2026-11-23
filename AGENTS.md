@@ -114,7 +114,7 @@ Django 판은 `main` 브랜치에 따로 있으며 두 브랜치는 합치지 �
   - 해석 별칭(`VoiceSelectionInterpreter`): 신혼→허니문, 부모님→효도, 등산→트레킹 등. 상품은 고유 단어(여행지 등)나 순서("두 번째", "3번")
   - 상품 목록 화면의 음성 검색창은 [마이크][문장 입력칸][찾기] 한 줄. 마이크 없이 문장으로도 시험 가능. 듣는 중 마이크를 다시 누르면 꺼지고, 사용자가 끈 것은 실패로 기록하지 않음
 - 음성 예약(2026-11-23, 최종발표 시나리오 2.1): 상단 탭 '음성 예약' `/speech/booking/`(`VoiceBookingView`). 상담원과 대화하며 테마 → 스타일(등급) → 상품 → 음료 → 확인 순으로 고르고 확인하면 신청까지 한다
-  - 테마가 정해지면 그 테마의 여행지(출발일·스타일)를 알려 주고 묻는다. 여행지를 먼저 말하면 그 상품으로 바로 정한다
+  - 대화 흐름은 화면과 같이 테마 → 등급(스타일) → 상품(그 테마·등급의 여행지·출발일을 알려 주고 고름, 원하는 날짜와 딱 맞거나 하나뿐이면 바로) → 구성 변경 → 확인. 여행지를 먼저 말하면 그 상품으로 바로 정한다. 시나리오 대화는 프롬프트의 참고 예시
   - 대화 상대 `VoiceDialogClient`: `.env` 의 `VOICE_DIALOG_CLIENT` = `Scripted`(기본, 규칙 대화) / `OpenAI`(LLM, `OPENAI_API_KEY`·`OPENAI_MODEL`, 기본 gpt-4o-mini). 테스트는 `.env` 와 무관하게 Scripted
   - LLM 프롬프트(시나리오 예시 대화 포함)는 `mwt-speech/src/main/resources/speech/voice-dialog-prompt.md`. LLM 은 JSON 스키마(structured outputs)로 대사와 값만 내고, `VoiceBookingManager` 가 상품 목록·구성 규칙·남은 자리로 다시 검사한다
   - 신청은 고객이 최종 확인한 턴(값이 직전과 같고 BOOK)에만, 화면 신청과 같은 reviewApplication → submitTravelApplication 으로. 동반자는 음성으로 받지 않고 이름을 비워 넘겨 신청 규칙대로 `동반자 N`으로 저장된다. 음료는 종류별 수량(신청 전체 기준)으로 듣고 LLM 응답도 종류→수량

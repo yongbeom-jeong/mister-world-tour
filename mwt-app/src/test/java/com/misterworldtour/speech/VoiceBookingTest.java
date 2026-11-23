@@ -124,11 +124,11 @@ class VoiceBookingTest {
         }
         assertThat(replies.get(0)).isEqualTo("무슨 기념일인가요?");
         assertThat(replies.get(1)).isEqualTo("정말 축하드려요. 허니문 낭만 투어 또는 아웃도어 트레킹 투어는 어떠세요?");
-        // 여행지(출발일·스타일)를 알려 주고 원하는 날짜에 맞는 스타일을 권한다
-        assertThat(replies.get(2)).startsWith("허니문 낭만 투어 알겠습니다. 어딘가(")
-                .contains("프리미엄)").endsWith("상품이 있어요. 그리고 스타일은 프리미엄 스타일 어떨까요?");
+        assertThat(replies.get(2)).isEqualTo("허니문 낭만 투어 알겠습니다. 그리고 스타일은 프리미엄 스타일 어떨까요?");
+        // 상품 선택: 날짜가 딱 맞는 괌으로 정하고, 다른 프리미엄 허니문도 알려 준 뒤 구성 변경을 묻는다
         assertThat(replies.get(3)).startsWith("네, 박단골 고객님, 여행은 허니문 낭만 투어(괌 투몬 선셋 허니문")
-                .endsWith("스타일은 프리미엄 스타일로 예약하셨습니다.");
+                .contains("스타일은 프리미엄 스타일로 예약하셨습니다.").contains("다른 곳을 원하시면")
+                .endsWith(ScriptedDialogClient.CONFIG_QUESTION);
         assertThat(replies.get(4)).endsWith("스타일은 프리미엄 스타일, 커피 1포트, 샴페인 1병 추가하셨습니다.");
         assertThat(replies.get(5)).isEqualTo("추가로 필요하신 것 있으세요?");
         LocalDate dep = today.plusMonths(1);
@@ -170,6 +170,19 @@ class VoiceBookingTest {
         assertThat(turn.done()).isTrue();
         assertThat(jdbc.queryForObject("SELECT extra_drinks FROM travel_application WHERE id = ?", String.class,
                 turn.applicationId())).isEqualTo("CHAMPAGNE,COFFEE,COFFEE,COFFEE");
+    }
+
+    @Test
+    void productIsChosenFromListLikeTheScreen() {
+        VoiceDialogState state = manager.startVoiceBooking().state();
+        VoiceDialogTurn turn = manager.talk(state, "허니문 프리미엄으로 보여 주세요");
+        assertThat(turn.reply()).contains("어디로 가실래요?").contains("12월").doesNotContain("발리");  // 그랜드 상품은 빼고
+        turn = manager.talk(turn.state(), "첫 번째로 할게요");
+        assertThat(turn.state().slots().productId()).isEqualTo(guam.getProductId());
+        assertThat(turn.reply()).endsWith(ScriptedDialogClient.CONFIG_QUESTION);
+        turn = manager.talk(turn.state(), "호텔은 4성으로 바꿔 주세요");
+        assertThat(turn.state().slots().hotelLevel()).isEqualTo("STAR4");
+        assertThat(turn.reply()).contains("호텔은 4등급 호텔");
     }
 
     @Test

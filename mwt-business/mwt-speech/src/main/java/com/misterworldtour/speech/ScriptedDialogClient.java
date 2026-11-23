@@ -41,6 +41,12 @@ public class ScriptedDialogClient implements VoiceDialogClient {
     static final String P_THEME = "THEME";
     static final String P_LEVEL = "LEVEL:";
     static final String P_COUNT = "COUNT";
+    static final String P_PRODUCT = "PRODUCT";
+    static final String P_CONFIG = "CONFIG";
+    static final String P_FINAL = "FINAL";
+    static final Pattern HOTEL_STAR = Pattern.compile("([345])\s*(성|등급)");
+    static final String CONFIG_QUESTION = "호텔·식사를 바꾸거나 음료를 추가하시겠어요?";
+    static final String CONFIG_HELP = "어떤 걸 바꿔 드릴까요? 호텔 등급, 식사(현지식·고급 레스토랑), 음료(커피·샴페인·와인·수제맥주)를 바꿀 수 있어요.";
     static final String P_CONFIRM = "CONFIRM";
     static final String P_MORE = "MORE";
 
@@ -131,17 +137,23 @@ public class ScriptedDialogClient implements VoiceDialogClient {
         return words;
     }
 
-    /** "괌(12월 24일, 프리미엄), 발리(12월 3일, 그랜드) 상품이 있어요." 원하는 출발일에 가까운 순, 네 곳까지. */
-    static String places(List<ProductInfo> products, String theme, String wishDate) {
+    /** 테마·등급의 상품, 원하는 출발일에 가까운 순 (없으면 출발일 순). */
+    static List<ProductInfo> candidates(List<ProductInfo> products, String theme, String level, String wishDate) {
         LocalDate wish = wishDate == null ? null : LocalDate.parse(wishDate);
         Comparator<ProductInfo> order = wish == null
                 ? Comparator.comparing(ProductInfo::departureDate)
-                : Comparator.comparingLong((ProductInfo p) -> Math.abs(p.departureDate().toEpochDay() - wish.toEpochDay()));
-        List<String> out = products.stream().filter(p -> p.theme().equals(theme)).sorted(order).limit(4)
-                .map(p -> p.destination() + "(" + VoiceDialogText.date(p.departureDate()) + " 출발, " + p.levelLabel() + ")")
-                .toList();
-        return String.join(", ", out) + " 상품이 있어요.";
+                : Comparator.comparingLong((ProductInfo p) -> Math.abs(p.departureDate().toEpochDay() - wish.toEpochDay()))
+                .thenComparing(ProductInfo::departureDate);
+        return products.stream().filter(p -> p.theme().equals(theme) && p.tourLevel().equals(level)).sorted(order)
+                .limit(4).toList();
     }
+
+    /** "미국령 괌(12월 24일 출발), 몰디브 말레(1월 7일 출발)". */
+    static String places(List<ProductInfo> list) {
+        return String.join(", ", list.stream()
+                .map(p -> p.destination() + "(" + VoiceDialogText.date(p.departureDate()) + " 출발)").toList());
+    }
+
 
     private static String themeLabel(String code) {
         Theme t = Theme.parse(code);
@@ -212,6 +224,19 @@ public class ScriptedDialogClient implements VoiceDialogClient {
         if (said.isPresent()) {
             count = said.get();
         }
+        String hotel = before.hotelLevel();
+        String meal = before.meal();
+        Matcher hm = HOTEL_STAR.matcher(raw);
+        if (hm.find()) {
+            hotel = "STAR" + hm.group(1);
+        }
+        if (t.contains("도시락")) {
+            meal = "LUNCHBOX";
+        } else if (t.contains("현지식")) {
+            meal = "LOCAL";
+        } else if (t.contains("고급레스토랑") || t.contains("스테이크")) {
+            meal = "FINE";
+        }
 
         ProductInfo product = productId == null ? null
                 : req.products().stream().filter(p -> p.productId() == before.productId()).findFirst().orElse(null);
@@ -225,15 +250,37 @@ public class ScriptedDialogClient implements VoiceDialogClient {
             theme = product.theme();
             level = product.tourLevel();
         }
+        // 상품 선택 (화면처럼 테마·등급의 상품 중에서): 날짜가 딱 맞거나 하나뿐이면 바로, 아니면 여행지를 들려주고 고르게 한다
+        List<ProductInfo> choices = List.of();
+        boolean picked = named.isPresent() && product == named.get();
         if (product == null && theme != null && level != null) {
-            product = pick(req.products(), theme, level, wish).orElse(null);
+            choices = candidates(req.products(), theme, level, wish);
+            if (pending.equals(P_PRODUCT)) {
+                Matcher om = VoiceSelectionInterpreter.ORDINAL_RE.matcher(raw);
+                if (om.find()) {
+                    int n = om.group(1) != null ? Integer.parseInt(om.group(1)) : VoiceSelectionInterpreter.ORDINALS.get(om.group(2));
+                    product = n >= 1 && n <= choices.size() ? choices.get(n - 1) : null;
+                }
+            }
+            if (product == null && wish != null) {
+                String w = wish;
+                product = choices.stream().filter(p -> p.departureDate().toString().equals(w)).findFirst().orElse(null);
+            }
+            if (product == null && choices.size() == 1) {
+                product = choices.get(0);
+            }
+            picked = product != null;
         }
+        ProductInfo chosen = product;
+        List<ProductInfo> others = picked
+                ? candidates(req.products(), chosen.theme(), chosen.tourLevel(), wish).stream()
+                        .filter(p -> p.productId() != chosen.productId()).toList()
+                : List.of();
         productId = product == null ? null : product.productId();
         if (product != null && product.remainingSeats() < 0) {
             count = 2; // 허니문은 2인
         }
-        DialogSlots now = new DialogSlots(theme, level, productId, wish, count, before.hotelLevel(), before.meal(),
-                drinks, null);
+        DialogSlots now = new DialogSlots(theme, level, productId, wish, count, hotel, meal, drinks, null);
 
         if (theme == null) {
             if (containsAny(t, OCCASION)) {
@@ -252,20 +299,35 @@ public class ScriptedDialogClient implements VoiceDialogClient {
                 return ask(reset, "죄송해요, 지금 신청할 수 있는 " + themeLabel(theme) + " 상품이 없어요. 다른 테마는 어떠세요?", P_THEME);
             }
             String suggest = nearest.get().tourLevel();
-            return ask(now, themeLabel(theme) + " 알겠습니다. " + places(req.products(), theme, wish)
-                    + " 그리고 스타일은 " + levelLabel(suggest) + " 스타일 어떨까요?", P_LEVEL + suggest);
+            return ask(now, themeLabel(theme) + " 알겠습니다. 그리고 스타일은 " + levelLabel(suggest) + " 스타일 어떨까요?",
+                    P_LEVEL + suggest);
+        }
+        if (product == null && !choices.isEmpty()) {
+            return ask(now, levelLabel(level) + " 스타일 " + themeLabel(theme) + "는 " + places(choices)
+                    + " 상품이 있어요. 어디로 가실래요?", P_PRODUCT);
         }
         if (product == null) {
             DialogSlots noLevel = new DialogSlots(theme, null, null, wish, count, null, null, drinks, null);
             return ask(noLevel, "죄송해요, " + themeLabel(theme) + " " + levelLabel(level)
                     + " 스타일 상품은 지금 없어요. 다른 스타일은 어떠세요?", null);
         }
+        String alternatives = others.isEmpty() ? "" : " 다른 곳을 원하시면 " + places(others) + "도 있어요.";
         if (count == null) {
-            return ask(now, product.name() + ", " + VoiceDialogText.date(product.departureDate())
-                    + " 출발이에요. 몇 분이 가시나요?", P_COUNT);
+            return ask(now, product.name() + ", " + VoiceDialogText.date(product.departureDate()) + " 출발이에요."
+                    + alternatives + " 몇 분이 가시나요?", P_COUNT);
         }
         if (!now.sameChoice(before)) {
-            return ask(now, VoiceDialogText.selection(req.customerName(), product, now), P_CONFIRM);
+            String summary = VoiceDialogText.selection(req.customerName(), product, now);
+            if (picked || pending.equals(P_COUNT)) { // 상품을 막 정했으면 다음은 구성 변경
+                return ask(now, summary + alternatives + " " + CONFIG_QUESTION, P_CONFIG);
+            }
+            return ask(now, summary, P_CONFIRM);
+        }
+        if (pending.equals(P_CONFIG)) {
+            return no ? ask(now, "알겠습니다. 이대로 예약할까요?", P_FINAL) : ask(now, CONFIG_HELP, P_CONFIG);
+        }
+        if (pending.equals(P_FINAL)) {
+            return yes ? new DialogReply("", now, Action.BOOK) : ask(now, CONFIG_HELP, P_CONFIG);
         }
         if (no && (pending.equals(P_CONFIRM) || pending.equals(P_MORE))) {
             return new DialogReply("", now, Action.BOOK);
