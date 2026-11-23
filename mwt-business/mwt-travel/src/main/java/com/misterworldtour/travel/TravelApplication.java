@@ -109,6 +109,23 @@ public class TravelApplication {
         this.requestKey = requestKey;
     }
 
+    /** 구성 변경 (여행자·인원은 그대로). 금액도 새 구성으로 바꾼다. */
+    public void changeConfiguration(TravelConfiguration configuration, TravelPriceCalculator.PriceBreakdown price) {
+        this.hotelLevel = HotelLevel.valueOf(configuration.hotelLevel());
+        this.transport = TransportOption.valueOf(configuration.transport());
+        this.meal = MealOption.valueOf(configuration.meal());
+        this.extraDrinks = configuration.drinksCsv();
+        this.unitPrice = price.unitPrice();
+        this.subtotal = price.subtotal();
+        this.discountAmount = price.discountAmount();
+        this.finalAmount = price.finalAmount();
+    }
+
+    /** 추가 음료 금액 (신청 전체) = 합계 − 1인 가격 × 인원. */
+    public int getDrinkPrice() {
+        return subtotal - unitPrice * getTravelerCount();
+    }
+
     @PrePersist
     void prePersist() {
         if (submittedAt == null) {

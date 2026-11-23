@@ -236,7 +236,8 @@ public class TravelManager implements TravelManagementAPI {
                                  int travelerCount) {
         int unitPrice = TravelPriceCalculator.calculateUnitPrice(product, configuration);
         return TravelPriceCalculator.calculateApplicationPrice(unitPrice, travelerCount,
-                dataAccess.findTravelHistories(memberId), today());
+                TravelPriceCalculator.calculateDrinkPrice(configuration), dataAccess.findTravelHistories(memberId),
+                today());
     }
 
     /** 첫 행을 신청 고객 본인(계정 성명·연락처)으로 바꾼 여행자 입력. */
@@ -430,6 +431,51 @@ public class TravelManager implements TravelManagementAPI {
             return null;
         });
         log.info("신청 취소 application={} member={}", applicationId, memberId);
+    }
+
+    @Override
+    public String changeBlockReason(TravelApplication app) {
+        if (app.isCancelled()) {
+            return "취소한 신청은 구성을 바꿀 수 없습니다.";
+        }
+        if (app.getProduct().isDeparted() || !app.getProduct().getDepartureDate().isAfter(today())) {
+            return "이미 출발한 여행은 구성을 바꿀 수 없습니다.";
+        }
+        return null;
+    }
+
+    /** 바꾼 구성으로 다시 계산한 금액 (저장하지 않음). 구성이 이 상품에 맞지 않으면 BookingException. */
+    @Override
+    @Transactional(readOnly = true)
+    public PriceBreakdown previewApplicationChange(long memberId, long applicationId, TravelConfiguration configuration) {
+        TravelApplication app = dataAccess.findMemberApplication(memberId, applicationId)
+                .orElseThrow(() -> new BookingException("신청을 찾을 수 없습니다."));
+        checkConfiguration(app.getProduct(), configuration);
+        return price(app.getProduct(), memberId, configuration, app.getTravelerCount());
+    }
+
+    /**
+     * 신청 구성 변경 (출발 확정 후에도 출발 전까지). 여행자·인원은 그대로라 정원·출발 판정·기념품은 바뀌지 않고,
+     * 호텔·교통·식사·음료와 금액(단골 할인 포함)만 다시 계산해 저장한다. 바뀐 금액을 돌려준다.
+     */
+    @Override
+    public PriceBreakdown changeApplicationConfiguration(long memberId, long applicationId,
+                                                         TravelConfiguration configuration) {
+        long productId = dataAccess.findApplicationProductId(memberId, applicationId)
+                .orElseThrow(() -> new BookingException("신청을 찾을 수 없습니다."));
+        PriceBreakdown result = dataAccess.runTravelTransaction(productId, locked -> {
+            TravelApplication app = dataAccess.findApplication(applicationId).orElseThrow();
+            String reason = changeBlockReason(app);
+            if (reason != null) {
+                throw new BookingException(reason);
+            }
+            checkConfiguration(app.getProduct(), configuration);
+            PriceBreakdown price = price(app.getProduct(), memberId, configuration, app.getTravelerCount());
+            app.changeConfiguration(configuration, price);
+            return price;
+        });
+        log.info("신청 구성 변경 application={} member={} 금액={}", applicationId, memberId, result.finalAmount());
+        return result;
     }
 
     /** 같은 요청 키로 이미 저장된 이 고객의 신청 (재제출 안내용). */

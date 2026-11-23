@@ -4,15 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * 여행 구성: 호텔·교통·식사·음료 (설계 5.1 TravelConfiguration). 화면·세션과 주고받는 값이라 enum 이름 문자열로 둔다.
  * {@link #applyChanges} 는 새 구성을 만들 뿐 상품의 기본 구성을 덮어쓰지 않는다.
+ * 음료는 신청 전체 기준 수량이며, 같은 코드를 수량만큼 담는다 (예: 커피 2포트 = ["COFFEE", "COFFEE"]).
  */
 public record TravelConfiguration(String hotelLevel, String transport, String meal, List<String> drinks)
         implements Serializable {
@@ -22,6 +23,8 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
     public static final String MEAL = "meal";
     public static final String DRINKS = "drinks";
     public static final List<String> FIELDS = List.of(HOTEL, TRANSPORT, MEAL, DRINKS);
+    /** 음료 종류마다 고를 수 있는 최대 수량. */
+    public static final int MAX_DRINK_QUANTITY = 5;
 
     public TravelConfiguration {
         drinks = normalizeDrinks(drinks);
@@ -76,6 +79,8 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
         }
         if (drinks.stream().anyMatch(d -> parse(DrinkOption.class, d) == null)) {
             errors.put(DRINKS, "선택할 수 없는 음료가 있습니다.");
+        } else if (drinkQuantities().values().stream().anyMatch(q -> q > MAX_DRINK_QUANTITY)) {
+            errors.put(DRINKS, "음료는 종류마다 최대 " + MAX_DRINK_QUANTITY + "개까지 추가할 수 있습니다.");
         } else if (!drinks.isEmpty() && m != null && TravelRules.NO_DRINK_MEALS.contains(m)) {
             errors.put(DRINKS, "도시락 구성에는 음료를 추가할 수 없습니다. 식사를 먼저 바꿔 주세요.");
         }
@@ -140,7 +145,22 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
                 meals.subList(meals.indexOf(level.getDefaultMeal()), meals.size()), transports);
     }
 
-    /** 화면 표시용 이름 (유효한 구성만). */
+    /** 음료 코드별 수량 (음료 순서, 고른 것만). */
+    public Map<String, Integer> drinkQuantities() {
+        Map<String, Integer> out = new LinkedHashMap<>();
+        for (DrinkOption d : DrinkOption.values()) {
+            int q = Collections.frequency(drinks, d.name());
+            if (q > 0) {
+                out.put(d.name(), q);
+            }
+        }
+        for (String code : drinks) { // 알 수 없는 코드도 검사에서 잡히도록 남긴다
+            out.putIfAbsent(code, Collections.frequency(drinks, code));
+        }
+        return out;
+    }
+
+    /** 화면 표시용 이름 (유효한 구성만). 예: "샴페인(식사 포함), 스페셜티 커피 2포트". */
     public Map<String, String> describe() {
         MealOption m = MealOption.valueOf(meal);
         Set<DrinkOption> included = TravelRules.includedDrinks(m);
@@ -150,12 +170,10 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
                 names.add(d.getLabel() + "(식사 포함)");
             }
         }
-        for (String code : drinks) {
+        drinkQuantities().forEach((code, q) -> {
             DrinkOption d = DrinkOption.valueOf(code);
-            if (!included.contains(d)) {
-                names.add(d.getLabel());
-            }
-        }
+            names.add(d.getLabel() + " " + q + d.getUnit() + (included.contains(d) ? " 추가" : ""));
+        });
         Map<String, String> out = new LinkedHashMap<>();
         out.put(HOTEL, HotelLevel.valueOf(hotelLevel).getLabel());
         out.put(TRANSPORT, TransportOption.valueOf(transport).getLabel());
@@ -178,23 +196,44 @@ public record TravelConfiguration(String hotelLevel, String transport, String me
         return String.join(",", drinks);
     }
 
-    /** 음료 목록 정리: 빈 값 제거, 중복 제거, 정렬. 쉼표로 이은 문자열도 받는다. */
+    /**
+     * 음료 목록 정리: 빈 값 제거, 정렬. 같은 코드가 여러 번 있으면 그 수량이다.
+     * 쉼표로 이은 문자열("COFFEE,COFFEE")과 코드→수량 맵({"COFFEE": 2})도 받는다.
+     */
     public static List<String> normalizeDrinks(Object value) {
-        TreeSet<String> set = new TreeSet<>();
+        List<String> list = new ArrayList<>();
         if (value instanceof String s) {
             for (String part : s.split(",")) {
                 if (!part.isBlank()) {
-                    set.add(part.strip());
+                    list.add(part.strip());
                 }
             }
         } else if (value instanceof Collection<?> c) {
             for (Object o : c) {
                 if (o != null && !o.toString().isBlank()) {
-                    set.add(o.toString().strip());
+                    list.add(o.toString().strip());
+                }
+            }
+        } else if (value instanceof Map<?, ?> m) {
+            for (Map.Entry<?, ?> e : m.entrySet()) {
+                int q = quantity(e.getValue());
+                for (int i = 0; i < q && e.getKey() != null; i++) {
+                    list.add(e.getKey().toString().strip());
                 }
             }
         }
-        return List.copyOf(set);
+        Collections.sort(list);
+        return List.copyOf(list);
+    }
+
+    /** 맵으로 받은 수량. 숫자가 아니면 0, 지나치게 큰 값은 검사에서 걸리도록 한도+1 로 자른다. */
+    private static int quantity(Object v) {
+        try {
+            int q = v instanceof Number n ? n.intValue() : Integer.parseInt(String.valueOf(v).strip());
+            return Math.max(0, Math.min(q, MAX_DRINK_QUANTITY + 1));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /** enum 이름 문자열을 값으로. 없거나 잘못된 값이면 null. */

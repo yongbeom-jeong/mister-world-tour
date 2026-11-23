@@ -19,6 +19,11 @@
 </section>
 
 <div id="main" class="container pb-4">
+  <div th:if="${changeApp != null}" class="alert alert-info d-flex align-items-center gap-2">
+    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+    <div><strong>신청 구성 변경 중</strong> · 여행자 <th:block th:text="${changeApp.travelerCount}">0</th:block>명은 그대로이고, 호텔·교통·식사·음료만 바꿀 수 있어요.
+      <a th:href="@{/travel/applications/{id}/(id=${changeApp.applicationId})}" class="ms-1">변경 취소</a></div>
+  </div>
   <div class="detail-photo"><img th:src="@{${product.photoUrl}}" th:alt="|${product.productName} 대표 사진|"></div>
 
   <div class="row g-4 g-lg-5">
@@ -61,20 +66,27 @@
           </fieldset>
 
           <fieldset>
-            <legend class="form-label">음료 추가</legend>
-            <div class="option-group">
-              <label th:each="d : ${drinkChoices}" class="m-0">
-                <input class="visually-hidden" type="checkbox" th:value="${d.value}" th:id="|drink-${d.value}|" data-drink
-                       th:checked="${config.drinks().contains(d.value)}">
-                <span class="option-tile"><span th:text="${d.label}">음료</span>
-                  <span class="opt-diff up" th:attr="data-drink-price=${d.value}" th:text="|+${@mwt.won(d.price)}|">+0원</span></span>
-              </label>
+            <legend class="form-label">음료 추가 <span class="small fw-normal text-muted">신청 전체 수량</span></legend>
+            <div class="drink-list">
+              <div th:each="d : ${drinkChoices}" class="drink-row" th:attr="data-drink-row=${d.value}">
+                <div class="drink-name">
+                  <span th:text="${d.label}">음료</span>
+                  <span class="opt-diff up" th:text="|+${@mwt.won(d.price)} / ${d.unit}|">+0원</span>
+                  <span class="tag tag-muted ms-1" th:attr="data-drink-included=${d.value}" hidden>식사에 포함</span>
+                </div>
+                <div class="qty-stepper" role="group" th:attr="aria-label=|${d.label} 수량|">
+                  <button type="button" class="btn btn-outline-primary btn-sm" th:attr="data-drink-minus=${d.value}" aria-label="빼기">&minus;</button>
+                  <span class="qty" th:attr="data-drink-qty=${d.value},data-unit=${d.unit}"
+                        th:text="|${drinkQuantities.getOrDefault(d.value, 0)}${d.unit}|">0</span>
+                  <button type="button" class="btn btn-outline-primary btn-sm" th:attr="data-drink-plus=${d.value}" aria-label="더하기">+</button>
+                </div>
+              </div>
             </div>
-            <div class="form-text">도시락 구성에는 음료를 추가할 수 없어요.</div>
+            <div class="form-text">종류마다 최대 <th:block th:text="${maxDrinkQuantity}">5</th:block>개, 도시락 구성에는 음료를 추가할 수 없어요. 고급 레스토랑 식사에는 샴페인이 포함되어 있고, 더 고르면 추가 금액이 붙어요.</div>
           </fieldset>
         </div>
         <div id="config-msg" class="alert alert-danger py-2 small mt-3 mb-0" role="alert" hidden></div>
-        <p class="small text-muted mt-4 mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>출발일은 상품마다 정해져 있습니다. 여행자 수와 단골 할인(최근 3년 3회 이상 이용 시 10%)은 다음 단계에서 계산됩니다.</p>
+        <p th:if="${changeApp == null}" class="small text-muted mt-4 mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>출발일은 상품마다 정해져 있습니다. 여행자 수와 단골 할인(최근 3년 3회 이상 이용 시 10%)은 다음 단계에서 계산됩니다.</p>
       </section>
     </div>
 
@@ -87,11 +99,17 @@
         </div>
         <div class="booking-bar-price">
           <div class="price-big" aria-live="polite" aria-atomic="true"><span id="unit-price" th:text="${unitPrice}">0</span>원 <span class="fs-6 fw-normal text-muted">/ 1인</span></div>
-          <div class="booking-note">옵션 포함, 단골 할인 적용 전</div>
+          <div class="booking-note" id="drink-line" th:hidden="${drinkPrice == 0}">+ 음료 <span id="drink-price" th:text="${drinkPrice}">0</span>원 (신청 전체)</div>
+          <div class="booking-note" th:if="${changeApp == null}">옵션 포함, 단골 할인 적용 전</div>
+          <div th:if="${changeApp != null}" class="mt-2">
+            <div class="small text-muted" th:text="|현재 신청 금액 ${@mwt.won(changeApp.finalAmount)}|">현재</div>
+            <div class="fw-bold">변경 후 <span id="final-amount" th:text="${changePrice.finalAmount}">0</span>원
+              <span class="small fw-normal text-muted" th:text="|(${changeApp.travelerCount}명${changePrice.regular ? ', 단골 할인 포함' : ''})|">인원</span></div>
+          </div>
         </div>
-        <form method="post" th:action="@{/travel/products/{id}/apply/(id=${product.productId})}">
+        <form method="post" th:action="${changeApp == null} ? @{/travel/products/{id}/apply/(id=${product.productId})} : @{/travel/applications/{id}/change/(id=${changeApp.applicationId})}">
           <input type="hidden" name="config" id="config-input" th:value="${configJson}">
-          <button class="btn btn-primary btn-lg" id="apply-btn">이 구성으로 신청하기</button>
+          <button class="btn btn-primary btn-lg" id="apply-btn" th:text="${changeApp == null} ? '이 구성으로 신청하기' : '이 구성으로 변경하기'">이 구성으로 신청하기</button>
         </form>
       </aside>
     </div>
@@ -100,28 +118,36 @@
 
 <script id="scripts" th:inline="javascript">
 (() => {
-  const URL = /*[[@{/travel/products/{id}/configure/(id=${product.productId})}]]*/ "";
+  const URL = /*[[@{${configureUrl}}]]*/ "";
+  const MAX_DRINK = /*[[${maxDrinkQuantity}]]*/ 5;
   const csrf = document.querySelector("input[name=_csrf]").value;
   const NO_DRINK_MEALS = /*[[${noDrinkMeals}]]*/ [];
   const INCLUDED = /*[[${includedDrinks}]]*/ {};
   let current = JSON.parse(document.getElementById("config-input").value);  // 마지막으로 유효한 구성
   const msg = document.getElementById("config-msg");
   const price = document.getElementById("unit-price");
+  const drinkPrice = document.getElementById("drink-price");
+  const drinkLine = document.getElementById("drink-line");
+  const finalAmount = document.getElementById("final-amount");
   const applyBtn = document.getElementById("apply-btn");
   let seq = 0;
 
   const fmt = n => Number(n).toLocaleString("ko-KR");
   price.textContent = fmt(price.textContent);
+  drinkPrice.textContent = fmt(drinkPrice.textContent);
+  if (finalAmount) finalAmount.textContent = fmt(finalAmount.textContent);
+  const qtyOf = d => current.drinks.filter(x => x === d).length;
 
   function syncInputs() {
     for (const r of document.querySelectorAll("input[data-field]")) r.checked = current[r.dataset.field] === r.value;
     const included = INCLUDED[current.meal] || [];
-    for (const cb of document.querySelectorAll("[data-drink]")) {
-      cb.checked = current.drinks.includes(cb.value) || included.includes(cb.value);
-      cb.disabled = NO_DRINK_MEALS.includes(current.meal) || included.includes(cb.value);
-      const tag = document.querySelector(`[data-drink-price="${cb.value}"]`);
-      tag.textContent = included.includes(cb.value) ? "식사에 포함" : cb.dataset.price;
-      tag.classList.toggle("up", !included.includes(cb.value));
+    const noDrink = NO_DRINK_MEALS.includes(current.meal);
+    for (const q of document.querySelectorAll("[data-drink-qty]")) {
+      const d = q.dataset.drinkQty, n = qtyOf(d);
+      q.textContent = n + q.dataset.unit;
+      document.querySelector(`[data-drink-minus="${d}"]`).disabled = n === 0;
+      document.querySelector(`[data-drink-plus="${d}"]`).disabled = noDrink || n >= MAX_DRINK;
+      document.querySelector(`[data-drink-included="${d}"]`).hidden = !included.includes(d);
     }
     document.getElementById("config-input").value = JSON.stringify(current);
   }
@@ -141,6 +167,9 @@
       if (data.ok) {
         current = data.config;
         price.textContent = fmt(data.unit_price);
+        drinkPrice.textContent = fmt(data.drink_price);
+        drinkLine.hidden = !data.drink_price;
+        if (finalAmount && data.final_amount !== undefined) finalAmount.textContent = fmt(data.final_amount);
       } else {
         msg.textContent = data.message + " (이전 구성을 유지합니다)";
         msg.hidden = false;
@@ -154,17 +183,17 @@
     }
   }
 
-  document.querySelectorAll("[data-drink]").forEach(cb => {
-    cb.dataset.price = document.querySelector(`[data-drink-price="${cb.value}"]`).textContent;
-  });
   document.querySelectorAll("input[data-field]").forEach(r =>
     r.addEventListener("change", () => change({ [r.dataset.field]: r.value })));
-  document.querySelectorAll("[data-drink]").forEach(cb => cb.addEventListener("change", () => {
-    const included = INCLUDED[current.meal] || [];
-    const drinks = [...document.querySelectorAll("[data-drink]:checked")].map(c => c.value)
-      .filter(d => !included.includes(d));
+  function setQty(d, n) {
+    const drinks = current.drinks.filter(x => x !== d);
+    for (let i = 0; i < n; i++) drinks.push(d);
     change({ drinks });
-  }));
+  }
+  document.querySelectorAll("[data-drink-plus]").forEach(b =>
+    b.addEventListener("click", () => setQty(b.dataset.drinkPlus, Math.min(qtyOf(b.dataset.drinkPlus) + 1, MAX_DRINK))));
+  document.querySelectorAll("[data-drink-minus]").forEach(b =>
+    b.addEventListener("click", () => setQty(b.dataset.drinkMinus, Math.max(qtyOf(b.dataset.drinkMinus) - 1, 0))));
   syncInputs();
 })();
 </script>

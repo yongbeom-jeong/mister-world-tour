@@ -60,6 +60,69 @@ class CancelAndHistoryTest extends BookingTestBase {
     }
 
     @Test
+    void confirmedApplicationConfigurationCanBeChanged() {
+        TravelProduct p = product(Theme.TREKKING, TourLevel.CLASSIC);
+        ApplicationResult r = book(alice, p, "", "");
+        assertThat(r.newlyConfirmed()).isTrue();
+        TravelApplication before = booking.getMyApplication(alice.getMemberId(), r.applicationId()).orElseThrow();
+        assertThat(booking.changeBlockReason(before)).isNull();
+        TravelConfiguration grand = new TravelConfiguration("STAR4", p.getTransport().name(), "LOCAL",
+                List.of("COFFEE", "COFFEE", "CHAMPAGNE"));
+        TravelPriceCalculator.PriceBreakdown after = booking.changeApplicationConfiguration(alice.getMemberId(),
+                r.applicationId(), grand);
+        assertThat(after.subtotal()).isEqualTo((1_000_000 + 150_000 + 80_000) * 3 + 2 * 10_000 + 60_000);
+        TravelApplication saved = booking.getMyApplication(alice.getMemberId(), r.applicationId()).orElseThrow();
+        assertThat(saved.getConfiguration()).isEqualTo(grand);
+        assertThat(saved.getFinalAmount()).isEqualTo(after.finalAmount());
+        assertThat(saved.getDrinkPrice()).isEqualTo(80_000);
+        assertThat(saved.getTravelerCount()).isEqualTo(3);
+        assertThat(booking.currentTravelerCount(p.getProductId())).isEqualTo(3); // 정원·출발 상태 그대로
+        assertThat(saved.currentDepartureStatus()).isEqualTo(DepartureStatus.CONFIRMED);
+    }
+
+    @Test
+    void cannotChangeInvalidCancelledOrDepartedApplication() {
+        TravelProduct p = product(Theme.GOLF, TourLevel.GRAND);
+        ApplicationResult r = book(alice, p, "a", "b");
+        TravelConfiguration lunchboxWithWine = new TravelConfiguration("STAR4", p.getTransport().name(), "LUNCHBOX",
+                List.of("WINE"));
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), r.applicationId(),
+                lunchboxWithWine)).hasMessageContaining("구성");
+        long bob = customer("bob").getMemberId();
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(bob, r.applicationId(),
+                TravelConfiguration.defaultOf(p))).hasMessageContaining("찾을 수 없");
+        travel.departTrip(p.getProductId());
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), r.applicationId(),
+                TravelConfiguration.defaultOf(p))).hasMessageContaining("이미 출발");
+        TravelProduct q = product(Theme.GOLF, TourLevel.GRAND);
+        ApplicationResult c = book(alice, q);
+        booking.cancelApplication(alice.getMemberId(), c.applicationId());
+        assertThatThrownBy(() -> booking.changeApplicationConfiguration(alice.getMemberId(), c.applicationId(),
+                TravelConfiguration.defaultOf(q))).hasMessageContaining("취소한");
+    }
+
+    @Test
+    void changeHttpFlow() throws Exception {
+        TravelProduct p = product(Theme.HONEYMOON, TourLevel.PREMIUM);
+        ApplicationResult r = book(alice, p, "");
+        String url = "/travel/applications/" + r.applicationId() + "/";
+        mvc.perform(get(url).with(login(alice))).andExpect(content().string(containsString("구성 변경")));
+        mvc.perform(get(url + "change/").with(login(alice)))
+                .andExpect(content().string(containsString("이 구성으로 변경하기")));
+        mvc.perform(post(url + "change/configure/").with(login(alice)).with(csrf())
+                        .contentType("application/json").content("{\"current\":{},\"changes\":{\"drinks\":[\"COFFEE\"]}}"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.drink_price").value(10_000));
+        mvc.perform(post(url + "change/").with(login(alice)).with(csrf())
+                        .param("config", "{\"drinks\":[\"COFFEE\",\"CHAMPAGNE\"]}"))
+                .andExpect(redirectedUrl(url));
+        assertThat(dataAccess.findApplication(r.applicationId()).orElseThrow().getConfiguration().drinks())
+                .containsExactly("CHAMPAGNE", "COFFEE");
+        mvc.perform(get(url).with(login(alice))).andExpect(content().string(containsString("샴페인 1병 추가")));
+        mvc.perform(get(url + "change/").with(login(customer("bob")))).andExpect(status().isNotFound());
+    }
+
+    @Test
     void confirmedCannotBeCancelled() {
         ApplicationResult r = book(alice, product(Theme.HONEYMOON, TourLevel.GRAND), "배우자");
         assertThatThrownBy(() -> booking.cancelApplication(alice.getMemberId(), r.applicationId()))
