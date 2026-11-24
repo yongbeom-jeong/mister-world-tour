@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,7 +22,10 @@ import static com.misterworldtour.members.LoginSessionSupport.login;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -103,6 +107,33 @@ class CatalogWebTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("다낭 골프")))
                 .andExpect(content().string(containsString("남은 자리 10명")));
+    }
+
+    @Test
+    void detailOffersTourLevelChoicesWithPriceDifference() throws Exception {
+        TravelProduct golf = save("다낭 골프", Theme.GOLF, TourLevel.GRAND, LocalDate.now().plusDays(10));
+        mvc.perform(get("/travel/products/{id}/", golf.getProductId()).with(login(customer)))
+                .andExpect(content().string(containsString("name=\"opt-level\" value=\"CLASSIC\"")))
+                .andExpect(content().string(containsString("−230,000원")))   // 3등급·도시락: −15만 −8만
+                .andExpect(content().string(containsString("+320,000원")));  // 5등급·고급: +20만 +12만
+        TravelProduct honeymoon = save("괌 허니문", Theme.HONEYMOON, TourLevel.GRAND, LocalDate.now().plusDays(10));
+        mvc.perform(get("/travel/products/{id}/", honeymoon.getProductId()).with(login(customer)))
+                .andExpect(content().string(containsString("name=\"opt-level\" value=\"PREMIUM\"")))
+                .andExpect(content().string(not(containsString("name=\"opt-level\" value=\"CLASSIC\""))));
+    }
+
+    @Test
+    void choosingClassicLevelResetsHotelMealAndDrinks() throws Exception {
+        TravelProduct p = save("설악 트레킹", Theme.TREKKING, TourLevel.PREMIUM, LocalDate.now().plusDays(10));
+        String body = """
+                {"current": {"hotel_level": "STAR5", "meal": "FINE", "drinks": ["COFFEE"]},
+                 "changes": {"hotel_level": "STAR3", "meal": "LUNCHBOX", "drinks": []}}""";
+        mvc.perform(post("/travel/products/{id}/configure/", p.getProductId()).with(login(customer)).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.config.hotel_level").value("STAR3"))
+                .andExpect(jsonPath("$.config.meal").value("LUNCHBOX"))
+                .andExpect(jsonPath("$.config.drinks").isEmpty());
     }
 
     @Test
