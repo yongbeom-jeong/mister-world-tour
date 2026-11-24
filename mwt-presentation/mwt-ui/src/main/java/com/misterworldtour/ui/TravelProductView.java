@@ -126,6 +126,36 @@ public class TravelProductView {
                         .toList()));
     }
 
+    /**
+     * 투어 등급(스타일) 빠른 선택 (계획서 1.B·2쪽). 고르면 호텔·식사가 그 등급의 기본값으로 바뀌고, 그 뒤에 항목별로 다시 바꿀 수 있다.
+     * 상품의 등급은 그대로이며 신청에는 고른 호텔·식사만 저장된다. 허니문·효도는 그랜드 이상만.
+     */
+    record LevelChoice(String value, String label, String detail, String extra, String hotel, String meal,
+                       boolean productLevel) {
+        public String direction() {
+            return extra.startsWith("+") ? "up" : extra.startsWith("−") ? "down" : "";
+        }
+    }
+
+    private static List<LevelChoice> levelChoices(TravelProduct product) {
+        Theme theme = product.getTheme();
+        int base = TravelPriceCalculator.calculateUnitPrice(product, product.getDefaultConfiguration());
+        List<LevelChoice> out = new ArrayList<>();
+        for (TourLevel lv : TourLevel.values()) {
+            if (theme.isLevelRestricted() && !TravelRules.ALLOWED_LEVELS_FOR_RESTRICTED.contains(lv)) {
+                continue;
+            }
+            TravelConfiguration preset = product.getDefaultConfiguration().applyChanges(Map.of(
+                    TravelConfiguration.HOTEL, lv.getDefaultHotel().name(), TravelConfiguration.MEAL, lv.getDefaultMeal().name()));
+            int d = TravelPriceCalculator.calculateUnitPrice(product, preset) - base;
+            String extra = d == 0 ? "추가금 없음" : (d > 0 ? "+" : "−") + "%,d원".formatted(Math.abs(d));
+            out.add(new LevelChoice(lv.name(), lv.getLabel(),
+                    lv.getDefaultHotel().getLabel() + " · " + lv.getDefaultMeal().getLabel(), extra,
+                    lv.getDefaultHotel().name(), lv.getDefaultMeal().name(), lv == product.getTourLevel()));
+        }
+        return out;
+    }
+
     private static OptionChoice choice(TravelProduct product, String field, String value, String label, boolean isDefault) {
         if (isDefault) {
             return new OptionChoice(value, label, "기본");
@@ -164,6 +194,7 @@ public class TravelProductView {
         model.addAttribute("configJson", json.writeValueAsString(config.toMap()));
         model.addAttribute("unitPrice", travelManager.calculateUnitPrice(product, config));
         model.addAttribute("optionFields", optionFields(product));
+        model.addAttribute("levelChoices", levelChoices(product));
         model.addAttribute("drinkPrice", TravelPriceCalculator.calculateDrinkPrice(config));
         model.addAttribute("drinkQuantities", config.drinkQuantities());
         model.addAttribute("maxDrinkQuantity", TravelConfiguration.MAX_DRINK_QUANTITY);

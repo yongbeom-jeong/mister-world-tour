@@ -424,6 +424,11 @@ input:disabled + .option-tile { opacity: .45; cursor: not-allowed; }
 .configuration-grid fieldset { min-width: 0; }
 .configuration-grid legend { float: none; width: auto; margin-bottom: .6rem; font-size: 1rem; }
 @media (min-width: 768px) { .configuration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* 투어 등급 빠른 선택: PC 는 한 줄에 나란히, 칸 안은 이름·구성·금액을 위아래로 */
+@media (min-width: 768px) {
+  .level-group { grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; }
+  .level-group .option-tile { flex-direction: column; align-items: flex-start; justify-content: flex-start; height: 100%; gap: .35rem; }
+}
 
 /* 예약 카드: PC 는 따라오는 카드, 휴대폰은 하단 고정 바 */
 .booking-bar { background: #fff; }

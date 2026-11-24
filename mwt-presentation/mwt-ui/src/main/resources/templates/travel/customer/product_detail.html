@@ -21,7 +21,7 @@
 <div id="main" class="container pb-4">
   <div th:if="${changeApp != null}" class="alert alert-info d-flex align-items-center gap-2">
     <i class="bi bi-pencil-square" aria-hidden="true"></i>
-    <div><strong>신청 구성 변경 중</strong> · 여행자 <th:block th:text="${changeApp.travelerCount}">0</th:block>명은 그대로이고, 호텔·교통·식사·음료만 바꿀 수 있어요.
+    <div><strong>신청 구성 변경 중</strong> · 여행자 <th:block th:text="${changeApp.travelerCount}">0</th:block>명은 그대로이고, 등급·호텔·교통·식사·음료만 바꿀 수 있어요.
       <a th:href="@{/travel/applications/{id}/(id=${changeApp.applicationId})}" class="ms-1">변경 취소</a></div>
   </div>
   <div class="detail-photo"><img th:src="@{${product.photoUrl}}" th:alt="|${product.productName} 대표 사진|"></div>
@@ -52,6 +52,24 @@
       <!--/* ---------------------------------------------------------------- 구성 변경 */-->
       <section class="detail-section">
         <h2>나만의 여행 구성 <span class="fs-6 fw-normal text-muted ms-1">1인 기준</span></h2>
+        <fieldset class="mb-4">
+          <legend class="form-label">투어 등급 <span class="small fw-normal text-muted">고르면 호텔·식사가 그 등급 기본으로 바뀌고, 아래에서 항목별로 다시 바꿀 수 있어요</span></legend>
+          <div class="option-group level-group">
+            <label th:each="lv : ${levelChoices}" class="m-0">
+              <input type="radio" class="visually-hidden" name="opt-level" th:value="${lv.value}"
+                     th:attr="data-level-hotel=${lv.hotel},data-level-meal=${lv.meal}"
+                     th:checked="${config.hotelLevel() == lv.hotel and config.meal() == lv.meal}">
+              <span class="option-tile">
+                <span><span class="fw-semibold" th:text="${lv.label}">등급</span>
+                  <span th:if="${lv.productLevel}" class="tag tag-muted ms-1">상품 기본</span>
+                  <span class="d-block small text-muted" th:text="${lv.detail}">호텔 · 식사</span></span>
+                <span th:class="|opt-diff ${lv.direction()}|" th:text="${lv.productLevel} ? '기본' : ${lv.extra}">기본</span>
+              </span>
+            </label>
+          </div>
+          <div class="form-text" id="level-custom" hidden>지금은 등급 기본과 다른 맞춤 구성이에요.</div>
+          <div class="form-text" th:if="${product.theme.levelRestricted}" th:text="|${product.theme.label}는 그랜드 등급 이상만 고를 수 있어요.|">안내</div>
+        </fieldset>
         <div class="configuration-grid">
           <fieldset th:each="f : ${optionFields}">
             <legend class="form-label" th:text="${f.title}">항목</legend>
@@ -140,6 +158,12 @@
 
   function syncInputs() {
     for (const r of document.querySelectorAll("input[data-field]")) r.checked = current[r.dataset.field] === r.value;
+    let levelMatched = false;   // 호텔·식사가 어느 등급 기본과 같으면 그 등급을 표시, 아니면 '맞춤 구성'
+    for (const r of document.querySelectorAll("input[data-level-hotel]")) {
+      r.checked = current.hotel_level === r.dataset.levelHotel && current.meal === r.dataset.levelMeal;
+      levelMatched = levelMatched || r.checked;
+    }
+    document.getElementById("level-custom").hidden = levelMatched;
     const included = INCLUDED[current.meal] || [];
     const noDrink = NO_DRINK_MEALS.includes(current.meal);
     for (const q of document.querySelectorAll("[data-drink-qty]")) {
@@ -185,6 +209,12 @@
 
   document.querySelectorAll("input[data-field]").forEach(r =>
     r.addEventListener("change", () => change({ [r.dataset.field]: r.value })));
+  document.querySelectorAll("input[data-level-hotel]").forEach(r =>
+    r.addEventListener("change", () => {
+      const changes = { hotel_level: r.dataset.levelHotel, meal: r.dataset.levelMeal };
+      if (NO_DRINK_MEALS.includes(r.dataset.levelMeal)) changes.drinks = [];  // 도시락에는 음료를 못 붙이므로 비운다
+      change(changes);
+    }));
   function setQty(d, n) {
     const drinks = current.drinks.filter(x => x !== d);
     for (let i = 0; i < n; i++) drinks.push(d);
